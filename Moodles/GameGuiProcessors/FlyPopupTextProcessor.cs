@@ -147,11 +147,11 @@ public sealed unsafe class FlyPopupTextProcessor : IDisposable
         {
             if (CurrentElement.IsAddition)
             {
-                if (text != $"+ {data.Name}") return false;
+                if (text != $"+{data.Name}") return false;
             }
             else
             {
-                if (text != $"- {data.Name}") return false;
+                if (text != $"-{data.Name}") return false;
             }
         }
         else
