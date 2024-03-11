@@ -11,9 +11,9 @@ public static class TabPresets
     static Guid CurrentDrag = Guid.Empty;
     private static Dictionary<PresetApplicationType, string> ApplicationTypes = new()
     {
-        [PresetApplicationType.ReplaceAll] = "Replace all current statuses",
-        [PresetApplicationType.UpdateExisting] = "Update duration of existing",
-        [PresetApplicationType.IgnoreExisting] = "Ignore existing",
+        [PresetApplicationType.ReplaceAll] = "替换当前所有的状态",
+        [PresetApplicationType.UpdateExisting] = "更新现有状态的持续时间",
+        [PresetApplicationType.IgnoreExisting] = "忽略现有状态",
     };
     static string Filter = "";
 
@@ -45,7 +45,7 @@ public static class TabPresets
         if (!child || Selected == null)
             return;
         {
-            if (ImGui.Button("Apply to Yourself"))
+            if (ImGui.Button("应用到你自己"))
             {
                 Utils.GetMyStatusManager(Player.NameWithWorld).ApplyPreset(Selected);
             }
@@ -56,7 +56,7 @@ public static class TabPresets
                 dis = Utils.GetMyStatusManager(pc).Ephemeral;
             }
             if (dis) ImGui.BeginDisabled();
-            if (ImGui.Button("Apply to Target"))
+            if (ImGui.Button("应用到目标"))
             {
                 var target = (PlayerCharacter)Svc.Targets.Target;
                 if (!Utils.GetMarePlayers().Contains(target.Address))
@@ -65,20 +65,20 @@ public static class TabPresets
                 }
                 else
                 {
-                    Notify.Error($"Application target is controlled by an external plugin, can not apply.");
+                    Notify.Error($"目标由其他插件控制，无法应用。");
                 }
             }
             if (dis) ImGui.EndDisabled();
 
-            ImGuiEx.TextV("On application:");
+            ImGuiEx.TextV("运行方式：");
             ImGui.SameLine();
             ImGuiEx.SetNextItemFullWidth();
             ImGuiEx.EnumCombo("##on", ref Selected.ApplicationType, ApplicationTypes);
             ImGuiEx.SetNextItemFullWidth();
-            if(ImGui.BeginCombo("##addnew", "Add new Moodle..."))
+            if(ImGui.BeginCombo("##addnew", "添加新的Moodle..."))
             {
                 ImGuiEx.SetNextItemFullWidth();
-                ImGui.InputTextWithHint("##search", "Filter", ref Filter, 50);
+                ImGui.InputTextWithHint("##search", "筛选", ref Filter, 50);
                 foreach (var x in C.SavedStatuses)
                 {
                     if (!x.IsValid(out _)) continue;
