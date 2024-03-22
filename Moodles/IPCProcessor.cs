@@ -42,7 +42,7 @@ public class IPCProcessor : IDisposable
                 var sm = Utils.GetMyStatusManager(Player.Object);
                 foreach(var x in message.ApplyStatuses)
                 {
-                    PluginLog.Warning($"Adding status from {message.To}:{x.Title}:{x.Description}:{(x.NoExpire ? "Infinity" : "")}{x.ExpiresAt - Utils.Time}");
+                    PluginLog.Information($"Adding status from {message.From}:{x.Title}:{x.Description}:{(x.NoExpire ? "Infinity" : "")}{x.ExpiresAt - Utils.Time}");
                     if (Utils.CheckWhitelistGlobal(x) || C.Whitelist.Any(w => w.CheckStatus(x)))
                     {
                         sm.AddOrUpdate(x, false, true);
