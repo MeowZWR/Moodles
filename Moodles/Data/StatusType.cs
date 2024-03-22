@@ -1,5 +1,5 @@
 ﻿namespace Moodles.Data;
 public enum StatusType
 {
-    Positive, Negative, Special
+    正面状态, 负面状态, 特殊状态
 }

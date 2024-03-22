@@ -34,11 +34,11 @@ public unsafe static class UI
         if (EzThrottler.Throttle("PeriodicConfigSave", 30 * 1000)) EzConfig.Save();
         ImGuiEx.EzTabBar("##main", [
             ("Moodles", TabMoodles.Draw, null, true),
-            ("Presets", TabPresets.Draw, null, true),
-            ("Automation", TabAutomation.Draw, null, true),
-            ("Whitelist", TabWhitelist.Draw, null, true),
-            ("Settings", TabSettings.Draw, null, true),
-            (C.Debug?"Debugger":null, DrawDebugger, ImGuiColors.DalamudGrey, true),
+            ("状态预设", TabPresets.Draw, null, true),
+            ("自动执行", TabAutomation.Draw, null, true),
+            ("白名单", TabWhitelist.Draw, null, true),
+            ("插件设置", TabSettings.Draw, null, true),
+            (C.Debug?"调试器":null, DrawDebugger, ImGuiColors.DalamudGrey, true),
             InternalLog.ImGuiTab(C.Debug),
             ]);
     }

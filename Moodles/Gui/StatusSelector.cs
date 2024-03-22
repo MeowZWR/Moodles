@@ -40,15 +40,15 @@ public class StatusSelector : Window
         var statusInfos = IconArray.Select(Utils.GetIconInfo).Where(x => x.HasValue).Cast<IconInfo>();
 
         ImGuiEx.SetNextItemWidthScaled(150f);
-        ImGui.InputTextWithHint("##search", "Filter...", ref Filter, 50);
+        ImGui.InputTextWithHint("##search", "筛选...", ref Filter, 50);
         ImGui.SameLine();
-        ImGui.Checkbox("Prefill Data", ref C.AutoFill);
-        ImGuiEx.HelpMarker("Prefills the Title and Description inputs with data from the game itself regarding the icon. Requires those fields to be empty or unchanged from previous prefill data.");
+        ImGui.Checkbox("自动填充数据", ref C.AutoFill);
+        ImGuiEx.HelpMarker("使用游戏本身关于图标的数据自动填充到标题和描述。要求这些字段留空或否则以前填写的内容不会被修改。");
         ImGui.SameLine();
-        ImGuiEx.Checkbox("Stackable", ref this.IsStackable);
-        ImGuiEx.HelpMarker("Toggles the filter between all status effecs, those with stacks only, and those without any stacks at all.");
+        ImGuiEx.Checkbox("可堆叠的", ref this.IsStackable);
+        ImGuiEx.HelpMarker("在所有状态中切换筛选内容：仅显示可堆叠状态或完全不能堆叠的状态。");
         ImGui.SameLine();
-        ImGuiEx.Text("Class/Job:");
+        ImGuiEx.Text("种类/职业：");
         ImGui.SameLine();
         ImGuiEx.SetNextItemWidthScaled(120f);
         if (ImGui.BeginCombo("##job", Jobs.Select(x => x.ToString().Replace("_", " ")).PrintRange(out var fullList)))
@@ -67,7 +67,7 @@ public class StatusSelector : Window
             ImGui.EndCombo();
         }
         ImGui.SameLine();
-        ImGuiEx.Text("Sorting:");
+        ImGuiEx.Text("排序：");
         ImGui.SameLine();
         ImGuiEx.SetNextItemWidthScaled(100f);
         ImGuiEx.EnumCombo("##order", ref C.IconSortOption);
@@ -76,22 +76,22 @@ public class StatusSelector : Window
         {
             if(C.FavIcons.Count > 0)
             {
-                if (ImGui.CollapsingHeader("Favourites"))
+                if (ImGui.CollapsingHeader("收藏"))
                 {
                     DrawIconTable(statusInfos.Where(x => C.FavIcons.Contains(x.IconID)).OrderBy(x => x.IconID));
                 }
             }
-            if (ImGui.CollapsingHeader("Positive Status Effects"))
+            if (ImGui.CollapsingHeader("增益状态效果"))
             {
-                DrawIconTable(statusInfos.Where(x => x.Type == StatusType.Positive).OrderBy(x => x.IconID));
+                DrawIconTable(statusInfos.Where(x => x.Type == StatusType.正面状态).OrderBy(x => x.IconID));
             }
-            if (ImGui.CollapsingHeader("Negative Status Effects"))
+            if (ImGui.CollapsingHeader("减益状态效果"))
             {
-                DrawIconTable(statusInfos.Where(x => x.Type == StatusType.Negative).OrderBy(x => x.IconID));
+                DrawIconTable(statusInfos.Where(x => x.Type == StatusType.负面状态).OrderBy(x => x.IconID));
             }
-            if (ImGui.CollapsingHeader("Special Status Effects"))
+            if (ImGui.CollapsingHeader("特殊状态效果"))
             {
-                DrawIconTable(statusInfos.Where(x => x.Type == StatusType.Special).OrderBy(x => x.IconID));
+                DrawIconTable(statusInfos.Where(x => x.Type == StatusType.特殊状态).OrderBy(x => x.IconID));
             }
         }
         ImGui.EndChild();
@@ -108,7 +108,7 @@ public class StatusSelector : Window
         if (C.IconSortOption == SortOption.Numerical) infos = infos.OrderBy(x => x.IconID);
         if (!infos.Any())
         {
-            ImGuiEx.Text(EColor.RedBright, $"There are no elements that match filter conditions.");
+            ImGuiEx.Text(EColor.RedBright, $"没有与筛选条件匹配的元素。");
         }
         int cols = Math.Clamp((int)(ImGui.GetWindowSize().X / 200f.Scale()), 1, 10);
         if(ImGui.BeginTable("StatusTable", cols, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame))

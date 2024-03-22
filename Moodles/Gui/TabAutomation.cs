@@ -33,14 +33,14 @@ public static class TabAutomation
         if (!child || Selected == null)
             return;
 
-        if (ImGui.Checkbox("Enabled", ref Selected.Enabled))
+        if (ImGui.Checkbox("启用", ref Selected.Enabled))
         {
             if (Selected.Enabled) P.ApplyAutomation(true);
         }
         ImGui.SameLine();
-        ImGui.Checkbox("Show Editing", ref Editing);
+        ImGui.Checkbox("显示编辑项", ref Editing);
         ImGui.SameLine();
-        if (ImGui.Button("Reapply Automation"))
+        if (ImGui.Button("重新应用自动执行"))
         {
             P.ApplyAutomation(true);
         }
@@ -50,12 +50,12 @@ public static class TabAutomation
         if (Editing)
         {
             ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X - 150);
-            ImGui.InputText($"Rename Set", ref Selected.Name, 100, C.Censor?ImGuiInputTextFlags.Password:ImGuiInputTextFlags.None);
+            ImGui.InputText($"重命名", ref Selected.Name, 100, C.Censor?ImGuiInputTextFlags.Password:ImGuiInputTextFlags.None);
 
             ImGui.SetNextItemWidth(120);
-            if (ImGui.BeginCombo($"##world", Selected.World == 0?"Any world" : ExcelWorldHelper.GetName(Selected.World)))
+            if (ImGui.BeginCombo($"##world", Selected.World == 0?"任意服务器" : ExcelWorldHelper.GetName(Selected.World)))
             {
-                if (ImGui.Selectable("Any world")) Selected.World = 0;
+                if (ImGui.Selectable("任意服务器")) Selected.World = 0;
                 foreach(var x in ExcelWorldHelper.GetPublicWorlds(null).OrderBy(z => z.Name.ToString()))
                 {
                     if (ImGui.Selectable(x.Name)) Selected.World = x.RowId;
@@ -64,14 +64,14 @@ public static class TabAutomation
             }
             ImGui.SameLine();
             ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X - 150);
-            ImGui.InputTextWithHint("##cname", "Character name", ref Selected.Character, 50, C.Censor ? ImGuiInputTextFlags.Password : ImGuiInputTextFlags.None);
+            ImGui.InputTextWithHint("##cname", "角色名称", ref Selected.Character, 50, C.Censor ? ImGuiInputTextFlags.Password : ImGuiInputTextFlags.None);
 
             var buttonSize = new Vector2((ImGui.GetContentRegionAvail().X - 150) / 2 - ImGui.GetStyle().ItemSpacing.X / 2, ImGuiHelpers.GetButtonSize(" ").Y);
 
             {
                 var dis = !Player.Available;
                 if (dis) ImGui.BeginDisabled();
-                if (ImGui.Button("Set to Character", buttonSize))
+                if (ImGui.Button("设置给角色", buttonSize))
                 {
                     Selected.World = Player.Object.HomeWorld.Id;
                     Selected.Character = Player.Name;
@@ -82,7 +82,7 @@ public static class TabAutomation
             {
                 var dis = Svc.Targets.Target is not PlayerCharacter;
                 if (dis) ImGui.BeginDisabled();
-                if (ImGui.Button("Set to Target", buttonSize))
+                if (ImGui.Button("设置给目标", buttonSize))
                 {
                     Selected.World = ((PlayerCharacter)Svc.Targets.Target).HomeWorld.Id;
                     Selected.Character = ((PlayerCharacter)Svc.Targets.Target).Name.ToString();
@@ -98,7 +98,7 @@ public static class TabAutomation
         {
             ImGui.TableSetupColumn("##del");
             ImGui.TableSetupColumn("##num");
-            ImGui.TableSetupColumn("Preset / Job Restriction", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn("预设/职业限制", ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableHeadersRow();
 
 
@@ -149,10 +149,10 @@ public static class TabAutomation
 
                 ImGuiEx.SetNextItemFullWidth();
                 DrawPresetSelector(combo);
-                ImGuiEx.TextV($"Jobs:");
+                ImGuiEx.TextV($"职业：");
                 ImGui.SameLine();
                 ImGuiEx.SetNextItemFullWidth();
-                ImGuiEx.JobSelector("##job", combo.Jobs, [ImGuiEx.JobSelectorOption.IncludeBase], maxPreviewJobs: 6, noJobSelectedPreview: "Any job");
+                ImGuiEx.JobSelector("##job", combo.Jobs, [ImGuiEx.JobSelectorOption.IncludeBase], maxPreviewJobs: 6, noJobSelectedPreview: "任意职业");
                 ImGui.PopID();
             }
 
@@ -160,7 +160,7 @@ public static class TabAutomation
             ImGui.TableNextColumn();
 
             ImGui.TableNextColumn();
-            ImGuiEx.TextV("New");
+            ImGuiEx.TextV("添加");
             ImGui.TableNextColumn();
             DrawNewSelector();
 
@@ -179,10 +179,10 @@ public static class TabAutomation
     static void DrawPresetSelector(AutomationCombo combo)
     {
         var exists = P.OtterGuiHandler.PresetFileSystem.TryGetPathByID(combo.Preset, out var spath);
-        if (ImGui.BeginCombo("##addnew", spath ?? "Select preset"))
+        if (ImGui.BeginCombo("##addnew", spath ?? "选择预设"))
         {
             ImGuiEx.SetNextItemFullWidth();
-            ImGui.InputTextWithHint("##search", "Filter", ref Filter, 50);
+            ImGui.InputTextWithHint("##search", "筛选", ref Filter, 50);
             foreach (var x in C.SavedPresets)
             {
                 if (P.OtterGuiHandler.PresetFileSystem.TryGetPathByID(x.GUID, out var path))
@@ -213,10 +213,10 @@ public static class TabAutomation
 
     static void DrawNewSelector()
     {
-        if (ImGui.BeginCombo("##addnew", "Select Preset Here..."))
+        if (ImGui.BeginCombo("##addnew", "在这里选择预设..."))
         {
             ImGuiEx.SetNextItemFullWidth();
-            ImGui.InputTextWithHint("##search", "Filter", ref Filter, 50);
+            ImGui.InputTextWithHint("##search", "筛选", ref Filter, 50);
             foreach (var x in C.SavedPresets)
             {
                 if (P.OtterGuiHandler.PresetFileSystem.TryGetPathByID(x.GUID, out var path))

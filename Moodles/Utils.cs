@@ -377,7 +377,7 @@ public static unsafe partial class Utils
             {
                 Name = data.Name.ExtractText(),
                 IconID = iconID,
-                Type = data.CanIncreaseRewards == 1 ? StatusType.Special : (data.StatusCategory == 2 ? StatusType.Negative : StatusType.Positive),
+                Type = data.CanIncreaseRewards == 1 ? StatusType.特殊状态 : (data.StatusCategory == 2 ? StatusType.负面状态 : StatusType.正面状态),
                 ClassJobCategory = data.ClassJobCategory.Value,
                 IsFCBuff = data.IsFcBuff,
                 IsStackable = data.MaxStacks > 1,
