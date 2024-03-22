@@ -34,18 +34,23 @@ public static unsafe partial class Utils
                 list.Add(preparedStatus);
             }
         }
+
         if (list.Count > 0)
         {
             var message = new IncomingMessage(Player.NameWithWorld, target.GetNameWithWorld(), list);
-            if (P.IPCProcessor.BroadcastMareMessage.TryInvoke(Convert.ToBase64String(message.Serialize())))
-            {
-                Notify.Info($"Broadcast success");
-            }
-            else
-            {
-                Notify.Error("Broadcast failed");
-            }
+
+            P.IPCProcessor.MoodlesMessage = Convert.ToBase64String(message.Serialize());
+            P.IPCProcessor.StatusManagerModified(Player.Object);
+            //if (P.IPCProcessor.BroadcastMareMessage.TryInvoke(Convert.ToBase64String(message.Serialize())))
+            //{
+            //    Notify.Info($"Broadcast success");
+            //}
+            //else
+            //{
+            //    Notify.Error("Broadcast failed");
+            //}
         }
+        
     }
 
     public static void SendMareMessage(this MyStatus Status, PlayerCharacter target, PrepareOptions prepareOptions = PrepareOptions.NoOption)
@@ -59,14 +64,16 @@ public static unsafe partial class Utils
         else
         {
             var message = new IncomingMessage(Player.NameWithWorld, target.GetNameWithWorld(), [preparedStatus]);
-            if (P.IPCProcessor.BroadcastMareMessage.TryInvoke(Convert.ToBase64String(message.Serialize())))
-            {
-                Notify.Info($"Broadcast success");
-            }
-            else
-            {
-                Notify.Error("Broadcast failed");
-            }
+            P.IPCProcessor.MoodlesMessage = Convert.ToBase64String(message.Serialize());
+            P.IPCProcessor.StatusManagerModified(Player.Object);
+            //if (P.IPCProcessor.BroadcastMareMessage.TryInvoke(Convert.ToBase64String(message.Serialize())))
+            //{
+            //    Notify.Info($"Broadcast success");
+            //}
+            //else
+            //{
+            //    Notify.Error("Broadcast failed");
+            //}
         }
     }
 
