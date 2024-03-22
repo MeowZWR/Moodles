@@ -50,24 +50,30 @@ public static class TabPresets
                 Utils.GetMyStatusManager(Player.NameWithWorld).ApplyPreset(Selected);
             }
             ImGui.SameLine();
-            var dis = true;
-            if(Svc.Targets.Target is PlayerCharacter pc)
-            {
-                dis = Utils.GetMyStatusManager(pc).Ephemeral;
-            }
+
+            var dis = Svc.Targets.Target is not PlayerCharacter;
             if (dis) ImGui.BeginDisabled();
-            if (ImGui.Button("应用到目标"))
+            var isMare = Utils.GetMarePlayers().Contains(Svc.Targets.Target?.Address ?? -1);
+            if (ImGui.Button($"应用到目标（{(isMare ? "通过月海同步器" : "本地")}）"))
             {
-                var target = (PlayerCharacter)Svc.Targets.Target;
-                if (!Utils.GetMarePlayers().Contains(target.Address))
+                try
                 {
-                    Utils.GetMyStatusManager(target.GetNameWithWorld()).ApplyPreset(Selected);
+                    var target = (PlayerCharacter)Svc.Targets.Target;
+                    if (!isMare)
+                    {
+                        Utils.GetMyStatusManager(target.GetNameWithWorld()).ApplyPreset(Selected);
+                    }
+                    else
+                    {
+                        Selected.SendMareMessage(target);
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    Notify.Error($"目标由其他插件控制，无法应用。");
+                    e.Log();
                 }
             }
+            if (isMare) { ImGuiEx.HelpMarker("这里还没有任何作用，咦，为什么你一直在点它？:)", color: ImGuiColors.DalamudRed); }
             if (dis) ImGui.EndDisabled();
 
             ImGuiEx.TextV("运行方式：");
@@ -196,7 +202,7 @@ public static class TabPresets
 
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"ID:");
-                ImGuiEx.HelpMarker("Used in commands to apply preset.");
+                ImGuiEx.HelpMarker("用于应用预设的命令。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 ImGui.InputText($"##id-text", Encoding.UTF8.GetBytes(Selected.ID), 36, ImGuiInputTextFlags.ReadOnly);

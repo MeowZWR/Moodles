@@ -83,15 +83,15 @@ public class StatusSelector : Window
             }
             if (ImGui.CollapsingHeader("增益状态效果"))
             {
-                DrawIconTable(statusInfos.Where(x => x.Type == StatusType.Positive).OrderBy(x => x.IconID));
+                DrawIconTable(statusInfos.Where(x => x.Type == StatusType.正面状态).OrderBy(x => x.IconID));
             }
             if (ImGui.CollapsingHeader("减益状态效果"))
             {
-                DrawIconTable(statusInfos.Where(x => x.Type == StatusType.Negative).OrderBy(x => x.IconID));
+                DrawIconTable(statusInfos.Where(x => x.Type == StatusType.负面状态).OrderBy(x => x.IconID));
             }
             if (ImGui.CollapsingHeader("特殊状态效果"))
             {
-                DrawIconTable(statusInfos.Where(x => x.Type == StatusType.Special).OrderBy(x => x.IconID));
+                DrawIconTable(statusInfos.Where(x => x.Type == StatusType.特殊状态).OrderBy(x => x.IconID));
             }
         }
         ImGui.EndChild();

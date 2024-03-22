@@ -5,7 +5,12 @@ public static class TabSettings
     {
         ImGui.Checkbox($"启用Moodles", ref C.Enabled);
         ImGuiEx.Spacing();
-        ImGui.Checkbox("启用视效VFX", ref C.EnableVFX);
+        //ImGui.Checkbox("启用视效VFX", ref C.EnableVFX);
+        ImGui.BeginDisabled();
+        var a = false;
+        ImGui.Checkbox("启用视效VFX", ref a);
+        ImGui.EndDisabled();
+        ImGuiEx.HelpMarker("VFX功能目前被强制禁用，直到找到月海同步器连接/断开时导致崩溃的解决方法。");
         ImGuiEx.Spacing();
         ImGui.Checkbox($"启用弹出/跳出文字", ref C.EnableFlyPopupText);
         ImGuiEx.Spacing();

@@ -14,7 +14,7 @@ public class Config : IEzConfig
     public bool Censor = false;
     public bool AutoOther = false;
 
-    public bool EnableVFX = true;
+    internal bool EnableVFX => false;
     public bool EnableFlyPopupText = true;
     public int FlyPopupTextLimit = 10;
 
@@ -26,9 +26,8 @@ public class Config : IEzConfig
     public SortOption IconSortOption = SortOption.Numerical;
     public List<WhitelistEntry> Whitelist = [];
 
-    public bool BroadcastAllowAll = true;
-    public bool BroadcastAllowFriends = true;
-    public bool BroadcastFC = true;
-    public bool BroadcastAllowParty = true;
+    public bool BroadcastAllowAll = false;
+    public bool BroadcastAllowFriends = false;
+    public bool BroadcastAllowParty = false;
     public WhitelistEntry BroadcastDefaultEntry = new();
 }

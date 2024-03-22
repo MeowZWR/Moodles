@@ -60,21 +60,21 @@ public unsafe class StatusCustomProcessor : IDisposable
         {
             if (TryGetAddonByName<AtkUnitBase>("_StatusCustom0", out var addon) && IsAddonReady(addon))
             {
-                var validStatuses = Utils.GetMyStatusManager(Player.NameWithWorld).Statuses.Where(x => x.Type == StatusType.Positive);
+                var validStatuses = Utils.GetMyStatusManager(Player.NameWithWorld).Statuses.Where(x => x.Type == StatusType.正面状态);
                 UpdateStatusCustom(addon, validStatuses, P.CommonProcessor.PositiveStatuses, NumStatuses0, true);
             }
         }
         {
             if (TryGetAddonByName<AtkUnitBase>("_StatusCustom1", out var addon) && IsAddonReady(addon))
             {
-                var validStatuses = Utils.GetMyStatusManager(Player.NameWithWorld).Statuses.Where(x => x.Type == StatusType.Negative);
+                var validStatuses = Utils.GetMyStatusManager(Player.NameWithWorld).Statuses.Where(x => x.Type == StatusType.负面状态);
                 UpdateStatusCustom(addon, validStatuses, P.CommonProcessor.NegativeStatuses, NumStatuses1, true);
             }
         }
         {
             if (TryGetAddonByName<AtkUnitBase>("_StatusCustom2", out var addon) && IsAddonReady(addon))
             {
-                var validStatuses = Utils.GetMyStatusManager(Player.NameWithWorld).Statuses.Where(x => x.Type == StatusType.Special);
+                var validStatuses = Utils.GetMyStatusManager(Player.NameWithWorld).Statuses.Where(x => x.Type == StatusType.特殊状态);
                 UpdateStatusCustom(addon, validStatuses, P.CommonProcessor.SpecialStatuses, NumStatuses2, true);
             }
         }
@@ -120,7 +120,7 @@ public unsafe class StatusCustomProcessor : IDisposable
         if (!Player.Available) return;
         if (!P.CanModifyUI()) return;
         //PluginLog.Verbose($"Post1 update {args.Addon:X16}");
-        var validStatuses = Utils.GetMyStatusManager(Player.NameWithWorld).Statuses.Where(x => x.Type == StatusType.Special);
+        var validStatuses = Utils.GetMyStatusManager(Player.NameWithWorld).Statuses.Where(x => x.Type == StatusType.特殊状态);
         UpdateStatusCustom((AtkUnitBase*)args.Addon, validStatuses, P.CommonProcessor.SpecialStatuses, NumStatuses2);
     }
 
@@ -130,7 +130,7 @@ public unsafe class StatusCustomProcessor : IDisposable
         if (!Player.Available) return;
         if (!P.CanModifyUI()) return;
         //PluginLog.Verbose($"Post1 update {args.Addon:X16}");
-        var validStatuses = Utils.GetMyStatusManager(Player.NameWithWorld).Statuses.Where(x => x.Type == StatusType.Negative);
+        var validStatuses = Utils.GetMyStatusManager(Player.NameWithWorld).Statuses.Where(x => x.Type == StatusType.负面状态);
         UpdateStatusCustom((AtkUnitBase*)args.Addon, validStatuses, P.CommonProcessor.NegativeStatuses, NumStatuses1);
     }
 
@@ -140,7 +140,7 @@ public unsafe class StatusCustomProcessor : IDisposable
         if (!Player.Available) return;
         if (!P.CanModifyUI()) return;
         //PluginLog.Verbose($"Post0 update {args.Addon:X16}");
-        var validStatuses = Utils.GetMyStatusManager(Player.NameWithWorld).Statuses.Where(x => x.Type == StatusType.Positive);
+        var validStatuses = Utils.GetMyStatusManager(Player.NameWithWorld).Statuses.Where(x => x.Type == StatusType.正面状态);
         UpdateStatusCustom((AtkUnitBase*)args.Addon, validStatuses, P.CommonProcessor.PositiveStatuses, NumStatuses0);
     }
 

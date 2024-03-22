@@ -255,7 +255,6 @@ public class WhitelistItemSelector<T>
         }
     }
 
-
     private void DrawFilter(float width)
     {
         if (!_flags.HasFlag(Flags.Filter))
@@ -264,7 +263,7 @@ public class WhitelistItemSelector<T>
         var newFilter = Filter;
         using var style = ImRaii.PushStyle(ImGuiStyleVar.FrameRounding, 0);
         ImGui.SetNextItemWidth(width);
-        var enterPressed = ImGui.InputTextWithHint(string.Empty, "Filter...", ref newFilter, 64, ImGuiInputTextFlags.EnterReturnsTrue);
+        var enterPressed = ImGui.InputTextWithHint(string.Empty, "筛选...", ref newFilter, 64, ImGuiInputTextFlags.EnterReturnsTrue);
         if (newFilter != Filter)
         {
             Filter = newFilter;
@@ -308,7 +307,7 @@ public class WhitelistItemSelector<T>
     private void DrawAddTargetButton(float width)
     {
         using var font = ImRaii.DefaultFont();
-        if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.User.ToIconString(), new Vector2(width, 0), "Add an empty entry prefilled with current target", Svc.Targets.Target is not PlayerCharacter, true))
+        if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.User.ToIconString(), new Vector2(width, 0), "为当前目标添加一个包含预填充信息的空条目", Svc.Targets.Target is not PlayerCharacter, true))
         {
             C.Whitelist.Add(new() { PlayerName = ((PlayerCharacter)Svc.Targets.Target!).GetNameWithWorld() });
         }
@@ -329,7 +328,7 @@ public class WhitelistItemSelector<T>
         if (ImGui.Button(FontAwesomeIcon.Plus.ToIconString(), Vector2.UnitX * width))
             ImGui.OpenPopup(newNamePopupAdd);
         using var font = ImRaii.PushFont(UiBuilder.DefaultFont);
-        ImGuiUtil.HoverTooltip("Add New");
+        ImGuiUtil.HoverTooltip("添加");
 
         if (!OpenNameField(newNamePopupAdd, out var newName))
             return;
@@ -348,7 +347,7 @@ public class WhitelistItemSelector<T>
         if (ImGui.Button(FontAwesomeIcon.Clipboard.ToIconString(), Vector2.UnitX * width))
             ImGui.OpenPopup(newNamePopupImport);
         using var font = ImRaii.PushFont(UiBuilder.DefaultFont);
-        ImGuiUtil.HoverTooltip("Import from Clipboard");
+        ImGuiUtil.HoverTooltip("从剪贴板导入");
 
         if (!OpenNameField(newNamePopupImport, out var newName))
             return;
@@ -382,7 +381,7 @@ public class WhitelistItemSelector<T>
             ImGui.OpenPopup(newNamePopupDuplicate);
 
         using var font = ImRaii.PushFont(UiBuilder.DefaultFont);
-        ImGuiUtil.HoverTooltip("Duplicate Current Selection");
+        ImGuiUtil.HoverTooltip("复制当前选择");
 
         if (!OpenNameField(newNamePopupDuplicate, out var newName))
             return;
@@ -398,7 +397,7 @@ public class WhitelistItemSelector<T>
         => ImGui.GetIO().KeyCtrl;
 
     protected virtual string DeleteButtonTooltip()
-        => "Delete Current Selection. Hold Control while clicking.";
+        => "删除当前选择（单击时按住Ctrl）。";
 
     private void DrawDeleteButton(float width)
     {
@@ -438,14 +437,14 @@ public class WhitelistItemSelector<T>
             ImGui.SameLine();
         }
 
+        DrawAddTargetButton(buttonWidth);
+        ImGui.SameLine();
+        
         if (_flags.HasFlag(Flags.Delete))
         {
             DrawDeleteButton(buttonWidth);
             ImGui.SameLine();
         }
-
-        DrawAddTargetButton(buttonWidth);
-        ImGui.SameLine();
 
         DrawSettingsButton(buttonWidth);
         ImGui.SameLine();

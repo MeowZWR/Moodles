@@ -15,6 +15,15 @@ public static class TabWhitelist
     static bool Editing = true;
     public static void Draw()
     {
+        if (ImGui.BeginTable($"##Table", 1, ImGuiTableFlags.SizingStretchSame | ImGuiTableFlags.Borders))
+        {
+            ImGui.TableHeader($"#h");
+            ImGui.TableNextRow();
+            ImGui.TableNextColumn();
+            ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, EColor.RedBright.ToUint());
+            ImGuiEx.LineCentered(() => ImGuiEx.Text(EColor.White, "这里还不能用，哦，好吧。:)"));
+            ImGui.EndTable();
+        }
         P.OtterGuiHandler.Whitelist.Draw(200f);
         ImGui.SameLine();
         using var group = ImRaii.Group();
@@ -24,7 +33,7 @@ public static class TabWhitelist
 
     private static void DrawHeader()
     {
-        HeaderDrawer.Draw(Selected == null ? "Mare Synchronos Global Settings" : (Selected.PlayerName.Censor($"Whitelist entry {C.Whitelist.IndexOf(Selected) + 1}")), 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
+        HeaderDrawer.Draw(Selected == null ? "月海同步器全局设置" : (Selected.PlayerName.Censor($"Whitelist entry {C.Whitelist.IndexOf(Selected) + 1}")), 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
     }
 
     private static void DrawSelected()
@@ -35,12 +44,12 @@ public static class TabWhitelist
 
         if (Selected == null)
         {
-            ImGui.Checkbox("Allow Moodles From All Players", ref C.BroadcastAllowAll);
-            ImGui.Checkbox("Allow Moodles From Friends", ref C.BroadcastAllowFriends);
-            ImGui.Checkbox("Allow Moodles From Party Members", ref C.BroadcastAllowParty);
-            ImGuiEx.Text($"External Moodle Maximum Duration:");
+            ImGui.Checkbox("允许来自所有玩家的Moodles", ref C.BroadcastAllowAll);
+            ImGui.Checkbox("允许来自好友的Moodles", ref C.BroadcastAllowFriends);
+            ImGui.Checkbox("允许来自小队成员的Moodles", ref C.BroadcastAllowParty);
+            ImGuiEx.Text($"外来Moodle最长持续时间：");
             ImGuiEx.Spacing();
-            Utils.DurationSelector("Any Duration", ref C.BroadcastDefaultEntry.AnyDuration, ref C.BroadcastDefaultEntry.Days, ref C.BroadcastDefaultEntry.Hours, ref C.BroadcastDefaultEntry.Minutes, ref C.BroadcastDefaultEntry.Seconds);
+            Utils.DurationSelector("任何持续时间", ref C.BroadcastDefaultEntry.AnyDuration, ref C.BroadcastDefaultEntry.Days, ref C.BroadcastDefaultEntry.Hours, ref C.BroadcastDefaultEntry.Minutes, ref C.BroadcastDefaultEntry.Seconds);
         }
         else
         {
@@ -52,7 +61,7 @@ public static class TabWhitelist
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
 
-                ImGuiEx.TextV($"Player Name @ World:");
+                ImGuiEx.TextV($"玩家名称@服务器：");
                 ImGui.TableNextColumn();
 
                 ImGuiEx.InputWithRightButtonsArea(() =>
@@ -62,7 +71,7 @@ public static class TabWhitelist
                 {
                     if (Svc.Targets.Target is PlayerCharacter pc)
                     {
-                        if (ImGui.Button("Target"))
+                        if (ImGui.Button("目标"))
                         {
                             Selected.PlayerName = pc.GetNameWithWorld();
                         }
@@ -71,7 +80,11 @@ public static class TabWhitelist
 
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"Allowed Status Types:");
+                ImGuiEx.TextV($"允许的状态类型：");
+                if (!Selected.AllowedTypes.Any())
+                {
+                    ImGuiEx.HelpMarker("未选择任何状态类型。请至少选择一种状态类型，否则Moodles不符合使用条件。", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
+                }
                 ImGui.TableNextColumn();
                 foreach (var x in Enum.GetValues<StatusType>())
                 {
@@ -80,14 +93,14 @@ public static class TabWhitelist
 
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"Maximum Duration:");
+                ImGuiEx.TextV($"最长持续时间：");
                 if (Selected.TotalMaxDurationSeconds < 1 && !Selected.AnyDuration)
                 {
-                    ImGuiEx.HelpMarker("No incoming moodles will be allowed with current settings", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
+                    ImGuiEx.HelpMarker("未配置最长持续时间。请设置一个否则Moodles不符合使用条件。", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
                 }
                 ImGui.TableNextColumn();
 
-                Utils.DurationSelector("Any Duration", ref Selected.AnyDuration, ref Selected.Days, ref Selected.Hours, ref Selected.Minutes, ref Selected.Seconds);
+                Utils.DurationSelector("任何持续时间", ref Selected.AnyDuration, ref Selected.Days, ref Selected.Hours, ref Selected.Minutes, ref Selected.Seconds);
 
                 ImGui.EndTable();
             }
@@ -97,10 +110,10 @@ public static class TabWhitelist
     static void DrawPresetSelector(AutomationCombo combo)
     {
         var exists = P.OtterGuiHandler.PresetFileSystem.TryGetPathByID(combo.Preset, out var spath);
-        if (ImGui.BeginCombo("##addnew", spath ?? "Select preset"))
+        if (ImGui.BeginCombo("##addnew", spath ?? "选择预设"))
         {
             ImGuiEx.SetNextItemFullWidth();
-            ImGui.InputTextWithHint("##search", "Filter", ref Filter, 50);
+            ImGui.InputTextWithHint("##search", "筛选", ref Filter, 50);
             foreach (var x in C.SavedPresets)
             {
                 if (P.OtterGuiHandler.PresetFileSystem.TryGetPathByID(x.GUID, out var path))

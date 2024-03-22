@@ -39,10 +39,11 @@ public static class TabMoodles
                 Utils.GetMyStatusManager(Player.NameWithWorld).AddOrUpdate(Selected.PrepareToApply(AsPermanent ? PrepareOptions.Persistent : PrepareOptions.NoOption));
             }
             ImGui.SameLine();
+
             var dis = Svc.Targets.Target is not PlayerCharacter;
             if (dis) ImGui.BeginDisabled();
             var isMare = Utils.GetMarePlayers().Contains(Svc.Targets.Target?.Address ?? -1);
-            if (ImGui.Button($"应用到目标({(isMare?"via Mare Synchronos":"Locally")})"))
+            if (ImGui.Button($"应用到目标（{(isMare?"通过月海同步器":"本地")}）"))
             {
                 try
                 {
@@ -53,24 +54,7 @@ public static class TabMoodles
                     }
                     else
                     {
-                        var preparedStatus = Selected.PrepareToApply(AsPermanent ? PrepareOptions.Persistent : PrepareOptions.NoOption);
-                        preparedStatus.Applier = Player.NameWithWorld ?? "";
-                        if (!preparedStatus.IsValid(out var error))
-                        {
-                            Notify.Error($"Could not apply status: {error}");
-                        }
-                        else
-                        {
-                            var message = new IncomingMessage(Player.NameWithWorld, target.GetNameWithWorld(), [preparedStatus]);
-                            if (P.IPCProcessor.BroadcastMareMessage.TryInvoke(Convert.ToBase64String(message.Serialize())))
-                            {
-                                Notify.Info($"Broadcast success");
-                            }
-                            else
-                            {
-                                Notify.Error("Broadcast failed");
-                            }
-                        }
+                        Selected.SendMareMessage(target);
                     }
                 }
                 catch(Exception e)
@@ -78,8 +62,9 @@ public static class TabMoodles
                     e.Log();
                 }
             }
-            if (isMare) { ImGuiEx.HelpMarker("This doesn't do anything yet, why are you clicking it? :)", color: ImGuiColors.DalamudRed); }
+            if (isMare) { ImGuiEx.HelpMarker("这里还没有任何作用，咦，为什么你一直在点它？:)", color: ImGuiColors.DalamudRed); }
             if (dis) ImGui.EndDisabled();
+
             if (ImGui.BeginTable("##moodles", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame))
             {
                 ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, 175f.Scale());
@@ -189,7 +174,7 @@ public static class TabMoodles
 
                     ImGui.TableNextColumn();
                     ImGuiEx.TextV($"可驱散：");
-                    ImGuiEx.HelpMarker("Applies the dispellable indicator to this Moodle implying it can be removed via the use of Esuna. Only available for icons representing negative status effects.");
+                    ImGuiEx.HelpMarker("将可驱散指示符应用于该Moodle，意味着它可以被康复移除。仅适用于表示负面状态效果的图标。");
                     ImGui.TableNextColumn();
                     ImGuiEx.SetNextItemFullWidth();
                     ImGui.Checkbox("##dispel", ref Selected.Dispelable);
@@ -218,7 +203,7 @@ public static class TabMoodles
 
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"ID:");
-                ImGuiEx.HelpMarker("Used in commands to apply moodle.");
+                ImGuiEx.HelpMarker("用于应用Moodle的命令。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 ImGui.InputText($"##id-text", Encoding.UTF8.GetBytes(Selected.ID), 36, ImGuiInputTextFlags.ReadOnly);
