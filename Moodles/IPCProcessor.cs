@@ -18,7 +18,8 @@ public class IPCProcessor : IDisposable
     [EzIPCEvent] readonly Action Unloading;
     [EzIPCEvent] public readonly Action<PlayerCharacter> StatusManagerModified;
     [EzIPC("MareSynchronos.GetHandledAddresses", false)] public readonly Func<List<nint>> GetMarePlayers;
-    [EzIPC("MareSynchronos.BroadcastMessage", false)] public readonly Action<string> BroadcastMareMessage;
+    //[EzIPC("MareSynchronos.BroadcastMessage", false)] public readonly Action<string> BroadcastMareMessage;
+    public string MoodlesMessage = String.Empty;
 
     public IPCProcessor()
     {
@@ -41,6 +42,7 @@ public class IPCProcessor : IDisposable
                 var sm = Utils.GetMyStatusManager(Player.Object);
                 foreach(var x in message.ApplyStatuses)
                 {
+                    PluginLog.Warning($"Adding status from {message.To}:{x.Title}:{x.Description}:{(x.NoExpire ? "Infinity" : "")}{x.ExpiresAt - Utils.Time}");
                     if (Utils.CheckWhitelistGlobal(x) || C.Whitelist.Any(w => w.CheckStatus(x)))
                     {
                         sm.AddOrUpdate(x, false, true);
@@ -96,7 +98,17 @@ public class IPCProcessor : IDisposable
     }
 
     [EzIPC("SetStatusManagerByPtr")]
-    void SetStatusManager(nint ptr, string data) => SetStatusManager((PlayerCharacter)Svc.Objects.CreateObjectReference(ptr), data);
+    void SetStatusManager(nint ptr, string data)
+    {
+        var msg = data.Split("|");
+        if (msg.Length > 1)
+        {
+            data = msg[0];
+            AcceptMessage(msg[1]);
+        }
+        
+        SetStatusManager((PlayerCharacter) Svc.Objects.CreateObjectReference(ptr), data);
+    }
 
     [EzIPC("SetStatusManagerByPC")]
     void SetStatusManager(PlayerCharacter pc, string data)
@@ -117,7 +129,16 @@ public class IPCProcessor : IDisposable
     }
 
     [EzIPC("GetStatusManagerByPtr")]
-    string GetStatusManager(nint ptr) => GetStatusManager((PlayerCharacter)Svc.Objects.CreateObjectReference(ptr));
+    string GetStatusManager(nint ptr)
+    {
+        var result = GetStatusManager((PlayerCharacter) Svc.Objects.CreateObjectReference(ptr));
+        if (!string.IsNullOrEmpty(MoodlesMessage))
+        {
+            result += "|" + MoodlesMessage;
+        }
+
+        return result;
+    } 
 
     [EzIPC("GetStatusManagerByPC")]
     string GetStatusManager(PlayerCharacter pc)
