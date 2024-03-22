@@ -49,7 +49,7 @@ public partial class MyStatus
             error = ("Title is not set");
             return false;
         }
-        if (this.TotalDurationSeconds < 1 && !this.NoExpire)
+        if (this.TotalDurationSeconds < 1 && this.ExpiresAt <= Utils.Time && !this.NoExpire)
         {
             error = ("Duration is not set");
             return false;

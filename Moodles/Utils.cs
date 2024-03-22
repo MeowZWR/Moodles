@@ -20,9 +20,9 @@ public static unsafe partial class Utils
 {
     public static void SendMareMessage(this Preset Preset, PlayerCharacter target)
     {
+        var list = new List<MyStatus>();
         foreach (var s in C.SavedStatuses.Where(x => Preset.Statuses.Contains(x.GUID)))
         {
-            var list = new List<MyStatus>();
             var preparedStatus = s.PrepareToApply();
             preparedStatus.Applier = Player.NameWithWorld ?? "";
             if (!preparedStatus.IsValid(out var error))
@@ -33,19 +33,24 @@ public static unsafe partial class Utils
             {
                 list.Add(preparedStatus);
             }
-            if (list.Count > 0)
-            {
-                var message = new IncomingMessage(Player.NameWithWorld, target.GetNameWithWorld(), list);
-                if (P.IPCProcessor.BroadcastMareMessage.TryInvoke(Convert.ToBase64String(message.Serialize())))
-                {
-                    Notify.Info($"广播成功");
-                }
-                else
-                {
-                    Notify.Error("广播失败");
-                }
-            }
         }
+
+        if (list.Count > 0)
+        {
+            var message = new IncomingMessage(Player.NameWithWorld, target.GetNameWithWorld(), list);
+
+            P.IPCProcessor.MoodlesMessage = Convert.ToBase64String(message.Serialize());
+            P.IPCProcessor.StatusManagerModified(Player.Object);
+            //if (P.IPCProcessor.BroadcastMareMessage.TryInvoke(Convert.ToBase64String(message.Serialize())))
+            //{
+            //    Notify.Info($"Broadcast success");
+            //}
+            //else
+            //{
+            //    Notify.Error("Broadcast failed");
+            //}
+        }
+        
     }
 
     public static void SendMareMessage(this MyStatus Status, PlayerCharacter target)
@@ -59,14 +64,16 @@ public static unsafe partial class Utils
         else
         {
             var message = new IncomingMessage(Player.NameWithWorld, target.GetNameWithWorld(), [preparedStatus]);
-            if (P.IPCProcessor.BroadcastMareMessage.TryInvoke(Convert.ToBase64String(message.Serialize())))
-            {
-                Notify.Info($"广播成功");
-            }
-            else
-            {
-                Notify.Error("广播失败");
-            }
+            P.IPCProcessor.MoodlesMessage = Convert.ToBase64String(message.Serialize());
+            P.IPCProcessor.StatusManagerModified(Player.Object);
+            //if (P.IPCProcessor.BroadcastMareMessage.TryInvoke(Convert.ToBase64String(message.Serialize())))
+            //{
+            //    Notify.Info($"Broadcast success");
+            //}
+            //else
+            //{
+            //    Notify.Error("Broadcast failed");
+            //}
         }
     }
 
