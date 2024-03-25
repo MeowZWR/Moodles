@@ -12,7 +12,8 @@ public static class TabMoodles
 {
     static bool AsPermanent = false;
     static MyStatus Selected => P.OtterGuiHandler.MoodleFileSystem.Selector.Selected;
-    static string Filter = "";
+    static string Filter = ""; 
+    private static int lockUntil = 0;
     public static void Draw()
     {
         P.OtterGuiHandler.MoodleFileSystem.Selector.Draw(200f);
@@ -43,6 +44,7 @@ public static class TabMoodles
             var dis = Svc.Targets.Target is not PlayerCharacter;
             if (dis) ImGui.BeginDisabled();
             var isMare = Utils.GetMarePlayers().Contains(Svc.Targets.Target?.Address ?? -1);
+            ImGui.BeginDisabled(Disabled & isMare);
             if (ImGui.Button($"应用到目标（{(isMare?"通过月海同步器":"本地")}）"))
             {
                 try
@@ -55,6 +57,7 @@ public static class TabMoodles
                     else
                     {
                         Selected.SendMareMessage(target);
+                        LockBroadcast();
                     }
                 }
                 catch(Exception e)
@@ -62,6 +65,29 @@ public static class TabMoodles
                     e.Log();
                 }
             }
+
+            if (ImGui.Button($"从目标移除（{(isMare ? "通过月海同步器" : "本地")}）"))
+            {
+                try
+                {
+                    var target = (PlayerCharacter)Svc.Targets.Target;
+                    if (!isMare)
+                    {
+                        Utils.GetMyStatusManager(target.GetNameWithWorld()).AddOrUpdate(Selected.PrepareToApply(PrepareOptions.Remove));
+                    }
+                    else
+                    {
+                        Selected.SendMareMessage(target, PrepareOptions.Remove);
+                        LockBroadcast();
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.Log();
+                }
+            }
+            ImGui.EndDisabled();
+
             if (isMare) { ImGuiEx.HelpMarker("这里还没有任何作用，咦，为什么你一直在点它？:)", color: ImGuiColors.DalamudRed); }
             if (dis) ImGui.EndDisabled();
 
@@ -116,13 +142,22 @@ public static class TabMoodles
                 ImGuiEx.TextV($"堆叠层数：");
                 ImGuiEx.HelpMarker("如果游戏数据包含关于状态效果连续堆叠的信息，您可以在此处选择所需的数字。由于并非所有状态效果的堆叠都遵循相同的逻辑，因此您要查找的图标可能外观相同，但不是这一个。");
                 ImGui.TableNextColumn();
-                ImGuiEx.SetNextItemFullWidth();
+                
                 var maxStacks = 1;
                 if (P.CommonProcessor.IconStackCounts.TryGetValue((uint)Selected.IconID, out var count))
                 {
                     maxStacks = (int)count;
                 }
                 if(maxStacks <= 1) ImGui.BeginDisabled();
+                ImGui.Text($"Add Stacks");
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip($"Add stacks instead of replacing.");
+                }
+                ImGui.SameLine();
+                //ImGui.Checkbox("##AddStacksCheckbox", ref Selected.AddStack);
+                ImGui.SameLine();
+                ImGuiEx.SetNextItemFullWidth();
                 if (ImGui.BeginCombo("##stk", $"{Selected.Stacks}"))
                 {
                     for (int i = 1; i <= maxStacks; i++)
@@ -224,4 +259,11 @@ public static class TabMoodles
         ImGuiEx.HelpMarker($"此字段支持格式化标签。\n彩色文本：[color=red]...[/color] 或 [color=5]...[/color]\n文本轮廓发光：[glow=blue]...[/glow] 或 [glow=7]...[/glow]\n以下颜色可用：\n{Enum.GetValues<ECommons.ChatMethods.UIColor>().Select(x => x.ToString()).Where(x => !x.StartsWith("_")).Print()}\n要使用额外的颜色，请使用命令“/xldata uicolor”命令查找数值。\n斜体：[i]...[/i]", ImGuiColors.DalamudWhite, FontAwesomeIcon.Code.ToIconString());
         //ImGui.SetWindowFontScale(1f);
     }
+
+    private static void LockBroadcast()
+    {
+        lockUntil = DateTime.Now.AddSeconds(10).Second;
+    }
+
+    private static bool Disabled = lockUntil > DateTime.Now.Second;
 }

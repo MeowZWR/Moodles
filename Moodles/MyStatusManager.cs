@@ -39,6 +39,10 @@ public class MyStatusManager
         {
             if (Statuses[i].GUID == newStatus.GUID)
             {
+                if (newStatus.AddStack && P.CommonProcessor.IconStackCounts.TryGetValue((uint)newStatus.IconID, out var count))
+                {
+                    newStatus.Stacks = newStatus.Stacks + Statuses[i].Stacks > count ? (int)count : Statuses[i].Stacks + newStatus.Stacks;
+                }
                 Statuses[i] = newStatus;
                 if (triggerEvent) NeedFireEvent = true;
                 return;

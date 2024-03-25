@@ -15,6 +15,7 @@ public partial class MyStatus
     public string Applier = "";
     public bool Dispelable = false;
     public int Stacks = 1;
+    public bool AddStack = false;
     //public string TextOverride = null;
     //public uint? TextColorOverride = null;
     //public uint? EdgeColorOverride = null;
@@ -49,7 +50,7 @@ public partial class MyStatus
             error = ("Title is not set");
             return false;
         }
-        if (this.TotalDurationSeconds < 1 && this.ExpiresAt <= Utils.Time && !this.NoExpire)
+        if (this.TotalDurationSeconds < 1 && !this.NoExpire)
         {
             error = ("Duration is not set");
             return false;

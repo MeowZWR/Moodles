@@ -16,6 +16,8 @@ public static class TabPresets
         [PresetApplicationType.IgnoreExisting] = "忽略现有状态",
     };
     static string Filter = "";
+    private static int lockUntil = 0;
+
 
     static Preset Selected => P.OtterGuiHandler.PresetFileSystem.Selector.Selected;
     public static void Draw()
@@ -54,6 +56,7 @@ public static class TabPresets
             var dis = Svc.Targets.Target is not PlayerCharacter;
             if (dis) ImGui.BeginDisabled();
             var isMare = Utils.GetMarePlayers().Contains(Svc.Targets.Target?.Address ?? -1);
+            ImGui.BeginDisabled(Disabled & isMare);
             if (ImGui.Button($"应用到目标（{(isMare ? "通过月海同步器" : "本地")}）"))
             {
                 try
@@ -66,6 +69,7 @@ public static class TabPresets
                     else
                     {
                         Selected.SendMareMessage(target);
+                        LockBroadcast();
                     }
                 }
                 catch (Exception e)
@@ -73,6 +77,29 @@ public static class TabPresets
                     e.Log();
                 }
             }
+
+            if (ImGui.Button($"从目标移除（{(isMare ? "通过月海同步器" : "本地")}）"))
+            {
+                try
+                {
+                    var target = (PlayerCharacter)Svc.Targets.Target;
+                    if (!isMare)
+                    {
+                        Utils.GetMyStatusManager(target.GetNameWithWorld()).RemovePreset(Selected);
+                    }
+                    else
+                    {
+                        Selected.SendMareMessage(target, PrepareOptions.Remove);
+                        LockBroadcast();
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.Log();
+                }
+            }
+            ImGui.EndDisabled();
+
             if (isMare) { ImGuiEx.HelpMarker("这里还没有任何作用，咦，为什么你一直在点它？:)", color: ImGuiColors.DalamudRed); }
             if (dis) ImGui.EndDisabled();
 
@@ -217,4 +244,10 @@ public static class TabPresets
             }
         }
     }
+    private static void LockBroadcast()
+    {
+        lockUntil = DateTime.Now.AddSeconds(10).Second;
+    }
+
+    private static bool Disabled = lockUntil > DateTime.Now.Second;
 }
