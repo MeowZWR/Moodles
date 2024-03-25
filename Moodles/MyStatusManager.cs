@@ -43,11 +43,14 @@ public class MyStatusManager
                 //{
                 //    newStatus.Stacks = newStatus.Stacks + Statuses[i].Stacks > count ? (int)count : Statuses[i].Stacks + newStatus.Stacks;
                 //}
+                if (newStatus.ExpiresAt == Statuses[i].ExpiresAt) return;
                 Statuses[i] = newStatus;
                 if (triggerEvent) NeedFireEvent = true;
                 return;
             }
         }
+        if (newStatus.ExpiresAt == 0) return;
+
         if (triggerEvent) NeedFireEvent = true;
         Statuses.Add(newStatus);
     }
