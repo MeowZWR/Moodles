@@ -149,14 +149,14 @@ public static class TabMoodles
                     maxStacks = (int)count;
                 }
                 if(maxStacks <= 1) ImGui.BeginDisabled();
-                ImGui.Text($"Add Stacks");
-                if (ImGui.IsItemHovered())
-                {
-                    ImGui.SetTooltip($"Add stacks instead of replacing.");
-                }
-                ImGui.SameLine();
+                //ImGui.Text($"Add Stacks");
+                //if (ImGui.IsItemHovered())
+                //{
+                //    ImGui.SetTooltip($"Add stacks instead of replacing.");
+                //}
+                //ImGui.SameLine();
                 //ImGui.Checkbox("##AddStacksCheckbox", ref Selected.AddStack);
-                ImGui.SameLine();
+                //ImGui.SameLine();
                 ImGuiEx.SetNextItemFullWidth();
                 if (ImGui.BeginCombo("##stk", $"{Selected.Stacks}"))
                 {
