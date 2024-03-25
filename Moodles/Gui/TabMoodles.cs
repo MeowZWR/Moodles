@@ -89,7 +89,7 @@ public static class TabMoodles
             }
             if (Disabled & isMare) ImGui.EndDisabled();
 
-            if (isMare) { ImGuiEx.HelpMarker("这里还没有任何作用，咦，为什么你一直在点它？:)", color: ImGuiColors.DalamudRed); }
+            if (isMare) ImGuiEx.HelpMarker("赞美wozaiha");
             if (dis) ImGui.EndDisabled();
 
             if (Disabled & isMare)
@@ -147,7 +147,7 @@ public static class TabMoodles
                 
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"堆叠层数：");
-                ImGuiEx.HelpMarker("如果游戏数据包含关于状态效果连续堆叠的信息，您可以在此处选择所需的数字。由于并非所有状态效果的堆叠都遵循相同的逻辑，因此您要查找的图标可能外观相同，但不是这一个。");
+                ImGuiEx.HelpMarker("如果游戏数据包含关于状态效果连续堆叠的信息，您可以在此处选择所需的数字。由于并非所有状态效果的堆叠都遵循相同的逻辑，因此您要查找的图标可能外观相同，却不是这一个。");
                 ImGui.TableNextColumn();
                 
                 var maxStacks = 1;
@@ -196,8 +196,8 @@ public static class TabMoodles
                 ImGui.TableNextRow();
 
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"申请者：");
-                ImGuiEx.HelpMarker("表明谁被应用了Moodle。如果将角色名称和服务器解析为自己，则将状态持续时间的颜色更改为绿色。");
+                ImGuiEx.TextV($"状态添加者：");
+                ImGuiEx.HelpMarker("表明被谁附加了Moodle。如果将角色名称和服务器解析为您自己，则将状态持续时间的颜色更改为绿色。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 ImGui.InputTextWithHint("##applier", "玩家名称@服务器", ref Selected.Applier, 150, C.Censor ? ImGuiInputTextFlags.Password : ImGuiInputTextFlags.None);
@@ -216,7 +216,7 @@ public static class TabMoodles
 
                     ImGui.TableNextColumn();
                     ImGuiEx.TextV($"可驱散：");
-                    ImGuiEx.HelpMarker("将可驱散指示符应用于该Moodle，意味着它可以被康复移除。仅适用于表示负面状态效果的图标。");
+                    ImGuiEx.HelpMarker("将可驱散指示符应用于该Moodle，意味着它可以被康复移除。仅适用于表示弱化状态效果的图标。");
                     ImGui.TableNextColumn();
                     ImGuiEx.SetNextItemFullWidth();
                     ImGui.Checkbox("##dispel", ref Selected.Dispelable);
@@ -245,7 +245,7 @@ public static class TabMoodles
 
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"ID:");
-                ImGuiEx.HelpMarker("用于应用Moodle的命令。");
+                ImGuiEx.HelpMarker("用于应用Moodle的聊天命令。聊天框输入“/moodle help”查看使用帮助。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 ImGui.InputText($"##id-text", Encoding.UTF8.GetBytes(Selected.ID), 36, ImGuiInputTextFlags.ReadOnly);

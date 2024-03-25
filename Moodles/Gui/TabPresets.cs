@@ -101,7 +101,7 @@ public static class TabPresets
             }
             if (Disabled & isMare) ImGui.EndDisabled();
 
-            if (isMare) { ImGuiEx.HelpMarker("这里还没有任何作用，咦，为什么你一直在点它？:)", color: ImGuiColors.DalamudRed); }
+            if (isMare) ImGuiEx.HelpMarker("赞美wozaiha");
             if (dis) ImGui.EndDisabled();
 
             if (Disabled & isMare)
@@ -236,7 +236,7 @@ public static class TabPresets
 
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"ID:");
-                ImGuiEx.HelpMarker("用于应用预设的命令。");
+                ImGuiEx.HelpMarker("用于应用预设的聊天命令。聊天框输入“/moodle help”查看使用帮助。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 ImGui.InputText($"##id-text", Encoding.UTF8.GetBytes(Selected.ID), 36, ImGuiInputTextFlags.ReadOnly);

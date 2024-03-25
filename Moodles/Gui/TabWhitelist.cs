@@ -20,8 +20,8 @@ public static class TabWhitelist
             ImGui.TableHeader($"#h");
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, EColor.RedBright.ToUint());
-            ImGuiEx.LineCentered(() => ImGuiEx.Text(EColor.White, "这里还不能用，哦，好吧。:)"));
+            ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, EColor.Green.ToUint());
+            ImGuiEx.LineCentered(() => ImGuiEx.Text(EColor.White, "赞美wozaiha，国服先用上了！"));
             ImGui.EndTable();
         }
         P.OtterGuiHandler.Whitelist.Draw(200f);

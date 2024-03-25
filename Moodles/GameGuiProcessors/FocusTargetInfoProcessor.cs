@@ -83,7 +83,7 @@ public unsafe class FocusTargetInfoProcessor
             {
                 foreach (var x in pc.GetMyStatusManager().Statuses)
                 {
-                    if (x.Type == StatusType.特殊状态) continue;
+                    if (x.Type == StatusType.其他状态) continue;
                     if (baseCnt < 4) break;
                     var rem = x.ExpiresAt - Utils.Time;
                     if (rem > 0)

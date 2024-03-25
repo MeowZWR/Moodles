@@ -58,7 +58,7 @@ public sealed unsafe class FlyPopupTextProcessor : IDisposable
                 CurrentElement = e;
                 var isMine = e.Status.Applier == Player.NameWithWorld && e.IsAddition;
                 FlyTextKind kind;
-                if (e.Status.Type == StatusType.负面状态)
+                if (e.Status.Type == StatusType.弱化状态)
                 {
                     kind = e.IsAddition ? FlyTextKind.Debuff : FlyTextKind.DebuffFading;
                 }

@@ -133,7 +133,7 @@ public unsafe class CommonProcessor : IDisposable
                         if (P.CanModifyUI() && TryFindIndex(statusManager.Key, out var index, out var pc) && Utils.CanSpawnVfxFlytext(pc))
                         {
                             FlyPopupTextProcessor.Enqueue(new(x, true, pc.ObjectId));
-                            if (x.Type == StatusType.负面状态)
+                            if (x.Type == StatusType.弱化状态)
                             {
                                 VFXCandidates.Add((pc, "vfx/common/eff/dk05th_stdn0t.avfx"));
                             }
