@@ -45,7 +45,7 @@ public class IPCProcessor : IDisposable
                     PluginLog.Information($"Adding status from {message.From}:{x.Title}:{x.Description}:{(x.NoExpire ? "Infinity" : "")}{x.ExpiresAt - Utils.Time}");
                     if (Utils.CheckWhitelistGlobal(x) || C.Whitelist.Any(w => w.CheckStatus(x)))
                     {
-                        sm.AddOrUpdate(x, false, true);
+                        sm.AddOrUpdate(x, true, true);
                     }
                     else
                     {

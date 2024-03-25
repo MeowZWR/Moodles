@@ -250,6 +250,7 @@ public unsafe class CommonProcessor : IDisposable
             {
                 str += $"\n{status.Description}";
             }
+            if (status.Applier != Player.NameWithWorld && !status.Applier.IsNullOrEmpty()) str += $"\n来自:{status.Applier}";
             MemoryHelper.WriteSeString(TooltipMemory, Utils.ParseBBSeString(str));
             AtkStage.GetSingleton()->TooltipManager.ShowTooltip((ushort)addon->ID, container, (byte*)TooltipMemory);
         }

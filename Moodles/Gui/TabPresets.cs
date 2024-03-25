@@ -16,6 +16,8 @@ public static class TabPresets
         [PresetApplicationType.IgnoreExisting] = "忽略现有状态",
     };
     static string Filter = "";
+    private static long lockUntil = 0;
+
 
     static Preset Selected => P.OtterGuiHandler.PresetFileSystem.Selector.Selected;
     public static void Draw()
@@ -54,6 +56,7 @@ public static class TabPresets
             var dis = Svc.Targets.Target is not PlayerCharacter;
             if (dis) ImGui.BeginDisabled();
             var isMare = Utils.GetMarePlayers().Contains(Svc.Targets.Target?.Address ?? -1);
+            if (Disabled & isMare) ImGui.BeginDisabled();
             if (ImGui.Button($"应用到目标（{(isMare ? "通过月海同步器" : "本地")}）"))
             {
                 try
@@ -66,6 +69,7 @@ public static class TabPresets
                     else
                     {
                         Selected.SendMareMessage(target);
+                        LockBroadcast();
                     }
                 }
                 catch (Exception e)
@@ -73,8 +77,38 @@ public static class TabPresets
                     e.Log();
                 }
             }
+
+            ImGui.SameLine();
+            if (ImGui.Button($"从目标移除（{(isMare ? "通过月海同步器" : "本地")}）"))
+            {
+                try
+                {
+                    var target = (PlayerCharacter)Svc.Targets.Target;
+                    if (!isMare)
+                    {
+                        Utils.GetMyStatusManager(target.GetNameWithWorld()).RemovePreset(Selected);
+                    }
+                    else
+                    {
+                        Selected.SendMareMessage(target, PrepareOptions.Remove);
+                        LockBroadcast();
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.Log();
+                }
+            }
+            if (Disabled & isMare) ImGui.EndDisabled();
+
             if (isMare) ImGuiEx.HelpMarker("赞美wozaiha");
             if (dis) ImGui.EndDisabled();
+
+            if (Disabled & isMare)
+            {
+                ImGui.SameLine();
+                ImGui.Text($"冷却中,剩余{(lockUntil - DateTimeOffset.Now.ToUnixTimeSeconds())}秒");
+            }
 
             ImGuiEx.TextV("运行方式：");
             ImGui.SameLine();
@@ -217,4 +251,10 @@ public static class TabPresets
             }
         }
     }
+    private static void LockBroadcast()
+    {
+        lockUntil = DateTimeOffset.Now.AddSeconds(10).ToUnixTimeSeconds();
+    }
+
+    private static bool Disabled => lockUntil > DateTimeOffset.Now.ToUnixTimeSeconds();
 }

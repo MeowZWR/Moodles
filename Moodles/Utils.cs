@@ -18,12 +18,12 @@ using UIColor = ECommons.ChatMethods.UIColor;
 namespace Moodles;
 public static unsafe partial class Utils
 {
-    public static void SendMareMessage(this Preset Preset, PlayerCharacter target)
+    public static void SendMareMessage(this Preset Preset, PlayerCharacter target, PrepareOptions prepareOptions = PrepareOptions.NoOption)
     {
         var list = new List<MyStatus>();
         foreach (var s in C.SavedStatuses.Where(x => Preset.Statuses.Contains(x.GUID)))
         {
-            var preparedStatus = s.PrepareToApply();
+            var preparedStatus = s.PrepareToApply(prepareOptions);
             preparedStatus.Applier = Player.NameWithWorld ?? "";
             if (!preparedStatus.IsValid(out var error))
             {
@@ -53,9 +53,9 @@ public static unsafe partial class Utils
         
     }
 
-    public static void SendMareMessage(this MyStatus Status, PlayerCharacter target)
+    public static void SendMareMessage(this MyStatus Status, PlayerCharacter target, PrepareOptions prepareOptions = PrepareOptions.NoOption)
     {
-        var preparedStatus = Status.PrepareToApply();
+        var preparedStatus = Status.PrepareToApply(prepareOptions);
         preparedStatus.Applier = Player.NameWithWorld ?? "";
         if (!preparedStatus.IsValid(out var error))
         {
@@ -354,6 +354,10 @@ public static unsafe partial class Utils
         else
         {
             status.ExpiresAt = Time + status.TotalDurationSeconds;
+        }
+        if (opts.Contains(PrepareOptions.Remove))
+        {
+            status.ExpiresAt = 0;
         }
         return status;
     }
