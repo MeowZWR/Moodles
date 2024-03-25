@@ -16,7 +16,7 @@ public static class TabPresets
         [PresetApplicationType.IgnoreExisting] = "忽略现有状态",
     };
     static string Filter = "";
-    private static int lockUntil = 0;
+    private static long lockUntil = 0;
 
 
     static Preset Selected => P.OtterGuiHandler.PresetFileSystem.Selector.Selected;
@@ -56,7 +56,7 @@ public static class TabPresets
             var dis = Svc.Targets.Target is not PlayerCharacter;
             if (dis) ImGui.BeginDisabled();
             var isMare = Utils.GetMarePlayers().Contains(Svc.Targets.Target?.Address ?? -1);
-            ImGui.BeginDisabled(Disabled & isMare);
+            if (Disabled & isMare) ImGui.BeginDisabled();
             if (ImGui.Button($"应用到目标（{(isMare ? "通过月海同步器" : "本地")}）"))
             {
                 try
@@ -78,6 +78,7 @@ public static class TabPresets
                 }
             }
 
+            ImGui.SameLine();
             if (ImGui.Button($"从目标移除（{(isMare ? "通过月海同步器" : "本地")}）"))
             {
                 try
@@ -98,10 +99,16 @@ public static class TabPresets
                     e.Log();
                 }
             }
-            ImGui.EndDisabled();
+            if (Disabled & isMare) ImGui.EndDisabled();
 
             if (isMare) { ImGuiEx.HelpMarker("这里还没有任何作用，咦，为什么你一直在点它？:)", color: ImGuiColors.DalamudRed); }
             if (dis) ImGui.EndDisabled();
+
+            if (Disabled & isMare)
+            {
+                ImGui.SameLine();
+                ImGui.Text($"冷却中,剩余{(lockUntil - DateTimeOffset.Now.ToUnixTimeSeconds())}秒");
+            }
 
             ImGuiEx.TextV("运行方式：");
             ImGui.SameLine();
@@ -246,8 +253,8 @@ public static class TabPresets
     }
     private static void LockBroadcast()
     {
-        lockUntil = DateTime.Now.AddSeconds(10).Second;
+        lockUntil = DateTimeOffset.Now.AddSeconds(10).ToUnixTimeSeconds();
     }
 
-    private static bool Disabled = lockUntil > DateTime.Now.Second;
+    private static bool Disabled => lockUntil > DateTimeOffset.Now.ToUnixTimeSeconds();
 }

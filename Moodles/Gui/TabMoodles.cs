@@ -13,7 +13,7 @@ public static class TabMoodles
     static bool AsPermanent = false;
     static MyStatus Selected => P.OtterGuiHandler.MoodleFileSystem.Selector.Selected;
     static string Filter = ""; 
-    private static int lockUntil = 0;
+    private static long lockUntil = 0;
     public static void Draw()
     {
         P.OtterGuiHandler.MoodleFileSystem.Selector.Draw(200f);
@@ -44,7 +44,7 @@ public static class TabMoodles
             var dis = Svc.Targets.Target is not PlayerCharacter;
             if (dis) ImGui.BeginDisabled();
             var isMare = Utils.GetMarePlayers().Contains(Svc.Targets.Target?.Address ?? -1);
-            ImGui.BeginDisabled(Disabled & isMare);
+            if (Disabled & isMare) ImGui.BeginDisabled();
             if (ImGui.Button($"应用到目标（{(isMare?"通过月海同步器":"本地")}）"))
             {
                 try
@@ -66,6 +66,7 @@ public static class TabMoodles
                 }
             }
 
+            ImGui.SameLine();
             if (ImGui.Button($"从目标移除（{(isMare ? "通过月海同步器" : "本地")}）"))
             {
                 try
@@ -86,10 +87,16 @@ public static class TabMoodles
                     e.Log();
                 }
             }
-            ImGui.EndDisabled();
+            if (Disabled & isMare) ImGui.EndDisabled();
 
             if (isMare) { ImGuiEx.HelpMarker("这里还没有任何作用，咦，为什么你一直在点它？:)", color: ImGuiColors.DalamudRed); }
             if (dis) ImGui.EndDisabled();
+
+            if (Disabled & isMare)
+            {
+                ImGui.SameLine();
+                ImGui.Text($"冷却中,剩余{(lockUntil - DateTimeOffset.Now.ToUnixTimeSeconds())}秒");
+            }
 
             if (ImGui.BeginTable("##moodles", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame))
             {
@@ -262,8 +269,8 @@ public static class TabMoodles
 
     private static void LockBroadcast()
     {
-        lockUntil = DateTime.Now.AddSeconds(10).Second;
+        lockUntil = DateTimeOffset.Now.AddSeconds(10).ToUnixTimeSeconds();
     }
 
-    private static bool Disabled = lockUntil > DateTime.Now.Second;
+    private static bool Disabled => lockUntil > DateTimeOffset.Now.ToUnixTimeSeconds();
 }
