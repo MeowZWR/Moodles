@@ -1,6 +1,6 @@
 [submodule "ECommons"]
 	path = ECommons
-	url = https://github.com/MeowZWR/ECommons
+	url = https://github.com/MeowZWR/ECommons/tree/NET7
 [submodule "OtterGui"]
 	path = OtterGui
-	url = https://github.com/MeowZWR/OtterGui
+	url = https://github.com/MeowZWR/OtterGui/tree/NET7
