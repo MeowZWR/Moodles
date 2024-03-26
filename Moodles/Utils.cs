@@ -18,22 +18,74 @@ using UIColor = ECommons.ChatMethods.UIColor;
 namespace Moodles;
 public static unsafe partial class Utils
 {
+    public static void SendMareMessage(this Preset Preset, PlayerCharacter target)
+    {
+        var list = new List<MyStatus>();
+        foreach (var s in C.SavedStatuses.Where(x => Preset.Statuses.Contains(x.GUID)))
+        {
+            var preparedStatus = s.PrepareToApply();
+            preparedStatus.Applier = Player.NameWithWorld ?? "";
+            if (!preparedStatus.IsValid(out var error))
+            {
+                PluginLog.Error($"Could not apply status: {error}");
+            }
+            else
+            {
+                list.Add(preparedStatus);
+            }
+        }
+        if (list.Count > 0)
+        {
+            var message = new IncomingMessage(Player.NameWithWorld, target.GetNameWithWorld(), list);
+            if (P.IPCProcessor.BroadcastMareMessage.TryInvoke(Convert.ToBase64String(message.Serialize())))
+            {
+                Notify.Info($"Broadcast success");
+            }
+            else
+            {
+                Notify.Error("Broadcast failed");
+            }
+        }
+    }
+
+    public static void SendMareMessage(this MyStatus Status, PlayerCharacter target)
+    {
+        var preparedStatus = Status.PrepareToApply();
+        preparedStatus.Applier = Player.NameWithWorld ?? "";
+        if (!preparedStatus.IsValid(out var error))
+        {
+            Notify.Error($"Could not apply status: {error}");
+        }
+        else
+        {
+            var message = new IncomingMessage(Player.NameWithWorld, target.GetNameWithWorld(), [preparedStatus]);
+            if (P.IPCProcessor.BroadcastMareMessage.TryInvoke(Convert.ToBase64String(message.Serialize())))
+            {
+                Notify.Info($"Broadcast success");
+            }
+            else
+            {
+                Notify.Error("Broadcast failed");
+            }
+        }
+    }
+
     public static void DurationSelector(string PermanentTitle, ref bool NoExpire, ref int Days, ref int Hours, ref int Minutes, ref int Seconds)
     {
         ImGui.Checkbox(PermanentTitle, ref NoExpire);
         if (!NoExpire)
         {
             ImGui.SameLine();
-            ImGuiEx.SetNextItemWidthScaled(30);
+            ImGui.SetNextItemWidth(30);
             ImGui.DragInt("D", ref Days, 0.1f, 0, 999);
             ImGui.SameLine();
-            ImGuiEx.SetNextItemWidthScaled(30);
+            ImGui.SetNextItemWidth(30);
             ImGui.DragInt("H##h", ref Hours, 0.1f, 0, 23);
             ImGui.SameLine();
-            ImGuiEx.SetNextItemWidthScaled(30);
+            ImGui.SetNextItemWidth(30);
             ImGui.DragInt("M##m", ref Minutes, 0.1f, 0, 59);
             ImGui.SameLine();
-            ImGuiEx.SetNextItemWidthScaled(30);
+            ImGui.SetNextItemWidth(30);
             ImGui.DragInt("S##s", ref Seconds, 0.1f, 0, 59);
         }
     }
@@ -147,7 +199,34 @@ public static unsafe partial class Utils
         }
     }
 
-    public static bool CanSpawnVfxFlytext(PlayerCharacter target)
+    public static bool TryFindPlayer(string name, out PlayerCharacter pcr)
+    {
+        if (name == Player.NameWithWorld)
+        {
+            pcr = Player.Object;
+            return true;
+        }
+        else
+        {
+            foreach (var x in Svc.Objects)
+            {
+                if (x is PlayerCharacter pc && pc.GetNameWithWorld() == name)
+                {
+                    pcr = pc;
+                    return true;
+                }
+            }
+        }
+        pcr = null;
+        return false;
+    }
+
+    public static bool CanSpawnVFX(PlayerCharacter target)
+    {
+        return true;
+    }
+
+    public static bool CanSpawnFlytext(PlayerCharacter target)
     {
         if (!target.IsTargetable) return false;
         if (!Player.Interactable) return false;
@@ -327,6 +406,28 @@ public static unsafe partial class Utils
             };
             IconInfoCache[iconID] = info;
             return info;
+        }
+    }
+
+    public static void CleanupNulls()
+    {
+        for (int i = C.SavedStatuses.Count - 1; i >= 0; i--)
+        {
+            var item = C.SavedStatuses[i];
+            if (item == null)
+            {
+                PluginLog.Warning($"Cleaning up corrupted stats {i}");
+                C.SavedStatuses.RemoveAt(i);
+            }
+        }
+        for (int i = C.SavedPresets.Count - 1; i >= 0; i--)
+        {
+            var item = C.SavedPresets[i];
+            if (item == null)
+            {
+                PluginLog.Warning($"Cleaning up corrupted presets {i}");
+                C.SavedPresets.RemoveAt(i);
+            }
         }
     }
 }
