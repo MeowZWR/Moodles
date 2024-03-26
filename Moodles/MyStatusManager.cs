@@ -49,7 +49,7 @@ public class MyStatusManager
                 return;
             }
         }
-        if (newStatus.ExpiresAt == 0) return;
+        if (newStatus.ExpiresAt <= DateTimeOffset.Now.ToUnixTimeMilliseconds()) return;
 
         if (triggerEvent) NeedFireEvent = true;
         Statuses.Add(newStatus);
