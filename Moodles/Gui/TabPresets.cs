@@ -11,11 +11,13 @@ public static class TabPresets
     static Guid CurrentDrag = Guid.Empty;
     private static Dictionary<PresetApplicationType, string> ApplicationTypes = new()
     {
-        [PresetApplicationType.ReplaceAll] = "Replace all current statuses",
-        [PresetApplicationType.UpdateExisting] = "Update duration of existing",
-        [PresetApplicationType.IgnoreExisting] = "Ignore existing",
+        [PresetApplicationType.ReplaceAll] = "替换当前所有的状态",
+        [PresetApplicationType.UpdateExisting] = "更新现有状态的持续时间",
+        [PresetApplicationType.IgnoreExisting] = "忽略现有状态",
     };
     static string Filter = "";
+    private static long lockUntil = 0;
+
 
     static Preset Selected => P.OtterGuiHandler.PresetFileSystem.Selector.Selected;
     public static void Draw()
@@ -45,7 +47,7 @@ public static class TabPresets
         if (!child || Selected == null)
             return;
         {
-            if (ImGui.Button("Apply to Yourself"))
+            if (ImGui.Button("应用到你自己"))
             {
                 Utils.GetMyStatusManager(Player.NameWithWorld).ApplyPreset(Selected);
             }
@@ -54,7 +56,8 @@ public static class TabPresets
             var dis = Svc.Targets.Target is not PlayerCharacter;
             if (dis) ImGui.BeginDisabled();
             var isMare = Utils.GetMarePlayers().Contains(Svc.Targets.Target?.Address ?? -1);
-            if (ImGui.Button($"Apply to Target ({(isMare ? "via Mare Synchronos" : "Locally")})"))
+            if (Disabled & isMare) ImGui.BeginDisabled();
+            if (ImGui.Button($"应用到目标（{(isMare ? "通过月海同步器" : "本地")}）"))
             {
                 try
                 {
@@ -66,6 +69,7 @@ public static class TabPresets
                     else
                     {
                         Selected.SendMareMessage(target);
+                        LockBroadcast();
                     }
                 }
                 catch (Exception e)
@@ -73,18 +77,48 @@ public static class TabPresets
                     e.Log();
                 }
             }
-            if (isMare) { ImGuiEx.HelpMarker("This doesn't do anything yet, why are you clicking it? :)", color: ImGuiColors.DalamudRed); }
+
+            ImGui.SameLine();
+            if (ImGui.Button($"从目标移除（{(isMare ? "通过月海同步器" : "本地")}）"))
+            {
+                try
+                {
+                    var target = (PlayerCharacter)Svc.Targets.Target;
+                    if (!isMare)
+                    {
+                        Utils.GetMyStatusManager(target.GetNameWithWorld()).RemovePreset(Selected);
+                    }
+                    else
+                    {
+                        Selected.SendMareMessage(target, PrepareOptions.Remove);
+                        LockBroadcast();
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.Log();
+                }
+            }
+            if (Disabled & isMare) ImGui.EndDisabled();
+
+            if (isMare) ImGuiEx.HelpMarker("赞美wozaiha");
             if (dis) ImGui.EndDisabled();
 
-            ImGuiEx.TextV("On application:");
+            if (Disabled & isMare)
+            {
+                ImGui.SameLine();
+                ImGui.Text($"冷却中,剩余{(lockUntil - DateTimeOffset.Now.ToUnixTimeSeconds())}秒");
+            }
+
+            ImGuiEx.TextV("运行方式：");
             ImGui.SameLine();
             ImGuiEx.SetNextItemFullWidth();
             ImGuiEx.EnumCombo("##on", ref Selected.ApplicationType, ApplicationTypes);
             ImGuiEx.SetNextItemFullWidth();
-            if(ImGui.BeginCombo("##addnew", "Add new Moodle..."))
+            if(ImGui.BeginCombo("##addnew", "添加新的Moodle..."))
             {
                 ImGuiEx.SetNextItemFullWidth();
-                ImGui.InputTextWithHint("##search", "Filter", ref Filter, 50);
+                ImGui.InputTextWithHint("##search", "筛选", ref Filter, 50);
                 foreach (var x in C.SavedStatuses)
                 {
                     if (!x.IsValid(out _)) continue;
@@ -202,7 +236,7 @@ public static class TabPresets
 
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"ID:");
-                ImGuiEx.HelpMarker("Used in commands to apply preset.");
+                ImGuiEx.HelpMarker("用于应用预设的聊天命令。聊天框输入“/moodle help”查看使用帮助。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 ImGui.InputText($"##id-text", Encoding.UTF8.GetBytes(Selected.ID), 36, ImGuiInputTextFlags.ReadOnly);
@@ -217,4 +251,10 @@ public static class TabPresets
             }
         }
     }
+    private static void LockBroadcast()
+    {
+        lockUntil = DateTimeOffset.Now.AddSeconds(10).ToUnixTimeSeconds();
+    }
+
+    private static bool Disabled => lockUntil > DateTimeOffset.Now.ToUnixTimeSeconds();
 }

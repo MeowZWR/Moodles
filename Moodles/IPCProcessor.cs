@@ -43,7 +43,7 @@ public class IPCProcessor : IDisposable
                 {
                     if (Utils.CheckWhitelistGlobal(x) || C.Whitelist.Any(w => w.CheckStatus(x)))
                     {
-                        sm.AddOrUpdate(x, false, true);
+                        sm.AddOrUpdate(x, true, true);
                     }
                     else
                     {

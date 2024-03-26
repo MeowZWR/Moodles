@@ -21,7 +21,7 @@ public class Whitelist : WhitelistItemSelector<WhitelistEntry>
     protected override bool OnDraw(int i)
     {
         var p = C.Whitelist[i];
-        var ret = ImGui.Selectable($"{p.PlayerName.Censor($"WhitelistEntry {i + 1}")}##{i}", this.CurrentIdx == i);
+        var ret = ImGui.Selectable($"{p.PlayerName.Censor($"白名单 {i + 1}")}##{i}", this.CurrentIdx == i);
         return ret;
     }
 

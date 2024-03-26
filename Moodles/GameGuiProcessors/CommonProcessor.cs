@@ -138,7 +138,7 @@ public unsafe class CommonProcessor : IDisposable
                             }
                             if (Utils.CanSpawnVFX(pc))
                             {
-                                if (x.Type == StatusType.Negative && !SHECandidates.Any(s => s.Player.AddressEquals(pc) && s.Kind == StatusHitEffectKind.Enfeeblement))
+                                if (x.Type == StatusType.弱化状态 && !SHECandidates.Any(s => s.Player.AddressEquals(pc) && s.Kind == StatusHitEffectKind.Enfeeblement))
                                 {   
                                     SHECandidates.Add((pc, StatusHitEffectKind.Enfeeblement));
                                 }
@@ -246,6 +246,7 @@ public unsafe class CommonProcessor : IDisposable
             {
                 str += $"\n{status.Description}";
             }
+            if (status.Applier != Player.NameWithWorld && !status.Applier.IsNullOrEmpty()) str += $"\n来自:{status.Applier}";
             MemoryHelper.WriteSeString(TooltipMemory, Utils.ParseBBSeString(str));
             AtkStage.GetSingleton()->TooltipManager.ShowTooltip((ushort)addon->ID, container, (byte*)TooltipMemory);
         }

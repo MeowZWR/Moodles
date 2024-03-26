@@ -97,7 +97,7 @@ public unsafe class PartyListProcessor : IDisposable
                         int curIndex = this.NumStatuses[n];
                         foreach (var status in player.GetMyStatusManager().Statuses)
                         {
-                            if (status.Type == StatusType.Special) continue;
+                            if (status.Type == StatusType.其他状态) continue;
                             if (curIndex >= iconArray.Length) break;
                             var rem = status.ExpiresAt - Utils.Time;
                             if (rem > 0)

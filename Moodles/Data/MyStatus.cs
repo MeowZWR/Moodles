@@ -15,6 +15,7 @@ public partial class MyStatus
     public string Applier = "";
     public bool Dispelable = false;
     public int Stacks = 1;
+    //public bool AddStack = false;
     //public string TextOverride = null;
     //public uint? TextColorOverride = null;
     //public uint? EdgeColorOverride = null;

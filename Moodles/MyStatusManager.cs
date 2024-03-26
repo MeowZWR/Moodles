@@ -39,11 +39,18 @@ public class MyStatusManager
         {
             if (Statuses[i].GUID == newStatus.GUID)
             {
+                //if (newStatus.AddStack && P.CommonProcessor.IconStackCounts.TryGetValue((uint)newStatus.IconID, out var count))
+                //{
+                //    newStatus.Stacks = newStatus.Stacks + Statuses[i].Stacks > count ? (int)count : Statuses[i].Stacks + newStatus.Stacks;
+                //}
+                if (newStatus.ExpiresAt == Statuses[i].ExpiresAt) return;
                 Statuses[i] = newStatus;
                 if (triggerEvent) NeedFireEvent = true;
                 return;
             }
         }
+        if (newStatus.ExpiresAt <= DateTimeOffset.Now.ToUnixTimeMilliseconds()) return;
+
         if (triggerEvent) NeedFireEvent = true;
         Statuses.Add(newStatus);
     }

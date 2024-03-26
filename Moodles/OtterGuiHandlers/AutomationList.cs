@@ -42,12 +42,12 @@ public class AutomationList : ItemSelector<AutomationProfile>
             }
         }
         var cur = ImGui.GetCursorPos();
-        var text = $"{p.Character.CensorCharacter()} ({(p.World == 0 ? "Any world" : ExcelWorldHelper.GetName(p.World))})";
+        var text = $"{p.Character.CensorCharacter()} ({(p.World == 0 ? "任意服务器" : ExcelWorldHelper.GetName(p.World))})";
         var size = ImGui.CalcTextSize($"{text}");
         ImGui.SetCursorPos(new(190f - size.X, cur.Y + size.Y));
         ImGuiEx.Text($"{text}");
         ImGui.SetCursorPos(cur);
-        var ret = ImGui.Selectable($"{p.Name.Censor($"Automation set {i+1}")}\n ##{i}", this.CurrentIdx == i);
+        var ret = ImGui.Selectable($"{p.Name.Censor($"自动执行集 {i+1}")}\n ##{i}", this.CurrentIdx == i);
         if (col) ImGui.PopStyleColor();
         return ret;
     }
