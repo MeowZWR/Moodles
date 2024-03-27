@@ -50,7 +50,7 @@ public class StatusSelector : Window
         ImGui.SameLine();
         ImGuiEx.Text("种类/职业：");
         ImGui.SameLine();
-        ImGuiEx.SetNextItemWidthScaled(120f);
+        ImGui.SetNextItemWidth(120f);
         if (ImGui.BeginCombo("##job", Jobs.Select(x => x.ToString().Replace("_", " ")).PrintRange(out var fullList)))
         {
             foreach (var cond in Enum.GetValues<Job>().Where(x => !x.IsUpgradeable()).OrderByDescending(x => Svc.Data.GetExcelSheet<ClassJob>().GetRow((uint)x).Role))
@@ -69,7 +69,7 @@ public class StatusSelector : Window
         ImGui.SameLine();
         ImGuiEx.Text("排序：");
         ImGui.SameLine();
-        ImGuiEx.SetNextItemWidthScaled(100f);
+        ImGui.SetNextItemWidth(100f);
         ImGuiEx.EnumCombo("##order", ref C.IconSortOption);
 
         if (ImGui.BeginChild("child"))
@@ -110,7 +110,7 @@ public class StatusSelector : Window
         {
             ImGuiEx.Text(EColor.RedBright, $"没有与筛选条件匹配的元素。");
         }
-        int cols = Math.Clamp((int)(ImGui.GetWindowSize().X / 200f.Scale()), 1, 10);
+        int cols = Math.Clamp((int)(ImGui.GetWindowSize().X / 200f), 1, 10);
         if(ImGui.BeginTable("StatusTable", cols, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame))
         {
             for (int i = 0; i < cols; i++)
