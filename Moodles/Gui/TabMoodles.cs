@@ -74,11 +74,11 @@ public static class TabMoodles
                     var target = (PlayerCharacter)Svc.Targets.Target;
                     if (!isMare)
                     {
-                        Utils.GetMyStatusManager(target.GetNameWithWorld()).AddOrUpdate(Selected.PrepareToApply(PrepareOptions.Remove));
+                        Utils.GetMyStatusManager(target.GetNameWithWorld()).AddOrUpdate(Selected.PrepareToApply(PrepareOptions.Cancel));
                     }
                     else
                     {
-                        Selected.SendMareMessage(target, PrepareOptions.Remove);
+                        Selected.SendMareMessage(target, PrepareOptions.Cancel);
                         LockBroadcast();
                     }
                 }

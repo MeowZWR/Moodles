@@ -138,7 +138,7 @@ public unsafe class CommonProcessor : IDisposable
                             }
                             if (Utils.CanSpawnVFX(pc))
                             {
-                                if (x.Type == StatusType.Negative && !SHECandidates.Any(s => s.Player.AddressEquals(pc) && s.Kind == StatusHitEffectKind.Enfeeblement))
+                                if (x.Type == StatusType.弱化状态 && !SHECandidates.Any(s => s.Player.AddressEquals(pc) && s.Kind == StatusHitEffectKind.Enfeeblement))
                                 {   
                                     SHECandidates.Add((pc, StatusHitEffectKind.Enfeeblement));
                                 }

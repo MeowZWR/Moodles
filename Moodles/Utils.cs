@@ -382,7 +382,7 @@ public static unsafe partial class Utils
         {
             status.ExpiresAt = Time + status.TotalDurationSeconds;
         }
-        if (opts.Contains(PrepareOptions.Remove))
+        if (opts.Contains(PrepareOptions.Cancel))
         {
             status.ExpiresAt = 0;
         }

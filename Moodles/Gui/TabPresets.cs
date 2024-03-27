@@ -90,7 +90,7 @@ public static class TabPresets
                     }
                     else
                     {
-                        Selected.SendMareMessage(target, PrepareOptions.Remove);
+                        Selected.SendMareMessage(target, PrepareOptions.Cancel);
                         LockBroadcast();
                     }
                 }
