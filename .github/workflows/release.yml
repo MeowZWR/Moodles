@@ -1,4 +1,4 @@
-name: Create Release
+name: Create Release Net8
 
 on:
   push:
@@ -23,11 +23,11 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: 8.0.x
 
       - name: Download Dalamud Latest
         run: |
-          wget https://goatcorp.github.io/dalamud-distrib/latest.zip -O ${{ env.DALAMUD_HOME }}.zip
+          wget https://github.com/ottercorp/dalamud-distrib/raw/main/stg/latest.zip -O ${{ env.DALAMUD_HOME }}.zip
           unzip ${{ env.DALAMUD_HOME }}.zip -d ${{ env.DALAMUD_HOME }}
 
       - name: Restore dependencies
@@ -85,9 +85,9 @@ jobs:
         run: |
           git config --global user.name "Actions User"
           git config --global user.email "actions@github.com"
-          git fetch origin main
+          git fetch origin cn-net8
           git reset --hard ${{ github.sha }}
-          git checkout main
+          git checkout cn-net8
           git add repo.json
           git commit -m "[CI] Updating repo.json for ${{ env.tag }}" || true
-          git push origin main
+          git push origin cn-net8
