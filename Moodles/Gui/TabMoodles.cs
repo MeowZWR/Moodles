@@ -13,7 +13,7 @@ public static class TabMoodles
 
     private static string Filter = "";
 
-    private static int lockUntil = 0;
+    private static long lockUntil = 0;
 
     public static void Draw()
     {
@@ -77,7 +77,7 @@ public static class TabMoodles
             {
                 try
                 {
-                    var target = (PlayerCharacter)Svc.Targets.Target;
+                    var target = (IPlayerCharacter)Svc.Targets.Target;
                     if (!isMare)
                     {
                         Utils.GetMyStatusManager(target.GetNameWithWorld()).AddOrUpdate(Selected.PrepareToApply(PrepareOptions.Cancel));

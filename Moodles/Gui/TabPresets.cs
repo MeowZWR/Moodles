@@ -74,9 +74,7 @@ public static class TabPresets
                         Selected.SendMareMessage(target);
                         LockBroadcast();
                     }
-                    else if  (isGSpeak)
-                        Selected.SendGSpeakMessage(target);
-                    }
+                    else Selected.SendGSpeakMessage(target);
                 }
                 catch(Exception e)
                 {
@@ -89,7 +87,7 @@ public static class TabPresets
             {
                 try
                 {
-                    var target = (PlayerCharacter)Svc.Targets.Target;
+                    var target = (IPlayerCharacter)Svc.Targets.Target;
                     if (!isMare)
                     {
                         Utils.GetMyStatusManager(target.GetNameWithWorld()).RemovePreset(Selected);

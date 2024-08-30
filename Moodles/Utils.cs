@@ -53,7 +53,7 @@ public static unsafe partial class Utils
 
     public static void SendMareMessage(this Preset Preset, IPlayerCharacter target, PrepareOptions prepareOptions = PrepareOptions.NoOption)
     {
-        var list = new List<MoodlesStatusInfo>();
+        var list = new List<MyStatus>();
         foreach(var s in C.SavedStatuses.Where(x => Preset.Statuses.Contains(x.GUID)))
         {
             var preparedStatus = s.PrepareToApply(prepareOptions);
@@ -64,7 +64,7 @@ public static unsafe partial class Utils
             }
             else
             {
-                list.Add(preparedStatus.ToStatusInfoTuple());
+                list.Add(preparedStatus);
             }
         }
 

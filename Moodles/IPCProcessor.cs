@@ -211,6 +211,30 @@ public class IPCProcessor : IDisposable
         SetStatusManager((IPlayerCharacter) Svc.Objects.CreateObjectReference(ptr), data);
     }
 
+    [EzIPC]
+    void AcceptMessage(string serMessage)
+    {
+        if (IncomingMessage.TryDeserialize(Convert.FromBase64String(serMessage), out var message))
+        {
+            if (message.To == Player.NameWithWorld)
+            {
+                var sm = Player.Object.GetMyStatusManager();
+                foreach (var x in message.ApplyStatuses)
+                {
+                    PluginLog.Information($"Adding status from {message.From}:{x.Title}:{x.Description}:{(x.NoExpire ? "Infinity" : "")}{x.ExpiresAt - Utils.Time}");
+                    if (Utils.CheckWhitelistGlobal(x) || C.WhitelistMare.Any(w => w.CheckStatus(x)))
+                    {
+                        sm.AddOrUpdate(x, true, true);
+                    }
+                    else
+                    {
+                        PluginLog.Warning($"Status {x.Title} is not allowed, skipping.");
+                    }
+                }
+            }
+        }
+    }
+
     // /// <summary> 
     // /// Attempts to apply the encoded base64 status manager data to a visible player character object by their address.
     // /// <para> This address is used to obtain a IPlayerCharacter object reference, and is null if address is not in the object table. </para>
