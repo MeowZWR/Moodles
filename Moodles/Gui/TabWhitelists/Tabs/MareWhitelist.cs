@@ -54,21 +54,21 @@ internal class MareWhitelist : PluginWhitelist
                 ImGuiEx.TextV($"Allowed Status Types:");
                 ImGui.TableNextColumn();
 
-                ImGui.BeginDisabled();
+                //ImGui.BeginDisabled();
                 foreach(var x in Enum.GetValues<StatusType>())
                 {
                     ImGuiEx.CollectionCheckbox($"{x}", x, Selected.AllowedTypes);
                 }
-                ImGui.EndDisabled();
+                //ImGui.EndDisabled();
 
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"Maximum Duration:");
                 ImGui.TableNextColumn();
 
-                ImGui.BeginDisabled();
+                //ImGui.BeginDisabled();
                 Utils.DurationSelector("Any Duration", ref Selected.AnyDuration, ref Selected.Days, ref Selected.Hours, ref Selected.Minutes, ref Selected.Seconds);
-                ImGui.EndDisabled();
+                //ImGui.EndDisabled();
 
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
