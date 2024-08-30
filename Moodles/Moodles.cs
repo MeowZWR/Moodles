@@ -23,12 +23,12 @@ public class Moodles : IDalamudPlugin
     public List<MyStatusManager> MyStatusManagers = [];
     public OtterGuiHandler OtterGuiHandler;
     public Job? LastJob = null;
-    bool LastUIModState = false;
+    private bool LastUIModState = false;
     public StatusSelector StatusSelector;
     public IPCProcessor IPCProcessor;
     public IPCTester IPCTester;
 
-    public Moodles(DalamudPluginInterface pi)
+    public Moodles(IDalamudPluginInterface pi)
     {
         P = this;
         ECommonsMain.Init(pi, this);
@@ -36,7 +36,7 @@ public class Moodles : IDalamudPlugin
         {
             Config = EzConfig.Init<Config>();
             EzConfigGui.Init(UI.Draw);
-            EzCmd.Add("/moodles", EzConfigGui.Open, "打开插件界面");
+            EzCmd.Add("/moodles", ToggleUi, "打开插件界面");
             EzCmd.Add("/moodle", MoodleCommandProcessor.Process, "添加或移除moodles");
             Memory = new();
             CommonProcessor = new();
@@ -52,6 +52,11 @@ public class Moodles : IDalamudPlugin
             IPCTester = new();
             Utils.CleanupNulls();
         });
+    }
+
+    private void ToggleUi(string _, string __)
+    {
+        EzConfigGui.Window.IsOpen = !EzConfigGui.Window.IsOpen;
     }
 
     public void CleanupStatusManagers()
@@ -71,9 +76,9 @@ public class Moodles : IDalamudPlugin
     public bool CanModifyUI()
     {
         if(!C.Enabled) return false;
-        if (!C.EnabledDuty)
+        if(!C.EnabledDuty)
         {
-            if (Svc.Condition[ConditionFlag.BoundByDuty]
+            if(Svc.Condition[ConditionFlag.BoundByDuty]
                 || Svc.Condition[ConditionFlag.BoundByDuty56]
                 || Svc.ClientState.IsPvP
                 )
@@ -81,9 +86,9 @@ public class Moodles : IDalamudPlugin
                 return false;
             }
         }
-        if (!C.EnabledCombat)
+        if(!C.EnabledCombat)
         {
-            if (Svc.Condition[ConditionFlag.InCombat])
+            if(Svc.Condition[ConditionFlag.InCombat])
             {
                 return false;
             }
@@ -98,7 +103,7 @@ public class Moodles : IDalamudPlugin
 
     private void Tick()
     {
-        if (Player.Available)
+        if(Player.Available)
         {
             if(Player.Job != LastJob)
             {
@@ -109,14 +114,14 @@ public class Moodles : IDalamudPlugin
             var marePlayers = Utils.GetMarePlayers();
             foreach(var x in Svc.Objects)
             {
-                if(x is PlayerCharacter pc)
+                if(x is IPlayerCharacter pc)
                 {
                     var m = pc.GetMyStatusManager(false);
                     if(m != null)
                     {
-                        if (marePlayers.Contains(pc.Address))
+                        if(marePlayers.Contains(pc.Address))
                         {
-                            if (!m.Ephemeral)
+                            if(!m.Ephemeral)
                             {
                                 PluginLog.Debug($"{pc.GetNameWithWorld()} is now Mare player. Status manager ephemeral, automation disabled.");
                                 m.Ephemeral = true;
@@ -135,9 +140,9 @@ public class Moodles : IDalamudPlugin
                 }
             }
         }
-        if (CanModifyUI())
+        if(CanModifyUI())
         {
-            if (!LastUIModState)
+            if(!LastUIModState)
             {
                 LastUIModState = true;
                 InternalLog.Debug($"Can modify UI event");
@@ -145,20 +150,20 @@ public class Moodles : IDalamudPlugin
         }
         else
         {
-            if (LastUIModState)
+            if(LastUIModState)
             {
                 LastUIModState = false;
                 InternalLog.Debug($"Can no longer modify UI");
-                this.CommonProcessor.HideAll();
+                CommonProcessor.HideAll();
             }
         }
         if(C.AutoOther) TickOtherPlayerAutomation();
         var toRem = new List<string>();
         foreach(var m in C.StatusManagers)
         {
-            if (m.Value.Ephemeral)
+            if(m.Value.Ephemeral)
             {
-                if(!Svc.Objects.Any(x => x is PlayerCharacter pc && pc.GetNameWithWorld() == m.Key))
+                if(!Svc.Objects.Any(x => x is IPlayerCharacter pc && pc.GetNameWithWorld() == m.Key))
                 {
                     toRem.Add(m.Key);
                 }
@@ -183,25 +188,25 @@ public class Moodles : IDalamudPlugin
     public void TickOtherPlayerAutomation()
     {
         List<(string Name, Job Job)> newSeenPlayers = [];
-        foreach (var q in Svc.Objects)
+        foreach(var q in Svc.Objects)
         {
-            if (q?.Address != Player.Object?.Address && q is PlayerCharacter pc)
+            if(q?.Address != Player.Object?.Address && q is IPlayerCharacter pc)
             {
                 var name = pc.GetNameWithWorld();
                 var identifier = (name, pc.GetJob());
-                if (!SeenPlayers.Contains(identifier))
+                if(!SeenPlayers.Contains(identifier))
                 {
                     PluginLog.Debug($"Begin apply automation for {identifier}");
                     var mgr = Utils.GetMyStatusManager(name);
-                    if (mgr.Ephemeral || Utils.GetMarePlayers().Contains(pc.Address))
+                    if(mgr.Ephemeral || Utils.GetMarePlayers().Contains(pc.Address))
                     {
                         PluginLog.Debug($"Skipping automation for {identifier} because status manager is controlled by an external plugin");
                     }
                     else
                     {
-                        foreach (var x in Utils.GetSuitableAutomation(pc))
+                        foreach(var x in Utils.GetSuitableAutomation(pc))
                         {
-                            if (C.SavedPresets.TryGetFirst(a => a.GUID == x.Preset, out var p))
+                            if(C.SavedPresets.TryGetFirst(a => a.GUID == x.Preset, out var p))
                             {
                                 PluginLog.Debug($"  Applied preset {p.ID} / {p.Statuses.Select(z => C.SavedStatuses.FirstOrDefault(s => s.GUID == z)?.Title)}");
                                 mgr.ApplyPreset(p);
@@ -218,15 +223,15 @@ public class Moodles : IDalamudPlugin
     {
         {
             var mgr = Utils.GetMyStatusManager(Player.Object);
-            foreach (var x in Utils.GetSuitableAutomation())
+            foreach(var x in Utils.GetSuitableAutomation())
             {
-                if (C.SavedPresets.TryGetFirst(a => a.GUID == x.Preset, out var p))
+                if(C.SavedPresets.TryGetFirst(a => a.GUID == x.Preset, out var p))
                 {
                     mgr.ApplyPreset(p);
                 }
             }
         }
-        if (forceOtherPlayers) this.SeenPlayers.Clear();
+        if(forceOtherPlayers) SeenPlayers.Clear();
     }
 
     public void Dispose()

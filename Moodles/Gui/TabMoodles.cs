@@ -1,8 +1,5 @@
 ﻿using Dalamud.Game.ClientState.Objects.SubKinds;
-using ECommons.EzIpcManager;
 using ECommons.GameHelpers;
-using FFXIVClientStructs.FFXIV.Client.UI.Misc;
-using FFXIVClientStructs.FFXIV.Client.UI.Shell;
 using Moodles.Data;
 using Moodles.OtterGuiHandlers;
 using OtterGui.Raii;
@@ -10,10 +7,14 @@ using OtterGui.Raii;
 namespace Moodles.Gui;
 public static class TabMoodles
 {
-    static bool AsPermanent = false;
-    static MyStatus Selected => P.OtterGuiHandler.MoodleFileSystem.Selector.Selected;
-    static string Filter = ""; 
-    private static long lockUntil = 0;
+    private static bool AsPermanent = false;
+
+    private static MyStatus Selected => P.OtterGuiHandler.MoodleFileSystem.Selector.Selected;
+
+    private static string Filter = "";
+
+    private static int lockUntil = 0;
+
     public static void Draw()
     {
         P.OtterGuiHandler.MoodleFileSystem.Selector.Draw(200f);
@@ -31,33 +32,39 @@ public static class TabMoodles
     public static void DrawSelected()
     {
         using var child = ImRaii.Child("##Panel", -Vector2.One, true);
-        if (!child || Selected == null)
+        if(!child || Selected == null)
             return;
         {
             var cur = new Vector2(ImGui.GetCursorPosX() + ImGui.GetContentRegionAvail().X - UI.StatusIconSize.X * 2, ImGui.GetCursorPosY()) - new Vector2(10, 0);
-            if (ImGui.Button("应用到你自己"))
+            if(ImGui.Button("应用到你自己"))
             {
                 Utils.GetMyStatusManager(Player.NameWithWorld).AddOrUpdate(Selected.PrepareToApply(AsPermanent ? PrepareOptions.Persistent : PrepareOptions.NoOption));
             }
             ImGui.SameLine();
 
-            var dis = Svc.Targets.Target is not PlayerCharacter;
-            if (dis) ImGui.BeginDisabled();
             var isMare = Utils.GetMarePlayers().Contains(Svc.Targets.Target?.Address ?? -1);
-            if (Disabled & isMare) ImGui.BeginDisabled();
-            if (ImGui.Button($"应用到目标（{(isMare?"通过月海同步器":"本地")}）"))
+            var isGSpeak = Svc.Targets.Target is IPlayerCharacter pc && Utils.GSpeakPlayers.Any(player => player.Item1 == pc.GetNameWithWorld());
+            var dis = Svc.Targets.Target is not IPlayerCharacter || Disabled;
+            if(dis) ImGui.BeginDisabled();
+            var buttonText = Svc.Targets.Target is not IPlayerCharacter
+                ? "未选择目标" : isMare && !isGSpeak
+                    ? "应用到目标 (Mare)" : $"应用到目标 ({(isGSpeak ? "GagSpeak" : "本地")})";
+            if(ImGui.Button(buttonText))
             {
                 try
                 {
-                    var target = (PlayerCharacter)Svc.Targets.Target;
-                    if (!isMare)
+                    var target = (IPlayerCharacter)Svc.Targets.Target;
+                    if(!isMare && !isGSpeak)
                     {
                         Utils.GetMyStatusManager(target.GetNameWithWorld()).AddOrUpdate(Selected.PrepareToApply(AsPermanent ? PrepareOptions.Persistent : PrepareOptions.NoOption));
                     }
-                    else
+                    else if (isMare)
                     {
                         Selected.SendMareMessage(target);
                         LockBroadcast();
+                    }
+                    else if (isGSpeak)
+                        Selected.SendGSpeakMessage(target);
                     }
                 }
                 catch(Exception e)
@@ -67,7 +74,7 @@ public static class TabMoodles
             }
 
             ImGui.SameLine();
-            if (ImGui.Button($"从目标移除（{(isMare ? "通过月海同步器" : "本地")}）"))
+            if (ImGui.Button($"从目标移除（{(isMare ? "Mare" : "本地")}）"))
             {
                 try
                 {
@@ -87,7 +94,6 @@ public static class TabMoodles
                     e.Log();
                 }
             }
-            if (Disabled & isMare) ImGui.EndDisabled();
 
             if (isMare) ImGuiEx.HelpMarker("赞美wozaiha");
             if (dis) ImGui.EndDisabled();
@@ -109,7 +115,7 @@ public static class TabMoodles
                 Formatting();
                 {
                     Utils.ParseBBSeString(Selected.Title, out var error);
-                    if (error != null)
+                    if(error != null)
                     {
                         ImGuiEx.HelpMarker(error, EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
                     }
@@ -121,18 +127,22 @@ public static class TabMoodles
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 ImGui.InputText("##name", ref Selected.Title, 150);
+                if(ImGui.IsItemDeactivatedAfterEdit())
+                {
+                    P.IPCProcessor.StatusModified(Selected.GUID);
+                }
                 ImGui.TableNextRow();
 
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"图标");
-                if (Selected.IconID == 0)
+                ImGuiEx.TextV($"图标:");
+                if(Selected.IconID == 0)
                 {
                     ImGuiEx.HelpMarker("您必须选择一个图标", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
                 }
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 var selinfo = Utils.GetIconInfo((uint)Selected.IconID);
-                if (ImGui.BeginCombo("##sel", $"图标：#{Selected.IconID} {selinfo?.Name}", ImGuiComboFlags.HeightLargest))
+                if(ImGui.BeginCombo("##sel", $"图标：#{Selected.IconID} {selinfo?.Name}", ImGuiComboFlags.HeightLargest))
                 {
                     var cursor = ImGui.GetCursorPos();
                     ImGui.Dummy(new Vector2(100, ImGuiHelpers.MainViewport.Size.Y * C.SelectorHeight / 100));
@@ -143,39 +153,35 @@ public static class TabMoodles
                     //ImGui.CloseCurrentPopup();
                     ImGui.EndCombo();
                 }
-                ImGui.TableNextRow(); 
-                
+                // post update to IPC if a new icon is selected.
+                if(Utils.GetIconInfo((uint)Selected.IconID)?.Name != selinfo?.Name)
+                {
+                    P.IPCProcessor.StatusModified(Selected.GUID);
+                }
+                ImGui.TableNextRow();
+
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"堆叠层数：");
                 ImGuiEx.HelpMarker("如果游戏数据包含关于状态效果连续堆叠的信息，您可以在此处选择所需的数字。由于并非所有状态效果的堆叠都遵循相同的逻辑，因此您要查找的图标可能外观相同，却不是这一个。");
                 ImGui.TableNextColumn();
                 
                 var maxStacks = 1;
-                if (P.CommonProcessor.IconStackCounts.TryGetValue((uint)Selected.IconID, out var count))
+                if(P.CommonProcessor.IconStackCounts.TryGetValue((uint)Selected.IconID, out var count))
                 {
                     maxStacks = (int)count;
                 }
                 if(maxStacks <= 1) ImGui.BeginDisabled();
-                //ImGui.Text($"Add Stacks");
-                //if (ImGui.IsItemHovered())
-                //{
-                //    ImGui.SetTooltip($"Add stacks instead of replacing.");
-                //}
-                //ImGui.SameLine();
-                //ImGui.Checkbox("##AddStacksCheckbox", ref Selected.AddStack);
-                //ImGui.SameLine();
-                ImGuiEx.SetNextItemFullWidth();
-                if (ImGui.BeginCombo("##stk", $"{Selected.Stacks}"))
+                if(ImGui.BeginCombo("##stk", $"{Selected.Stacks}"))
                 {
-                    for (int i = 1; i <= maxStacks; i++)
+                    for(var i = 1; i <= maxStacks; i++)
                     {
-                        if (ImGui.Selectable($"{i}")) Selected.Stacks = i;
+                        if(ImGui.Selectable($"{i}")) Selected.Stacks = i;
                     }
                     ImGui.EndCombo();
                 }
-                if (maxStacks <= 1) ImGui.EndDisabled();
-                if (Selected.Stacks > maxStacks) Selected.Stacks = maxStacks;
-                if (Selected.Stacks < 1) Selected.Stacks = 1;
+                if(maxStacks <= 1) ImGui.EndDisabled();
+                if(Selected.Stacks > maxStacks) Selected.Stacks = maxStacks;
+                if(Selected.Stacks < 1) Selected.Stacks = 1;
                 ImGui.TableNextRow();
 
                 ImGui.TableNextColumn();
@@ -185,7 +191,7 @@ public static class TabMoodles
                 Formatting();
                 {
                     Utils.ParseBBSeString(Selected.Description, out var error);
-                    if (error != null)
+                    if(error != null)
                     {
                         ImGuiEx.HelpMarker(error, EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
                     }
@@ -193,6 +199,10 @@ public static class TabMoodles
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 ImGuiEx.InputTextMultilineExpanding("##desc", ref Selected.Description, 500);
+                if(ImGui.IsItemDeactivatedAfterEdit())
+                {
+                    P.IPCProcessor.StatusModified(Selected.GUID);
+                }
                 ImGui.TableNextRow();
 
                 ImGui.TableNextColumn();
@@ -201,16 +211,23 @@ public static class TabMoodles
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 ImGui.InputTextWithHint("##applier", "玩家名称@服务器", ref Selected.Applier, 150, C.Censor ? ImGuiInputTextFlags.Password : ImGuiInputTextFlags.None);
-
+                if(ImGui.IsItemDeactivatedAfterEdit())
+                {
+                    P.IPCProcessor.StatusModified(Selected.GUID);
+                }
                 ImGui.TableNextRow();
 
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"类别：");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
-                ImGuiEx.EnumRadio(ref Selected.Type, true);
+                if(ImGuiEx.EnumRadio(ref Selected.Type, true))
+                {
+                    P.IPCProcessor.StatusModified(Selected.GUID);
+                }
 
-                if (P.CommonProcessor.DispelableIcons.Contains((uint)Selected.IconID))
+
+                if(P.CommonProcessor.DispelableIcons.Contains((uint)Selected.IconID))
                 {
                     ImGui.TableNextRow();
 
@@ -219,7 +236,10 @@ public static class TabMoodles
                     ImGuiEx.HelpMarker("将可驱散指示符应用于该Moodle，意味着它可以被康复移除。仅适用于表示弱化状态效果的图标。");
                     ImGui.TableNextColumn();
                     ImGuiEx.SetNextItemFullWidth();
-                    ImGui.Checkbox("##dispel", ref Selected.Dispelable);
+                    if(ImGui.Checkbox("##dispel", ref Selected.Dispelable))
+                    {
+                        P.IPCProcessor.StatusModified(Selected.GUID);
+                    }
                 }
 
                 ImGui.TableNextRow();
@@ -232,7 +252,10 @@ public static class TabMoodles
                 }
                 ImGui.TableNextColumn();
 
-                Utils.DurationSelector("永久", ref Selected.NoExpire, ref Selected.Days, ref Selected.Hours, ref Selected.Minutes, ref Selected.Seconds);
+                if(Utils.DurationSelector("永久", ref Selected.NoExpire, ref Selected.Days, ref Selected.Hours, ref Selected.Minutes, ref Selected.Seconds))
+                {
+                    P.IPCProcessor.StatusModified(Selected.GUID);
+                }
 
                 ImGui.TableNextRow();
 
@@ -241,7 +264,10 @@ public static class TabMoodles
                 ImGuiEx.HelpMarker("当在自动执行之外手动应用时，除非右键单击状态图标进行关闭，否则不会删除或覆盖此Moodle。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
-                ImGui.Checkbox($"##sticky", ref Selected.AsPermanent);
+                if(ImGui.Checkbox($"##sticky", ref Selected.AsPermanent))
+                {
+                    P.IPCProcessor.StatusModified(Selected.GUID);
+                }
 
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"ID:");
@@ -253,7 +279,7 @@ public static class TabMoodles
                 ImGui.EndTable();
             }
 
-            if (Selected.IconID != 0 && ThreadLoadImageHandler.TryGetIconTextureWrap(Selected.AdjustedIconID, true, out var image))
+            if(Selected.IconID != 0 && ThreadLoadImageHandler.TryGetIconTextureWrap(Selected.AdjustedIconID, true, out var image))
             {
                 ImGui.SetCursorPos(cur);
                 ImGui.Image(image.ImGuiHandle, UI.StatusIconSize * 2);

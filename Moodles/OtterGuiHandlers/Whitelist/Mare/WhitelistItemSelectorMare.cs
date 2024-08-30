@@ -1,14 +1,12 @@
 ﻿using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Interface;
 using ECommons.GameHelpers;
-using ImGuiNET;
 using OtterGui;
 using OtterGui.Raii;
 using ImGuiClip = OtterGui.ImGuiClip;
 
 namespace Moodles.OtterGuiHandlers;
 #nullable enable
-public class WhitelistItemSelector<T>
+public class WhitelistItemSelectorMare<T>
 {
     [Flags]
     public enum Flags : byte
@@ -62,7 +60,7 @@ public class WhitelistItemSelector<T>
     public readonly string DragDropLabel = "##ItemSelectorDragDrop";
     public readonly string MoveLabel = "##ItemSelectorMove";
 
-    public WhitelistItemSelector(IList<T> items, Flags flags = Flags.None)
+    public WhitelistItemSelectorMare(IList<T> items, Flags flags = Flags.None)
     {
         Items = items;
         _lastSize = Items.Count;
@@ -95,7 +93,7 @@ public class WhitelistItemSelector<T>
     public void CreateDropSource<TData>(TData data, string tooltip)
     {
         using var source = ImRaii.DragDropSource();
-        if (!source)
+        if(!source)
             return;
 
         _dragDropData = data;
@@ -106,13 +104,13 @@ public class WhitelistItemSelector<T>
     public bool CreateDropTarget<TData>(Action<TData> action)
     {
         using var target = ImRaii.DragDropTarget();
-        if (!target)
+        if(!target)
             return false;
 
-        if (!ImGuiUtil.IsDropping(DragDropLabel))
+        if(!ImGuiUtil.IsDropping(DragDropLabel))
             return false;
 
-        if (_dragDropData is not TData data)
+        if(_dragDropData is not TData data)
             return false;
 
         action(data);
@@ -122,10 +120,10 @@ public class WhitelistItemSelector<T>
     public bool CreateDropTarget<TData>(Func<TData, bool> func)
     {
         using var target = ImRaii.DragDropTarget();
-        if (!target)
+        if(!target)
             return false;
 
-        if (!ImGuiUtil.IsDropping(DragDropLabel))
+        if(!ImGuiUtil.IsDropping(DragDropLabel))
             return false;
 
         return _dragDropData is TData data && func(data);
@@ -147,18 +145,18 @@ public class WhitelistItemSelector<T>
     public void TryRestoreCurrent()
     {
         CurrentIdx = Current == null ? -1 : Items.IndexOf(Current);
-        if (CurrentIdx == -1)
+        if(CurrentIdx == -1)
             Current = default;
     }
 
     private void SetCurrent(int idx)
     {
-        if (idx < Items.Count)
+        if(idx < Items.Count)
         {
             CurrentIdx = idx;
             Current = Items[idx];
         }
-        else if (Items.Count > 0)
+        else if(Items.Count > 0)
         {
             CurrentIdx = Items.Count - 1;
             Current = Items.Last();
@@ -172,14 +170,14 @@ public class WhitelistItemSelector<T>
     protected void SetCurrent(T item)
     {
         var idx = Items.IndexOf(item);
-        if (idx >= 0)
+        if(idx >= 0)
             SetCurrent(idx);
     }
 
     public T? EnsureCurrent()
     {
         TryRestoreCurrent();
-        if (Current == null)
+        if(Current == null)
             SetCurrent(0);
 
         return Current;
@@ -216,17 +214,17 @@ public class WhitelistItemSelector<T>
         // Add a slight distance from the border so that the padding of a selectable fills the whole border.
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.GetStyle().FramePadding.X);
         // Assume that OnDraw functions like a Selectable, if it returns true, select the value.
-        if (OnDraw(idx) && idx != CurrentIdx)
+        if(OnDraw(idx) && idx != CurrentIdx)
         {
             CurrentIdx = idx;
             Current = Items[idx];
         }
 
         // If the ItemSelector supports Move, every item is a Move-DragDropSource. The data is the index of the dragged element.
-        if (_flags.HasFlag(Flags.Move))
+        if(_flags.HasFlag(Flags.Move))
         {
             using var source = ImRaii.DragDropSource();
-            if (source)
+            if(source)
             {
                 _dragDropData = idx;
                 ImGui.SetDragDropPayload(MoveLabel, IntPtr.Zero, 0);
@@ -235,46 +233,46 @@ public class WhitelistItemSelector<T>
         }
 
         // If the ItemSelector supports Move or Drop, every item is a DragDropTarget.
-        if ((_flags & (Flags.Move | Flags.Drop)) == Flags.None)
+        if((_flags & (Flags.Move | Flags.Drop)) == Flags.None)
             return;
 
         using var target = ImRaii.DragDropTarget();
-        if (!target)
+        if(!target)
             return;
 
         // Handle drops.
-        if (ImGuiUtil.IsDropping(DragDropLabel))
+        if(ImGuiUtil.IsDropping(DragDropLabel))
         {
             OnDrop(_dragDropData, idx);
         }
-        else if (ImGuiUtil.IsDropping(MoveLabel))
+        else if(ImGuiUtil.IsDropping(MoveLabel))
         {
             var oldIdx = (int)(_dragDropData ?? idx);
-            if (OnMove(oldIdx, idx) && oldIdx == CurrentIdx)
+            if(OnMove(oldIdx, idx) && oldIdx == CurrentIdx)
                 SetCurrent(idx);
         }
     }
 
     private void DrawFilter(float width)
     {
-        if (!_flags.HasFlag(Flags.Filter))
+        if(!_flags.HasFlag(Flags.Filter))
             return;
 
         var newFilter = Filter;
         using var style = ImRaii.PushStyle(ImGuiStyleVar.FrameRounding, 0);
         ImGui.SetNextItemWidth(width);
         var enterPressed = ImGui.InputTextWithHint(string.Empty, "筛选...", ref newFilter, 64, ImGuiInputTextFlags.EnterReturnsTrue);
-        if (newFilter != Filter)
+        if(newFilter != Filter)
         {
             Filter = newFilter;
             FilterDirty = true;
         }
 
         // Select the topmost item of the filtered list on enter.
-        if (enterPressed)
+        if(enterPressed)
         {
             UpdateFilteredItems();
-            if (FilteredItems.Count > 0)
+            if(FilteredItems.Count > 0)
                 SetCurrent(FilteredItems.First());
         }
 
@@ -285,19 +283,19 @@ public class WhitelistItemSelector<T>
     // or the filter was set to dirty for any reason.
     private void UpdateFilteredItems()
     {
-        if (_lastSize != Items.Count)
+        if(_lastSize != Items.Count)
         {
             FilterDirty = true;
             _lastSize = Items.Count;
         }
 
-        if (!FilterDirty)
+        if(!FilterDirty)
             return;
 
         FilteredItems.Clear();
-        for (var idx = 0; idx < Items.Count; ++idx)
+        for(var idx = 0; idx < Items.Count; ++idx)
         {
-            if (!Filtered(idx))
+            if(!Filtered(idx))
                 FilteredItems.Add(idx);
         }
 
@@ -307,17 +305,18 @@ public class WhitelistItemSelector<T>
     private void DrawAddTargetButton(float width)
     {
         using var font = ImRaii.DefaultFont();
-        if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.User.ToIconString(), new Vector2(width, 0), "为当前目标添加一个包含预填充信息的空条目", Svc.Targets.Target is not PlayerCharacter, true))
+        if(ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.User.ToIconString(), new Vector2(width, 0),
+            "为当前目标添加一个包含预填充信息的空条目", Svc.Targets.Target is not IPlayerCharacter, true))
         {
-            C.Whitelist.Add(new() { PlayerName = ((PlayerCharacter)Svc.Targets.Target!).GetNameWithWorld() });
+            C.WhitelistMare.Add(new() { PlayerName = ((IPlayerCharacter)Svc.Targets.Target!).GetNameWithWorld() });
         }
     }
 
     private void DrawSettingsButton(float width)
     {
-        if (ImGui.Button(FontAwesomeIcon.Cog.ToIconString(), Vector2.UnitX * width))
+        if(ImGui.Button(FontAwesomeIcon.Cog.ToIconString(), Vector2.UnitX * width))
         {
-            this.ClearCurrentSelection();
+            ClearCurrentSelection();
         }
     }
 
@@ -325,15 +324,15 @@ public class WhitelistItemSelector<T>
     {
         const string newNamePopupAdd = "##NewNameAdd";
 
-        if (ImGui.Button(FontAwesomeIcon.Plus.ToIconString(), Vector2.UnitX * width))
+        if(ImGui.Button(FontAwesomeIcon.Plus.ToIconString(), Vector2.UnitX * width))
             ImGui.OpenPopup(newNamePopupAdd);
         using var font = ImRaii.PushFont(UiBuilder.DefaultFont);
         ImGuiUtil.HoverTooltip("添加");
 
-        if (!OpenNameField(newNamePopupAdd, out var newName))
+        if(!OpenNameField(newNamePopupAdd, out var newName))
             return;
 
-        if (OnAdd(newName))
+        if(OnAdd(newName))
         {
             TryRestoreCurrent();
             SetFilterDirty();
@@ -344,15 +343,15 @@ public class WhitelistItemSelector<T>
     {
         const string newNamePopupImport = "##NewNameImport";
 
-        if (ImGui.Button(FontAwesomeIcon.Clipboard.ToIconString(), Vector2.UnitX * width))
+        if(ImGui.Button(FontAwesomeIcon.Clipboard.ToIconString(), Vector2.UnitX * width))
             ImGui.OpenPopup(newNamePopupImport);
         using var font = ImRaii.PushFont(UiBuilder.DefaultFont);
         ImGuiUtil.HoverTooltip("从剪贴板导入");
 
-        if (!OpenNameField(newNamePopupImport, out var newName))
+        if(!OpenNameField(newNamePopupImport, out var newName))
             return;
 
-        if (OnClipboardImport(newName, ImGuiUtil.GetClipboardText()))
+        if(OnClipboardImport(newName, ImGuiUtil.GetClipboardText()))
         {
             TryRestoreCurrent();
             SetFilterDirty();
@@ -363,7 +362,7 @@ public class WhitelistItemSelector<T>
     private bool OpenNameField(string popupName, out string newName)
     {
         newName = string.Empty;
-        if (ImGuiUtil.OpenNameField(popupName, ref _newName))
+        if(ImGuiUtil.OpenNameField(popupName, ref _newName))
         {
             newName = _newName;
             _newName = string.Empty;
@@ -377,16 +376,16 @@ public class WhitelistItemSelector<T>
     {
         const string newNamePopupDuplicate = "##NewNameDuplicate";
 
-        if (ImGui.Button(FontAwesomeIcon.Clone.ToIconString(), Vector2.UnitX * width))
+        if(ImGui.Button(FontAwesomeIcon.Clone.ToIconString(), Vector2.UnitX * width))
             ImGui.OpenPopup(newNamePopupDuplicate);
 
         using var font = ImRaii.PushFont(UiBuilder.DefaultFont);
         ImGuiUtil.HoverTooltip("复制当前选择");
 
-        if (!OpenNameField(newNamePopupDuplicate, out var newName))
+        if(!OpenNameField(newNamePopupDuplicate, out var newName))
             return;
 
-        if (OnDuplicate(newName, CurrentIdx))
+        if(OnDuplicate(newName, CurrentIdx))
         {
             TryRestoreCurrent();
             SetFilterDirty();
@@ -402,7 +401,7 @@ public class WhitelistItemSelector<T>
     private void DrawDeleteButton(float width)
     {
         using var font = ImRaii.DefaultFont();
-        if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), new Vector2(width, 0), DeleteButtonTooltip(), !DeleteButtonEnabled(), true)
+        if(ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), new Vector2(width, 0), DeleteButtonTooltip(), !DeleteButtonEnabled(), true)
          && CurrentIdx >= 0
          && OnDelete(CurrentIdx))
         {
@@ -413,25 +412,25 @@ public class WhitelistItemSelector<T>
 
     private void DrawButtons(float width)
     {
-        if (_numButtons == 0)
+        if(_numButtons == 0)
             return;
 
         using var font = ImRaii.PushFont(UiBuilder.IconFont);
         var buttonWidth = width / _numButtons;
 
-        if (_flags.HasFlag(Flags.Add))
+        if(_flags.HasFlag(Flags.Add))
         {
             DrawAddButton(buttonWidth);
             ImGui.SameLine();
         }
 
-        if (_flags.HasFlag(Flags.Import))
+        if(_flags.HasFlag(Flags.Import))
         {
             DrawImportButton(buttonWidth);
             ImGui.SameLine();
         }
 
-        if (_flags.HasFlag(Flags.Duplicate))
+        if(_flags.HasFlag(Flags.Duplicate))
         {
             DrawDuplicateButton(buttonWidth);
             ImGui.SameLine();
@@ -439,8 +438,8 @@ public class WhitelistItemSelector<T>
 
         DrawAddTargetButton(buttonWidth);
         ImGui.SameLine();
-        
-        if (_flags.HasFlag(Flags.Delete))
+
+        if(_flags.HasFlag(Flags.Delete))
         {
             DrawDeleteButton(buttonWidth);
             ImGui.SameLine();
@@ -458,7 +457,7 @@ public class WhitelistItemSelector<T>
         using var style = ImRaii.PushStyle(ImGuiStyleVar.WindowPadding, Vector2.Zero);
         using var group = ImRaii.Group();
         using var child = ImRaii.Child(string.Empty, new Vector2(width, -ImGui.GetFrameHeight()), true);
-        if (!child)
+        if(!child)
             return;
 
         style.Pop();
@@ -482,12 +481,12 @@ public static class ItemDetailsWindow
         using var style = ImRaii.PushStyle(ImGuiStyleVar.WindowPadding, Vector2.Zero);
         using var id = ImRaii.PushId(label);
         using var child = ImRaii.Child(string.Empty, ImGui.GetContentRegionAvail(), true, ImGuiWindowFlags.MenuBar);
-        if (!child)
+        if(!child)
             return;
 
         style.Pop();
 
-        if (ImGui.BeginMenuBar())
+        if(ImGui.BeginMenuBar())
         {
             drawHeader();
             ImGui.EndMenuBar();
