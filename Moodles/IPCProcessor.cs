@@ -122,12 +122,7 @@ public class IPCProcessor : IDisposable
                 var perms = gSpeakPlayer.Item2; // client perms for pair.
                 foreach(var x in statusesToApply)
                 {
-                    PluginLog.Information($"Adding status from {message.From}:{x.Title}:{x.Description}:{(x.NoExpire ? "Infinity" : "")}{x.ExpiresAt - Utils.Time}");
-                    if (Utils.CheckWhitelistGlobal(x) || C.Whitelist.Any(w => w.CheckStatus(x)))
-                    {
-                        sm.AddOrUpdate(x, true, true);
-                    }
-                    else if(C.WhitelistGSpeak.Any(w => w.CheckStatus(perms, x.NoExpire)))
+                    if(C.WhitelistGSpeak.Any(w => w.CheckStatus(perms, x.NoExpire)))
                     {
                         sm.AddOrUpdate(MyStatus.FromStatusInfoTuple(x).PrepareToApply(), false, true);
                     }
@@ -213,7 +208,7 @@ public class IPCProcessor : IDisposable
             AcceptMessage(msg[1]);
         }
         
-        SetStatusManager((PlayerCharacter) Svc.Objects.CreateObjectReference(ptr), data);
+        SetStatusManager((IPlayerCharacter) Svc.Objects.CreateObjectReference(ptr), data);
     }
 
     // /// <summary> 
@@ -265,7 +260,7 @@ public class IPCProcessor : IDisposable
     [EzIPC("GetStatusManagerByPtr")]
     string GetStatusManager(nint ptr)
     {
-        var result = GetStatusManager((PlayerCharacter) Svc.Objects.CreateObjectReference(ptr));
+        var result = GetStatusManager((IPlayerCharacter) Svc.Objects.CreateObjectReference(ptr));
         if (!string.IsNullOrEmpty(MoodlesMessage))
         {
             result += "|" + MoodlesMessage;

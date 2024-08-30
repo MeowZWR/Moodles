@@ -26,7 +26,7 @@ public static unsafe partial class Utils
         var list = new List<MoodlesStatusInfo>();
         foreach(var s in C.SavedStatuses.Where(x => Preset.Statuses.Contains(x.GUID)))
         {
-            var preparedStatus = s.PrepareToApply(prepareOptions);
+            var preparedStatus = s.PrepareToApply();
             preparedStatus.Applier = Player.NameWithWorld ?? "";
             if(!preparedStatus.IsValid(out var error))
             {
@@ -51,7 +51,7 @@ public static unsafe partial class Utils
         
     }
 
-    public static void SendMareMessage(this Preset Preset, PlayerCharacter target, PrepareOptions prepareOptions = PrepareOptions.NoOption)
+    public static void SendMareMessage(this Preset Preset, IPlayerCharacter target, PrepareOptions prepareOptions = PrepareOptions.NoOption)
     {
         var list = new List<MoodlesStatusInfo>();
         foreach(var s in C.SavedStatuses.Where(x => Preset.Statuses.Contains(x.GUID)))
@@ -88,7 +88,7 @@ public static unsafe partial class Utils
 
     public static void SendGSpeakMessage(this MyStatus Status, IPlayerCharacter target)
     {
-        var preparedStatus = Status.PrepareToApply(prepareOptions);
+        var preparedStatus = Status.PrepareToApply();
         preparedStatus.Applier = Player.NameWithWorld ?? "";
         if(!preparedStatus.IsValid(out var error))
         {
@@ -107,7 +107,7 @@ public static unsafe partial class Utils
         }
     }
 
-    public static void SendMareMessage(this MyStatus Status, PlayerCharacter target, PrepareOptions prepareOptions = PrepareOptions.NoOption)
+    public static void SendMareMessage(this MyStatus Status, IPlayerCharacter target, PrepareOptions prepareOptions = PrepareOptions.NoOption)
     {
         var preparedStatus = Status.PrepareToApply(prepareOptions);
         preparedStatus.Applier = Player.NameWithWorld ?? "";

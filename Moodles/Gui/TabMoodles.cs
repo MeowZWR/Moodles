@@ -63,9 +63,8 @@ public static class TabMoodles
                         Selected.SendMareMessage(target);
                         LockBroadcast();
                     }
-                    else if (isGSpeak)
+                    else
                         Selected.SendGSpeakMessage(target);
-                    }
                 }
                 catch(Exception e)
                 {
