@@ -1,4 +1,4 @@
-name: Create Release Net8
+name: Create Release 7.0
 
 on:
   push:
@@ -17,18 +17,12 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '8.x.x'
-
-      - name: Download Dalamud Latest
-        run: |
-          wget https://github.com/ottercorp/dalamud-distrib/raw/main/stg/latest.zip -O ${{ env.DALAMUD_HOME }}.zip
-          unzip ${{ env.DALAMUD_HOME }}.zip -d ${{ env.DALAMUD_HOME }}
-
       - name: Restore dependencies
         run: dotnet restore
-      # - name: Download Dalamud
-      #   run: |
-      #     Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/stg/latest.zip -OutFile latest.zip
-      #     Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev"
+      - name: Download Dalamud
+        run: |
+          Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/stg/latest.zip -OutFile latest.zip
+          Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev"
       - name: Build
         run: |
           $ver = '${{ github.ref_name }}'
@@ -83,9 +77,9 @@ jobs:
         run: |
           git config --global user.name "Actions User"
           git config --global user.email "actions@github.com"
-          git fetch origin cn-net8
-          git reset --hard ${{ github.sha }}
-          git checkout cn-net8
+          git fetch origin 7.0
+          git branch -f 7.0 ${{ github.sha }}
+          git checkout 7.0
           git add repo.json
-          git commit -m "[CI] Updating repo.json for ${{ env.tag }}" || true
-          git push origin cn-net8
+          git commit -m "[CI] Updating repo.json for ${{ github.ref_name }}" || true
+          git push origin 7.0
