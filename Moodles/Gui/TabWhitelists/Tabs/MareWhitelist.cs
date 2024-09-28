@@ -22,61 +22,32 @@ internal class MareWhitelist : PluginWhitelist
             ImGui.EndTable();
         }
 
-        P.OtterGuiHandler.WhitelistMare.Draw(200f);
+        Draw();
     }
 
     protected override void DrawHeader()
     {
-        HeaderDrawer.Draw(Selected == null ? $"{pluginName} 全局设置" : (Selected.PlayerName.Censor($"Whitelist entry {C.WhitelistMare.IndexOf(Selected) + 1}")), 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
+        HeaderDrawer.Draw($"{pluginName} 全局设置", 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
     }
 
     protected override void Draw()
     {
-        using var child = ImRaii.Child("##Panel", -Vector2.One, true);
-        if(!child)
-            return;
-
-        // if there are 0 entries in the whitelist, clear the current.
-        if(C.WhitelistMare.Count == 0)
+        if (ImGui.BeginTable("##wl", 2, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders))
         {
-            P.OtterGuiHandler.WhitelistMare.EnsureCurrent();
+            ImGui.TableSetupColumn("##txt", ImGuiTableColumnFlags.WidthFixed, 150);
+            ImGui.TableSetupColumn("##inp", ImGuiTableColumnFlags.WidthStretch);
+
+            ImGui.TableNextRow();
+            ImGui.TableNextColumn();
+            ImGuiEx.TextV($"允许的对象类型：");
+            ImGui.TableNextColumn();
+
+            ImGui.Checkbox($"允许所有人", ref P.Config.BroadcastAllowAll);
+            ImGui.Checkbox($"允许好友", ref P.Config.BroadcastAllowFriends);
+            ImGui.Checkbox($"允许队伍成员", ref P.Config.BroadcastAllowParty);
+
+            ImGui.EndTable();
         }
-
-        if(Selected != null)
-        {
-            if(ImGui.BeginTable("##wl", 2, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.Borders))
-            {
-                ImGui.TableSetupColumn("##txt", ImGuiTableColumnFlags.WidthFixed, 150);
-                ImGui.TableSetupColumn("##inp", ImGuiTableColumnFlags.WidthStretch);
-
-                ImGui.TableNextRow();
-                ImGui.TableNextColumn();
-                ImGuiEx.TextV($"允许的状态类型：");
-                ImGui.TableNextColumn();
-
-                //ImGui.BeginDisabled();
-                foreach(var x in Enum.GetValues<StatusType>())
-                {
-                    ImGuiEx.CollectionCheckbox($"{x}", x, Selected.AllowedTypes);
-                }
-                //ImGui.EndDisabled();
-
-                ImGui.TableNextRow();
-                ImGui.TableNextColumn();
-                ImGuiEx.TextV($"最大持续时间：");
-                ImGui.TableNextColumn();
-
-                //ImGui.BeginDisabled();
-                Utils.DurationSelector("任意持续时间", ref Selected.AnyDuration, ref Selected.Days, ref Selected.Hours, ref Selected.Minutes, ref Selected.Seconds);
-                //ImGui.EndDisabled();
-
-                ImGui.TableNextRow();
-                ImGui.TableNextColumn();
-                ImGuiEx.TextV($"指定方向？：");
-                ImGui.TableNextColumn();
-
-                ImGui.EndTable();
-            }
-        }
+        
     }
 }

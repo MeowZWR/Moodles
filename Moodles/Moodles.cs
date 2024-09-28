@@ -51,6 +51,9 @@ public class Moodles : IDalamudPlugin
             IPCProcessor = new();
             IPCTester = new();
             Utils.CleanupNulls();
+
+            Config.WhitelistMare = [];
+
         });
     }
 
