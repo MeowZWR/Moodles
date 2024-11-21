@@ -9,7 +9,7 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using Moodles.Data;
 using Moodles.OtterGuiHandlers.Whitelist.GSpeak;
 using System.Text.RegularExpressions;
-using Status = Lumina.Excel.GeneratedSheets.Status;
+using Status = Lumina.Excel.Sheets.Status;
 using UIColor = ECommons.ChatMethods.UIColor;
 
 namespace Moodles;
@@ -292,7 +292,7 @@ public static unsafe partial class Utils
         pc ??= Player.Object;
         foreach(var x in C.AutomationProfiles)
         {
-            if(x.Enabled && x.Character == pc.Name.ToString() && (x.World == 0 || x.World == pc.HomeWorld.Id))
+            if(x.Enabled && x.Character == pc.Name.ToString() && (x.World == 0 || x.World == pc.HomeWorld.RowId))
             {
                 foreach(var c in x.Combos)
                 {
@@ -392,7 +392,7 @@ public static unsafe partial class Utils
                     {
                         r = (ushort)Enum.GetValues<UIColor>().FirstOrDefault(x => x.ToString().EqualsIgnoreCase(s[7..^1]));
                     }
-                    if(r == 0 || Svc.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.UIColor>().GetRow(r) == null) goto ColorError;
+                    if(r == 0 || Svc.Data.GetExcelSheet<Lumina.Excel.Sheets.UIColor>().GetRowOrDefault(r) == null) goto ColorError;
                     str.AddUiForeground(r);
                     valid[0]++;
                 }
@@ -409,7 +409,7 @@ public static unsafe partial class Utils
                     {
                         r = (ushort)Enum.GetValues<UIColor>().FirstOrDefault(x => x.ToString().EqualsIgnoreCase(s[6..^1]));
                     }
-                    if(r == 0 || Svc.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.UIColor>().GetRow(r) == null) goto ColorError;
+                    if(r == 0 || Svc.Data.GetExcelSheet<Lumina.Excel.Sheets.UIColor>().GetRowOrDefault(r) == null) goto ColorError;
                     str.AddUiGlow(r);
                     valid[1]++;
                 }
@@ -497,8 +497,7 @@ public static unsafe partial class Utils
         }
         else
         {
-            var data = Svc.Data.GetExcelSheet<Status>().FirstOrDefault(x => x.Icon == iconID);
-            if(data == null)
+            if(!Svc.Data.GetExcelSheet<Status>().TryGetFirst(x => x.Icon == iconID, out var data))
             {
                 IconInfoCache[iconID] = null;
                 return null;
