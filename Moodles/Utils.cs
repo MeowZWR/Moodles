@@ -163,11 +163,11 @@ public static unsafe partial class Utils
         return false;
     }
 
-    public static bool CheckWhitelistGlobal(MoodlesStatusInfo status)
+    public static bool CheckWhitelistGlobal(string sender)
     {
         if(C.BroadcastAllowAll) return true;
-        if(C.BroadcastAllowParty) return UniversalParty.Members.Any(x => x.Name == status.Applier);
-        if(C.BroadcastAllowFriends) return GetFriendlist().Contains(status.Applier);
+        if(C.BroadcastAllowParty) return UniversalParty.Members.Any(x => x.Name == sender);
+        if(C.BroadcastAllowFriends) return GetFriendlist().Contains(sender);
         return false;
     }
 

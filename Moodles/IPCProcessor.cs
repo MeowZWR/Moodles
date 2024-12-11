@@ -181,10 +181,12 @@ public class IPCProcessor : IDisposable
                 var sm = Player.Object.GetMyStatusManager();
                 foreach(var x in statusesToApply)
                 {
-                    if(Utils.CheckWhitelistGlobal(x))
+                    if(Utils.CheckWhitelistGlobal(senderNameWorld))
                     {
                         sm.AddOrUpdate(MyStatus.FromStatusInfoTuple(x).PrepareToApply(), UpdateSource.StatusTuple, false, true);
+                        PluginLog.Debug($"Status {x.Title} from {senderNameWorld} applied.");
                     }
+                    else PluginLog.Debug($"Status {x.Title} was not applied since {x.Applier} or {senderNameWorld} can't pass permission checks.");
                 }
             }
             else
