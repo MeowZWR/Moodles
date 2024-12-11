@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+﻿using System.Text.Json;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.Text.SeStringHandling;
 using ECommons.ExcelServices;
 using ECommons.EzIpcManager;
@@ -71,6 +72,77 @@ public static unsafe partial class Utils
         }
     }
 
+    /// <summary>
+    /// Sends a message to GSpeak to apply the preset's collective statuses to the target player.
+    /// <para> All Moodles Status's are applied directly to the status manager. And not to their Saved Moodles. </para>
+    /// </summary>
+    /// <param name="Preset"> The preset to apply. </param>
+    /// <param name="target"> The target player to apply the statuses to. </param>
+    public static void SendMareMessage(this Preset Preset, IPlayerCharacter target)
+    {
+        var list = new List<MyStatus>();
+        foreach(var s in C.SavedStatuses.Where(x => Preset.Statuses.Contains(x.GUID)))
+        {
+            var preparedStatus = s.PrepareToApply();
+            preparedStatus.Applier = Player.NameWithWorld ?? "";
+            if(!preparedStatus.IsValid(out var error))
+            {
+                PluginLog.Error($"Could not apply status: {error}");
+            }
+            else
+            {
+                list.Add(preparedStatus);
+            }
+        }
+        if(list.Count > 0)
+        {
+            if(P.IPCProcessor.ApplyStatusesToMarePlayers.TryInvoke(Player.NameWithWorld, target.GetNameWithWorld(), Serialize(list)))
+            {
+                Notify.Info($"Broadcast success");
+            }
+            else
+            {
+                Notify.Error("Broadcast failed");
+            }
+        }
+    }
+
+    public static void SendMareMessage(this MyStatus Status, IPlayerCharacter target)
+    {
+        var preparedStatus = Status.PrepareToApply();
+        preparedStatus.Applier = Player.NameWithWorld ?? "";
+        if(!preparedStatus.IsValid(out var error))
+        {
+            Notify.Error($"Could not apply status: {error}");
+        }
+        else
+        {
+            if(P.IPCProcessor.ApplyStatusesToMarePlayers.TryInvoke(Player.NameWithWorld, target.GetNameWithWorld(), Serialize([preparedStatus])))
+            {
+                Notify.Info($"Broadcast success");
+            }
+            else
+            {
+                Notify.Error("Broadcast failed");
+            }
+        }
+    }
+
+    public static string Serialize(List<MyStatus> list)
+    {
+        var memoryPack = JsonSerializer.Serialize(list, new JsonSerializerOptions(){IncludeFields = true});
+        var base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(memoryPack));
+        PluginLog.Warning($"Memory pack serialized:{list[0].Title} {memoryPack}");
+        return base64;
+    }
+
+    public static List<MyStatus> Deserialize(string base64String)
+    {
+        var str = Convert.FromBase64String(base64String);
+        var list = JsonSerializer.Deserialize<List<MyStatus>>(str, new JsonSerializerOptions() { IncludeFields = true });
+        return list;
+    }
+
     private static long LastChangeTime;
 
     public static bool DurationSelector(string PermanentTitle, ref bool NoExpire, ref int Days, ref int Hours, ref int Minutes, ref int Seconds)
@@ -107,11 +179,11 @@ public static unsafe partial class Utils
         return false;
     }
 
-    public static bool CheckWhitelistGlobal(MyStatus status)
+    public static bool CheckWhitelistGlobal(string sender)
     {
         if(C.BroadcastAllowAll) return true;
-        if(C.BroadcastAllowParty) return UniversalParty.Members.Any(x => x.Name == status.Applier);
-        if(C.BroadcastAllowFriends) return GetFriendlist().Contains(status.Applier);
+        if(C.BroadcastAllowParty) return UniversalParty.Members.Any(x => x.NameWithWorld == sender);
+        if(C.BroadcastAllowFriends) return GetFriendlist().Contains(sender);
         return false;
     }
 
@@ -425,13 +497,16 @@ public static unsafe partial class Utils
         status = status.JSONClone();
         if(opts.Contains(PrepareOptions.ChangeGUID)) status.GUID = Guid.NewGuid();
         status.Persistent = opts.Contains(PrepareOptions.Persistent);
-        if(status.NoExpire)
+        if (status.ExpiresAt >= 0)
         {
-            status.ExpiresAt = long.MaxValue;
-        }
-        else
-        {
-            status.ExpiresAt = Time + status.TotalDurationSeconds;
+            if (status.NoExpire)
+            {
+                status.ExpiresAt = long.MaxValue;
+            }
+            else
+            {
+                status.ExpiresAt = Time + status.TotalDurationSeconds;
+            }
         }
         return status;
     }

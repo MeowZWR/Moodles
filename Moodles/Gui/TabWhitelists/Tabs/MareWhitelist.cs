@@ -19,6 +19,19 @@ internal class MareWhitelist : PluginWhitelist
             ImGui.TableNextColumn();
             ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, EColor.RedBright.ToUint());
             ImGuiEx.LineCentered(() => ImGuiEx.Text(EColor.White, "None of this stuff works yet, oh well. :)"));
+            ImGui.TableNextRow();
+            ImGui.TableNextColumn();
+            ImGui.Checkbox("Enable Mare Sync##EnableMareSync", ref C.EnableMareSync);
+            ImGui.SameLine();
+            ImGuiEx.Text(EColor.RedBright, " (Don't use with GagSpeak at same time!)");
+            ImGui.TableNextRow();
+            ImGui.TableNextColumn();
+            if (C.EnableMareSync)
+            {
+                ImGui.Checkbox("Allow Everyone", ref C.BroadcastAllowAll);
+                ImGui.Checkbox("Allow Party", ref C.BroadcastAllowParty);
+                ImGui.Checkbox("Allow Friends", ref C.BroadcastAllowFriends);
+            }
             ImGui.EndTable();
         }
 

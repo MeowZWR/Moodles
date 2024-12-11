@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+﻿using System.Text.Json;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using ECommons.EzIpcManager;
 using ECommons.GameHelpers;
 using Moodles.Data;
@@ -31,6 +32,12 @@ public class IPCProcessor : IDisposable
     /// Obtains the actively managed player object addresses by Mare Synchronos.
     /// </summary>
     [EzIPC("MareSynchronos.GetHandledAddresses", false)] public readonly Func<List<nint>> GetMarePlayers;
+
+    /// <summary>
+    /// Sends to Mare a serialized ApplyMoodleStatusMessage struct message to apply respective statuses to a pair.
+    /// <para> It is worth noting that this will work for both Individual Statuses, and a List of them (preset) </para>
+    /// </summary>
+    [EzIPC("MareSynchronos.ApplyStatusesToMarePlayers", false)] public readonly Action<string, string, string> ApplyStatusesToMarePlayers;
 
     /// <summary>
     /// Retrieves the actively managed player object addresses by Project GagSpeak
@@ -145,6 +152,48 @@ public class IPCProcessor : IDisposable
                         sm.AddOrUpdate(MyStatus.FromStatusInfoTuple(x).PrepareToApply(), UpdateSource.StatusTuple, false, true);
                     }
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Applies the requested statuses to the client player from the sender.
+    /// </summary>
+    /// <param name="senderNameWorld"> The name of the sender player. </param>
+    /// <param name="intendedRecipient"> The intended recipient (Should always match client player) </param>
+    /// <param name="statusesToApply"> The list of statuses to apply to the client player. </param>
+    /// <returns> True if the client is a mare user. False if they are not. (Us, not the sender) </returns>
+    [EzIPC("ApplyStatusesFromMarePlayers")]
+    private void ApplyStatusesFromMarePlayers(string senderNameWorld, string intendedRecipient, string statusesStringToApply)
+    {
+        if (!C.EnableMareSync) return;
+        var statusesToApply = Utils.Deserialize(statusesStringToApply);
+
+        if(intendedRecipient != Player.NameWithWorld)
+        {
+            PluginLog.Warning("[ApplyStatusesFromMarePlayers] An update to your status was recieved, but the intended recipient was not you.");
+            return;
+        }
+        else
+        {
+            // see if the sender is in list of Mare players.
+            var sender = Utils.TryFindPlayer(senderNameWorld, out var player);
+            if (sender && GetMarePlayers().Contains(player.Address))
+            {
+                var sm = Player.Object.GetMyStatusManager();
+                foreach(var x in statusesToApply)
+                {
+                    if(Utils.CheckWhitelistGlobal(senderNameWorld))
+                    {
+                        sm.AddOrUpdate(x.PrepareToApply(), UpdateSource.StatusTuple, false, true);
+                        PluginLog.Debug($"[ApplyStatusesFromMarePlayers] Status {x.Title} from {senderNameWorld} applied.");
+                    }
+                    else PluginLog.Debug($"[ApplyStatusesFromMarePlayers] Status {x.Title} was not applied since {x.Applier} or {senderNameWorld} can't pass permission checks.");
+                }
+            }
+            else
+            {
+                PluginLog.Warning($"[ApplyStatusesFromMarePlayers] Can't find sender : {senderNameWorld}.");
             }
         }
     }

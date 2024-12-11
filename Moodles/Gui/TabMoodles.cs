@@ -41,7 +41,7 @@ public static class TabMoodles
 
             var isMare = Utils.GetMarePlayers().Contains(Svc.Targets.Target?.Address ?? -1);
             var isGSpeak = Svc.Targets.Target is IPlayerCharacter pc && Utils.GSpeakPlayers.Any(player => player.Item1 == pc.GetNameWithWorld());
-            var dis = Svc.Targets.Target is not IPlayerCharacter || (isMare && !isGSpeak);
+            var dis = Svc.Targets.Target is not IPlayerCharacter && !isMare && !isGSpeak;
             if (dis) ImGui.BeginDisabled();
             var buttonText = Svc.Targets.Target is not IPlayerCharacter
                 ? "No Target Selected" : isMare && !isGSpeak
@@ -55,9 +55,13 @@ public static class TabMoodles
                     {
                         Utils.GetMyStatusManager(target.GetNameWithWorld()).AddOrUpdate(Selected.PrepareToApply(AsPermanent ? PrepareOptions.Persistent : PrepareOptions.NoOption), UpdateSource.StatusTuple);
                     }
-                    else
+                    else if(isGSpeak)
                     {
                         Selected.SendGSpeakMessage(target);
+                    }
+                    else
+                    {
+                        Selected.SendMareMessage(target);
                     }
                 }
                 catch (Exception e)
@@ -65,6 +69,36 @@ public static class TabMoodles
                     e.Log();
                 }
             }
+
+            ImGui.SameLine();
+            if (ImGui.Button("从目标移除"))
+            {
+                try
+                {
+                    var target = (IPlayerCharacter)Svc.Targets.Target;
+                    if (!isMare)
+                    {
+                        Utils.GetMyStatusManager(target.GetNameWithWorld()).Cancel(Selected);
+                    }
+                    else if(isGSpeak)
+                    {
+                        var status = Selected.JSONClone();
+                        status.ExpiresAt = -1;
+                        status.SendGSpeakMessage(target);
+                    }
+                    else
+                    {
+                        var status = Selected.JSONClone();
+                        status.ExpiresAt = -1;
+                        status.SendMareMessage(target);
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.Log();
+                }
+            }
+
             if (dis) ImGui.EndDisabled();
 
             if (ImGui.BeginTable("##moodles", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame))
@@ -347,7 +381,11 @@ public static class TabMoodles
                 ImGuiEx.HelpMarker("Indicates who applied the Moodle. Changes the colour of the duration counter to be green if the character name and world resolve to yourself.");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
-                ImGui.InputTextWithHint("##applier", "Player Name@World", ref Selected.Applier, 150, C.Censor ? ImGuiInputTextFlags.Password : ImGuiInputTextFlags.None);
+                if (Selected.Applier.IsNullOrEmpty() && Player.Available)
+                {
+                    Selected.Applier = Player.NameWithWorld;
+                }
+                ImGui.InputTextWithHint("##applier", "玩家名称@服务器", ref Selected.Applier, 150, C.Censor ? ImGuiInputTextFlags.Password : ImGuiInputTextFlags.None);
                 if (ImGui.IsItemDeactivatedAfterEdit())
                 {
                     P.IPCProcessor.StatusModified(Selected.GUID);

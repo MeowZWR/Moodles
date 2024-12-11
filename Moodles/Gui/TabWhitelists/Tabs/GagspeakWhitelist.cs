@@ -12,6 +12,15 @@ internal class GagspeakWhitelist : PluginWhitelist
 
     protected override void DrawWhitelist()
     {
+        if(ImGui.BeginTable($"##Table", 1, ImGuiTableFlags.SizingStretchSame | ImGuiTableFlags.Borders))
+        {
+            ImGui.TableHeader($"#h");
+            ImGui.TableNextRow();
+            ImGui.TableNextColumn();
+            ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, EColor.Red.ToUint());
+            ImGuiEx.LineCentered(() => ImGuiEx.Text(EColor.White, "国服暂无支持计划"));
+            ImGui.EndTable();
+        }
         P.OtterGuiHandler.WhitelistGSpeak.Draw(200f);
     }
 

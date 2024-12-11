@@ -425,7 +425,7 @@ public static unsafe class UI
                     }
                 }));
             }
-            ImGuiEx.EzTable(null, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders, entries, false);
+            ImGuiEx.EzTable(null, ImGuiTableFlags.RowBg | ImGuiTableFlags.Borders, entries, true);
         }
     }
 

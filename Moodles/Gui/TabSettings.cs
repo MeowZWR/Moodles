@@ -13,6 +13,8 @@ public static class TabSettings
         ImGuiEx.Spacing();
         ImGui.Checkbox($"Enable Fly/Popup Text", ref C.EnableFlyPopupText);
         ImGuiEx.Spacing();
+        ImGui.Checkbox($"显示每个moodle的施加者(以Moodle界面输入的施加者为准)", ref C.EnableShowSource);
+        ImGuiEx.Spacing();
         ImGui.SetNextItemWidth(150f);
         ImGuiEx.SliderInt($"Simultaneous Fly/Popup Text Limit", ref C.FlyPopupTextLimit.ValidateRange(5, 20), 5, 20);
         ImGuiEx.CheckboxInverted($"Disable Moodles whilst Bound to Duty", ref C.EnabledDuty);

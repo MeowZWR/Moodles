@@ -46,7 +46,7 @@ public unsafe class PartyListProcessor : IDisposable
             {
                 NumStatuses[i] = 0;
             }
-            var index = 23;
+            var index = 22;
             var storeIndex = 0;
             foreach(var player in GetVisibleParty())
             {
@@ -78,14 +78,14 @@ public unsafe class PartyListProcessor : IDisposable
         if(!P.CanModifyUI()) return;
         if(addon != null && IsAddonReady(addon))
         {
-            var partyMemberNodeIndex = 23;
+            uint partyMemberNodeIndex = 10;
             var party = GetVisibleParty();
             for(var n = 0; n < party.Count; n++)
             {
                 var player = party[n];
                 if(player != null)
                 {
-                    var iconArray = Utils.GetNodeIconArray(addon->UldManager.NodeList[partyMemberNodeIndex]);
+                    var iconArray = Utils.GetNodeIconArray(addon->GetNodeById(partyMemberNodeIndex));
                     //InternalLog.Information($"Icon array length for {player} is {iconArray.Length}");
                     for(var i = NumStatuses[n]; i < iconArray.Length; i++)
                     {
@@ -108,7 +108,7 @@ public unsafe class PartyListProcessor : IDisposable
                         }
                     }
                 }
-                partyMemberNodeIndex--;
+                partyMemberNodeIndex++;
             }
         }
     }
