@@ -71,6 +71,62 @@ public static unsafe partial class Utils
         }
     }
 
+    /// <summary>
+    /// Sends a message to GSpeak to apply the preset's collective statuses to the target player.
+    /// <para> All Moodles Status's are applied directly to the status manager. And not to their Saved Moodles. </para>
+    /// </summary>
+    /// <param name="Preset"> The preset to apply. </param>
+    /// <param name="target"> The target player to apply the statuses to. </param>
+    public static void SendMareMessage(this Preset Preset, IPlayerCharacter target)
+    {
+        var list = new List<MoodlesStatusInfo>();
+        foreach(var s in C.SavedStatuses.Where(x => Preset.Statuses.Contains(x.GUID)))
+        {
+            var preparedStatus = s.PrepareToApply();
+            preparedStatus.Applier = Player.NameWithWorld ?? "";
+            if(!preparedStatus.IsValid(out var error))
+            {
+                PluginLog.Error($"Could not apply status: {error}");
+            }
+            else
+            {
+                list.Add(preparedStatus.ToStatusInfoTuple());
+            }
+        }
+        if(list.Count > 0)
+        {
+            if(P.IPCProcessor.ApplyStatusesToMarePlayers.TryInvoke(Player.NameWithWorld, target.GetNameWithWorld(), list, false))
+            {
+                Notify.Info($"Broadcast success");
+            }
+            else
+            {
+                Notify.Error("Broadcast failed");
+            }
+        }
+    }
+
+    public static void SendMareMessage(this MyStatus Status, IPlayerCharacter target)
+    {
+        var preparedStatus = Status.PrepareToApply();
+        preparedStatus.Applier = Player.NameWithWorld ?? "";
+        if(!preparedStatus.IsValid(out var error))
+        {
+            Notify.Error($"Could not apply status: {error}");
+        }
+        else
+        {
+            if(P.IPCProcessor.ApplyStatusesToMarePlayers.TryInvoke(Player.NameWithWorld, target.GetNameWithWorld(), [preparedStatus.ToStatusInfoTuple()], true))
+            {
+                Notify.Info($"Broadcast success");
+            }
+            else
+            {
+                Notify.Error("Broadcast failed");
+            }
+        }
+    }
+
     private static long LastChangeTime;
 
     public static bool DurationSelector(string PermanentTitle, ref bool NoExpire, ref int Days, ref int Hours, ref int Minutes, ref int Seconds)
@@ -107,7 +163,7 @@ public static unsafe partial class Utils
         return false;
     }
 
-    public static bool CheckWhitelistGlobal(MyStatus status)
+    public static bool CheckWhitelistGlobal(MoodlesStatusInfo status)
     {
         if(C.BroadcastAllowAll) return true;
         if(C.BroadcastAllowParty) return UniversalParty.Members.Any(x => x.Name == status.Applier);
