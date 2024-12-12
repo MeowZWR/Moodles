@@ -125,7 +125,7 @@ public sealed class MoodleFileSystem : FileSystem<MyStatus>, IDisposable
 
         private void CopyToClipboardButton(Vector2 vector)
         {
-            if(!ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Copy.ToIconString(), vector, "Copy to clipboard.", Selected == null, true)) return;
+            if(!ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Copy.ToIconString(), vector, "复制到剪贴板。", Selected == null, true)) return;
             if(Selected != null)
             {
                 var copy = Selected.JSONClone();
@@ -136,7 +136,7 @@ public sealed class MoodleFileSystem : FileSystem<MyStatus>, IDisposable
 
         private void ImportButton(Vector2 size)
         {
-            if(!ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.FileImport.ToIconString(), size, "Try to import a moodle from your clipboard.", false,
+            if(!ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.FileImport.ToIconString(), size, "尝试从剪贴板导入 Moodle。", false,
                     true))
                 return;
 
@@ -148,7 +148,7 @@ public sealed class MoodleFileSystem : FileSystem<MyStatus>, IDisposable
             }
             catch
             {
-                Notify.Error("Could not import data from clipboard.");
+                Notify.Error("无法从剪贴板导入数据。");
             }
         }
 
@@ -159,7 +159,7 @@ public sealed class MoodleFileSystem : FileSystem<MyStatus>, IDisposable
 
         private void NewMoodleButton(Vector2 size)
         {
-            if(ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), size, "Create new status", false,
+            if(ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), size, "创建新状态", false,
                     true))
             {
                 ClipboardText = null;
@@ -175,7 +175,7 @@ public sealed class MoodleFileSystem : FileSystem<MyStatus>, IDisposable
 
             if(NewName == "")
             {
-                Notify.Error($"Name can not be empty!");
+                Notify.Error($"必须填写名称！");
                 return;
             }
 
@@ -191,7 +191,7 @@ public sealed class MoodleFileSystem : FileSystem<MyStatus>, IDisposable
                     }
                     else
                     {
-                        Notify.Error($"Invalid clipboard data");
+                        Notify.Error($"无效的剪贴板数据");
                     }
                 }
                 catch(Exception e)
@@ -215,7 +215,7 @@ public sealed class MoodleFileSystem : FileSystem<MyStatus>, IDisposable
                 catch(Exception e)
                 {
                     e.LogVerbose();
-                    Notify.Error($"This name already exists!");
+                    Notify.Error($"此名称已经存在！");
                 }
             }
 

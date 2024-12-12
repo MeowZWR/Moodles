@@ -159,7 +159,7 @@ public sealed class PresetFileSystem : FileSystem<Preset>, IDisposable
 
         private void NewItem(Vector2 size)
         {
-            if(ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), size, "Create new preset", false,
+            if(ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), size, "新建预设", false,
                     true))
             {
                 ClipboardText = null;
@@ -175,7 +175,7 @@ public sealed class PresetFileSystem : FileSystem<Preset>, IDisposable
 
             if(NewName == "")
             {
-                Notify.Error($"Name can not be empty!");
+                Notify.Error($"请输入名称！");
                 return;
             }
 
@@ -198,7 +198,7 @@ public sealed class PresetFileSystem : FileSystem<Preset>, IDisposable
                 catch(Exception e)
                 {
                     e.LogVerbose();
-                    Notify.Error($"This name already exists!");
+                    Notify.Error($"名称已经存在！");
                 }
             }
 

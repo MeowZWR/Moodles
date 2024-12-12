@@ -8,7 +8,7 @@ internal class MareWhitelist : PluginWhitelist
 {
     private WhitelistEntryMare Selected => P.OtterGuiHandler.WhitelistMare.Current;
 
-    public override string pluginName { get; } = "Mare Synchronos";
+    public override string pluginName { get; } = "月海同步器";
 
     protected override void DrawWhitelist()
     {
@@ -17,20 +17,20 @@ internal class MareWhitelist : PluginWhitelist
             ImGui.TableHeader($"#h");
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, EColor.RedBright.ToUint());
-            ImGuiEx.LineCentered(() => ImGuiEx.Text(EColor.White, "None of this stuff works yet, oh well. :)"));
+            ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, EColor.Green.ToUint());
+            ImGuiEx.LineCentered(() => ImGuiEx.Text(EColor.White, "通过Mare进行同步（感谢wozaiha！）"));
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Checkbox("Enable Mare Sync##EnableMareSync", ref C.EnableMareSync);
+            ImGui.Checkbox("启用月海同步##EnableMareSync", ref C.EnableMareSync);
             ImGui.SameLine();
-            ImGuiEx.Text(EColor.RedBright, " (Don't use with GagSpeak at same time!)");
+            ImGuiEx.Text(EColor.RedBright, "（不要同时使用GagSpeak进行同步！）");
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             if (C.EnableMareSync)
             {
-                ImGui.Checkbox("Allow Everyone", ref C.BroadcastAllowAll);
-                ImGui.Checkbox("Allow Party", ref C.BroadcastAllowParty);
-                ImGui.Checkbox("Allow Friends", ref C.BroadcastAllowFriends);
+                ImGui.Checkbox("允许所有人", ref C.BroadcastAllowAll);
+                ImGui.Checkbox("允许队伍成员", ref C.BroadcastAllowParty);
+                ImGui.Checkbox("允许好友", ref C.BroadcastAllowFriends);
             }
             ImGui.EndTable();
         }
@@ -40,7 +40,7 @@ internal class MareWhitelist : PluginWhitelist
 
     protected override void DrawHeader()
     {
-        HeaderDrawer.Draw(Selected == null ? $"{pluginName} Global Settings" : (Selected.PlayerName.Censor($"Whitelist entry {C.WhitelistMare.IndexOf(Selected) + 1}")), 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
+        HeaderDrawer.Draw(Selected == null ? $"{pluginName} 全局设置" : (Selected.PlayerName.Censor($"Whitelist entry {C.WhitelistMare.IndexOf(Selected) + 1}")), 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
     }
 
     protected override void Draw()
@@ -64,7 +64,7 @@ internal class MareWhitelist : PluginWhitelist
 
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"Allowed Status Types:");
+                ImGuiEx.TextV($"允许的状态类型：");
                 ImGui.TableNextColumn();
 
                 ImGui.BeginDisabled();
@@ -76,16 +76,16 @@ internal class MareWhitelist : PluginWhitelist
 
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"Maximum Duration:");
+                ImGuiEx.TextV($"最大持续时间：");
                 ImGui.TableNextColumn();
 
                 ImGui.BeginDisabled();
-                Utils.DurationSelector("Any Duration", ref Selected.AnyDuration, ref Selected.Days, ref Selected.Hours, ref Selected.Minutes, ref Selected.Seconds);
+                Utils.DurationSelector("任意持续时间", ref Selected.AnyDuration, ref Selected.Days, ref Selected.Hours, ref Selected.Minutes, ref Selected.Seconds);
                 ImGui.EndDisabled();
 
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"Apply Direction:");
+                ImGuiEx.TextV($"应用方向:");
                 ImGui.TableNextColumn();
 
                 ImGui.EndTable();
