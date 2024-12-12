@@ -9,7 +9,7 @@ using ECommons.MathHelpers;
 using ECommons.PartyFunctions;
 using FFXIVClientStructs.FFXIV.Client.Graphics;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using Lumina.Excel.Sheets;
+using Lumina.Excel.GeneratedSheets;
 using Moodles.Data;
 using Moodles.GameGuiProcessors;
 
@@ -53,7 +53,7 @@ public unsafe class CommonProcessor : IDisposable
                 IconStackCounts[x.Icon] = x.MaxStacks;
             }
 
-            var fxpath = x.HitEffect.ValueNullable?.Location.ValueNullable?.Location.ExtractText();
+            var fxpath = x.HitEffect.Value?.Location.Value?.Location.RawString;
             if (!StatusEffectPaths.Contains(fxpath) && !fxpath.IsNullOrWhitespace())
             {
                 StatusEffectPaths.Add(fxpath);

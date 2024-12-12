@@ -5,7 +5,7 @@ using ECommons.EzIpcManager;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
-using Lumina.Excel.Sheets;
+using Lumina.Excel.GeneratedSheets;
 using Moodles.Data;
 
 namespace Moodles.Gui;
@@ -199,7 +199,7 @@ public static unsafe class UI
             {
                 if(x.StatusId != 0)
                 {
-                    ImGuiEx.Text($"{x.StatusId}, {x.GameData.ValueNullable?.Name}, permanent: {x.GameData.ValueNullable?.IsPermanent}, category: {x.GameData.ValueNullable?.StatusCategory}");
+                    ImGuiEx.Text($"{x.StatusId}, {x.GameData?.Name}, permanent: {x.GameData?.IsPermanent}, category: {x.GameData?.StatusCategory}");
                 }
             }
             if(Svc.Targets.Target is IPlayerCharacter pc)

@@ -5,7 +5,7 @@ using Dalamud.Memory;
 using Dalamud.Plugin.Services;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using Lumina.Excel.Sheets;
+using Lumina.Excel.GeneratedSheets;
 using Moodles.Data;
 
 namespace Moodles.GameGuiProcessors;
@@ -19,7 +19,7 @@ public sealed unsafe class FlyPopupTextProcessor : IDisposable
     {
         foreach(var x in Svc.Data.GetExcelSheet<Status>())
         {
-            var baseData = new IconStatusData(x.RowId, x.Name.ExtractText(), 0);
+            var baseData = new IconStatusData(x.RowId, x.Name.RawString, 0);
             StatusData[x.Icon] = baseData;
             for(var i = 2; i <= x.MaxStacks; i++)
             {

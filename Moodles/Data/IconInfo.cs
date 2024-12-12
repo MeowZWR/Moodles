@@ -1,4 +1,4 @@
-﻿using Lumina.Excel.Sheets;
+﻿using Lumina.Excel.GeneratedSheets;
 
 namespace Moodles.Data;
 public struct IconInfo

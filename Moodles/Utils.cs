@@ -9,7 +9,7 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using Moodles.Data;
 using Moodles.OtterGuiHandlers.Whitelist.GSpeak;
 using System.Text.RegularExpressions;
-using Status = Lumina.Excel.Sheets.Status;
+using Status = Lumina.Excel.GeneratedSheets.Status;
 using UIColor = ECommons.ChatMethods.UIColor;
 
 namespace Moodles;
@@ -288,7 +288,7 @@ public static unsafe partial class Utils
         pc ??= Player.Object;
         foreach(var x in C.AutomationProfiles)
         {
-            if(x.Enabled && x.Character == pc.Name.ToString() && (x.World == 0 || x.World == pc.HomeWorld.RowId))
+            if(x.Enabled && x.Character == pc.Name.ToString() && (x.World == 0 || x.World == pc.HomeWorld.Id))
             {
                 foreach(var c in x.Combos)
                 {
@@ -388,7 +388,7 @@ public static unsafe partial class Utils
                     {
                         r = (ushort)Enum.GetValues<UIColor>().FirstOrDefault(x => x.ToString().EqualsIgnoreCase(s[7..^1]));
                     }
-                    if(r == 0 || Svc.Data.GetExcelSheet<Lumina.Excel.Sheets.UIColor>().GetRowOrDefault(r) == null) goto ColorError;
+                    if(r == 0 || Svc.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.UIColor>().GetRow(r) == null) goto ColorError;
                     str.AddUiForeground(r);
                     valid[0]++;
                 }
@@ -405,7 +405,7 @@ public static unsafe partial class Utils
                     {
                         r = (ushort)Enum.GetValues<UIColor>().FirstOrDefault(x => x.ToString().EqualsIgnoreCase(s[6..^1]));
                     }
-                    if(r == 0 || Svc.Data.GetExcelSheet<Lumina.Excel.Sheets.UIColor>().GetRowOrDefault(r) == null) goto ColorError;
+                    if(r == 0 || Svc.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.UIColor>().GetRow(r) == null) goto ColorError;
                     str.AddUiGlow(r);
                     valid[1]++;
                 }
@@ -468,8 +468,8 @@ public static unsafe partial class Utils
     {
         foreach (var x in Svc.Data.GetExcelSheet<Status>())
         {
-            if (x.Icon == iconID) return x.HitEffect.ValueNullable?.Location.ValueNullable?.Location.ExtractText();
-            if (x.MaxStacks > 1 && iconID >= x.Icon + 1 && iconID < x.Icon + x.MaxStacks) return x.HitEffect.ValueNullable?.Location.ValueNullable?.Location.ExtractText();
+            if (x.Icon == iconID) return x.HitEffect.Value?.Location.Value?.Location.RawString;
+            if (x.MaxStacks > 1 && iconID >= x.Icon + 1 && iconID < x.Icon + x.MaxStacks) return x.HitEffect.Value?.Location.Value?.Location.RawString;
         }
         return string.Empty;
     }
@@ -508,13 +508,13 @@ public static unsafe partial class Utils
             }
             var info = new IconInfo()
             {
-                Name = data.Name.ExtractText(),
+                Name = data.Name.RawString,
                 IconID = iconID,
                 Type = data.CanIncreaseRewards == 1 ? StatusType.Special : (data.StatusCategory == 2 ? StatusType.Negative : StatusType.Positive),
                 ClassJobCategory = data.ClassJobCategory.Value,
                 IsFCBuff = data.IsFcBuff,
                 IsStackable = data.MaxStacks > 1,
-                Description = data.Description.ExtractText(),
+                Description = data.Description.RawString,
 
             };
             IconInfoCache[iconID] = info;

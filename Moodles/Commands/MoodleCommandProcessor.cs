@@ -1,7 +1,7 @@
 ﻿using Dalamud.Game.ClientState.Objects.SubKinds;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
-using Lumina.Excel.Sheets;
+using Lumina.Excel.GeneratedSheets;
 using Moodles.Data;
 using System.Text.RegularExpressions;
 
@@ -258,7 +258,7 @@ public static class MoodleCommandProcessor
 
             if(hasWorld)
             {
-                worldIsCorrect = selectedProfile.World == playerCharacter.HomeWorld.RowId;
+                worldIsCorrect = selectedProfile.World == playerCharacter.HomeWorld.Id;
             }
 
             if(nameIsCorrect && worldIsCorrect)
@@ -276,7 +276,7 @@ public static class MoodleCommandProcessor
             selectedProfile.Character = playerCharacter.Name.TextValue;
             if(hasWorld)
             {
-                selectedProfile.World = playerCharacter.HomeWorld.RowId;
+                selectedProfile.World = playerCharacter.HomeWorld.Id;
             }
             else
             {

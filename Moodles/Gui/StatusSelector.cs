@@ -1,6 +1,6 @@
 ﻿using ECommons.ExcelServices;
 using ECommons.SimpleGui;
-using Lumina.Excel.Sheets;
+using Lumina.Excel.GeneratedSheets;
 using Moodles.Data;
 
 namespace Moodles.Gui;
@@ -23,7 +23,7 @@ public class StatusSelector : Window
         {
             if(IconArray.Contains(x.Icon)) continue;
             if(x.Icon == 0) continue;
-            if(x.Name.ExtractText().IsNullOrEmpty()) continue;
+            if(x.Name.RawString.IsNullOrEmpty()) continue;
             IconArray.Add(x.Icon);
         }
         EzConfigGui.WindowSystem.AddWindow(this);
