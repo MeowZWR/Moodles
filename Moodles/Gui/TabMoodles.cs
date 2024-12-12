@@ -43,8 +43,8 @@ public static class TabMoodles
 
             var isMare = Utils.GetMarePlayers().Contains(Svc.Targets.Target?.Address ?? -1);
             var isGSpeak = Svc.Targets.Target is IPlayerCharacter pc && Utils.GSpeakPlayers.Any(player => player.Item1 == pc.GetNameWithWorld());
-            var dis = Svc.Targets.Target is not IPlayerCharacter || (isMare && !isGSpeak);
-            //if(dis) ImGui.BeginDisabled();
+            var dis = Svc.Targets.Target is not IPlayerCharacter && (!isMare && !isGSpeak);
+            if(dis) ImGui.BeginDisabled();
             var buttonText = Svc.Targets.Target is not IPlayerCharacter
                 ? "No Target Selected" : isMare && !isGSpeak
                     ? "Apply To Mare User" : $"Apply to Target ({(isGSpeak ? "via GagSpeak" : "Locally")})";
@@ -71,7 +71,7 @@ public static class TabMoodles
                     e.Log();
                 }
             }
-            //if(dis) ImGui.EndDisabled();
+            if(dis) ImGui.EndDisabled();
 
             if(ImGui.BeginTable("##moodles", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame))
             {
