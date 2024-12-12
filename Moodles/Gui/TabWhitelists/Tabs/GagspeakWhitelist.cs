@@ -17,7 +17,7 @@ internal class GagspeakWhitelist : PluginWhitelist
 
     protected override void DrawHeader()
     {
-        if(Selected == null) HeaderDrawer.Draw("GagSpeak Visible Pair Settings", 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
+        if(Selected == null) HeaderDrawer.Draw("GagSpeak 可见配对设置（通过GagSpeak进行同步，注意风险）", 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
     }
 
     protected override void Draw()
@@ -33,12 +33,12 @@ internal class GagspeakWhitelist : PluginWhitelist
             using(var child = ImRaii.Child("##DefaultBox", -Vector2.One, true))
             {
                 if(!child) return;
-                ImGuiEx.Text($"No GagSpeak Pairs are visible to view the permissions of. Select one to view permissions!");
+                ImGuiEx.Text($"没有可见的 GagSpeak 配对记录可以查看权限。请选择一个以查看权限！");
             }
         }
         else
         {
-            HeaderDrawer.Draw("Your Permissions for " + Selected.PlayerName.Censor($"Whitelist entry {C.WhitelistGSpeak.IndexOf(Selected) + 1}"), 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
+            HeaderDrawer.Draw("你对" + Selected.PlayerName.Censor($"白名单条目 {C.WhitelistGSpeak.IndexOf(Selected) + 1} 的权限"), 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
             using(var child = ImRaii.Child("##Panel", new(ImGui.GetContentRegionAvail().X - 1f, ImGui.GetContentRegionAvail().Y / 2 - ImGui.GetFrameHeight()), true))
             {
                 if(!child) return;
@@ -46,7 +46,7 @@ internal class GagspeakWhitelist : PluginWhitelist
                 DrawTableForPermissions(Selected.ClientPermsForPair, "ClientPermsForPair");
             }
 
-            HeaderDrawer.Draw("Permissions " + Selected.PlayerName.Censor($"Whitelist entry {C.WhitelistGSpeak.IndexOf(Selected) + 1}") + " set for You", 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
+            HeaderDrawer.Draw("为你设置的权限-" + Selected.PlayerName.Censor($"白名单条目 {C.WhitelistGSpeak.IndexOf(Selected) + 1}"), 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
             using(var child2 = ImRaii.Child("##Panel2", -Vector2.One, true))
             {
                 if(!child2) return;
@@ -64,7 +64,7 @@ internal class GagspeakWhitelist : PluginWhitelist
 
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGuiEx.TextV($"Allowed Status Types:");
+            ImGuiEx.TextV($"允许的状态类型：");
             ImGui.TableNextColumn();
 
             ImGui.BeginDisabled();
@@ -77,7 +77,7 @@ internal class GagspeakWhitelist : PluginWhitelist
 
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGuiEx.TextV($"Maximum Duration:");
+            ImGuiEx.TextV($"最大持续时间：");
             ImGui.TableNextColumn();
 
             ImGui.BeginDisabled();
@@ -85,25 +85,25 @@ internal class GagspeakWhitelist : PluginWhitelist
             var hours = whitelistPermissionSet.MaxDuration.Hours;
             var minutes = whitelistPermissionSet.MaxDuration.Minutes;
             var seconds = whitelistPermissionSet.MaxDuration.Seconds;
-            Utils.DurationSelector("Any Duration", ref whitelistPermissionSet.AllowPermanent, ref days, ref hours, ref minutes, ref seconds);
+            Utils.DurationSelector("任意持续时间", ref whitelistPermissionSet.AllowPermanent, ref days, ref hours, ref minutes, ref seconds);
             ImGui.EndDisabled();
 
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGuiEx.TextV($"Apply Direction:");
+            ImGuiEx.TextV($"指定方向？：");
             ImGui.TableNextColumn();
 
             ImGui.BeginDisabled();
-            ImGui.Checkbox("Can Apply Our Moodles##" + id, ref whitelistPermissionSet.AllowApplyingOwnMoodles);
-            ImGui.Checkbox("Can Apply Their Moodles##" + id, ref whitelistPermissionSet.AllowApplyingPairsMoodles);
+            ImGui.Checkbox("可以应用我们的 Moodles##" + id, ref whitelistPermissionSet.AllowApplyingOwnMoodles);
+            ImGui.Checkbox("可以应用他们的 Moodles##" + id, ref whitelistPermissionSet.AllowApplyingPairsMoodles);
             ImGui.EndDisabled();
 
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGuiEx.TextV($"Status Removal:");
+            ImGuiEx.TextV($"状态移除：");
             ImGui.TableNextColumn();
             ImGui.BeginDisabled();
-            ImGui.Checkbox("Can Remove Moodles##" + id, ref whitelistPermissionSet.AllowRemoval);
+            ImGui.Checkbox("可以移除 Moodles##" + id, ref whitelistPermissionSet.AllowRemoval);
             ImGui.EndDisabled();
             ImGui.EndTable();
         }

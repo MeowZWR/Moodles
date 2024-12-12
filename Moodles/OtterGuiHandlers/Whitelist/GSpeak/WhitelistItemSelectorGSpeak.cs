@@ -259,7 +259,7 @@ public class WhitelistItemSelectorGSpeak<T>
         var newFilter = Filter;
         using var style = ImRaii.PushStyle(ImGuiStyleVar.FrameRounding, 0);
         ImGui.SetNextItemWidth(width);
-        var enterPressed = ImGui.InputTextWithHint(string.Empty, "Filter...", ref newFilter, 64, ImGuiInputTextFlags.EnterReturnsTrue);
+        var enterPressed = ImGui.InputTextWithHint(string.Empty, "筛选...", ref newFilter, 64, ImGuiInputTextFlags.EnterReturnsTrue);
         if(newFilter != Filter)
         {
             Filter = newFilter;
