@@ -212,11 +212,25 @@ public static class TabMoodles
                 ImGuiEx.TextV($"类别：");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
-                if (ImGuiEx.EnumRadio(ref Selected.Type, true))
+                if (Enum.GetValues<StatusType>().Any(value =>
                 {
-                    P.IPCProcessor.StatusModified(Selected.GUID);
-                }
-                ImGui.TableNextRow();
+                    string name = value switch
+                    {
+                        StatusType.Positive => "强化状态",
+                        StatusType.Negative => "弱化状态",
+                        StatusType.Special  => "其他状态",
+                        _ => value.ToString()
+                    };
+
+                    if (ImGui.RadioButton(name, Selected.Type == value))
+                    {
+                        Selected.Type = value;
+                        P.IPCProcessor.StatusModified(Selected.GUID);
+                        return true;
+                    }
+                    return false;
+                }))
+                    ImGui.TableNextRow();
 
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"持续时间：");

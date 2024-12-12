@@ -70,7 +70,14 @@ internal class MareWhitelist : PluginWhitelist
                 ImGui.BeginDisabled();
                 foreach(var x in Enum.GetValues<StatusType>())
                 {
-                    ImGuiEx.CollectionCheckbox($"{x}", x, Selected.AllowedTypes);
+                    string translatedName = x switch
+                    {
+                        StatusType.Positive => "强化状态",
+                        StatusType.Negative => "弱化状态",
+                        StatusType.Special  => "其他状态",
+                        _ => x.ToString()
+                    };
+                    ImGuiEx.CollectionCheckbox($"{translatedName}", x, Selected.AllowedTypes);
                 }
                 ImGui.EndDisabled();
 
