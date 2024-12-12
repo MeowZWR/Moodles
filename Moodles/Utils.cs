@@ -532,9 +532,9 @@ public static unsafe partial class Utils
                 PluginLog.Warning($"Cleaning up corrupted stats {i}");
                 C.SavedStatuses.RemoveAt(i);
             }
-            else if(item.IconID < 200000)
+            else if(item.IconID > 200000)
             {
-                item.IconID += 200000;
+                item.IconID -= 200000;
                 PluginLog.Information($"Adjusting icon id for {item.Title}");
             }
         }
