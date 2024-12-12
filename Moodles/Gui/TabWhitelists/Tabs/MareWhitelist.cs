@@ -31,11 +31,12 @@ internal class MareWhitelist : PluginWhitelist
                 ImGui.Checkbox("允许所有人", ref C.BroadcastAllowAll);
                 ImGui.Checkbox("允许队伍成员", ref C.BroadcastAllowParty);
                 ImGui.Checkbox("允许好友", ref C.BroadcastAllowFriends);
+                if (C.WhitelistMare.Count != 0) C.WhitelistMare.Clear();
             }
             ImGui.EndTable();
         }
 
-        P.OtterGuiHandler.WhitelistMare.Draw(200f);
+        //P.OtterGuiHandler.WhitelistMare.Draw(200f);
     }
 
     protected override void DrawHeader()
