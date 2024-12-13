@@ -100,6 +100,7 @@ public class IPCProcessor : IDisposable
     [EzIPCEvent("GagSpeak.TryOnMoodleStatus", false)]
     private void TryOnMoodleStatus(MoodlesStatusInfo status)
     {
+        if (status.IconID > 200000) status.IconID -= 200000;
         new TickScheduler(() =>
         {
             PluginLog.LogDebug($"GagSpeak is applying status {status.Title} to client");

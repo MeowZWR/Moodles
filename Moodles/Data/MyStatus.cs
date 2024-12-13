@@ -46,11 +46,11 @@ public partial class MyStatus
             error = ("Icon is not set");
             return false;
         }
-        if (IconID < 200000)
-        {
-            error = ("Icon is a Pre 7.1 Moodle!");
-            return false;
-        }
+        // if (IconID < 200000)
+        // {
+        //     error = ("Icon is a Pre 7.1 Moodle!");
+        //     return false;
+        // }
         if (Title.Length == 0)
         {
             error = ("Title is not set");
