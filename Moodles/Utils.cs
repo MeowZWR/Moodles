@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+﻿using System.Text.Json;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.Text.SeStringHandling;
 using ECommons.ExcelServices;
 using ECommons.EzIpcManager;
@@ -95,7 +96,7 @@ public static unsafe partial class Utils
         }
         if(list.Count > 0)
         {
-            if(P.IPCProcessor.ApplyStatusesToMarePlayers.TryInvoke(Player.NameWithWorld, target.GetNameWithWorld(), list, false))
+            if(P.IPCProcessor.ApplyStatusesToMarePlayers.TryInvoke(Player.NameWithWorld, target.GetNameWithWorld(), Serialize(list)))
             {
                 Notify.Info($"Broadcast success");
             }
@@ -116,7 +117,7 @@ public static unsafe partial class Utils
         }
         else
         {
-            if(P.IPCProcessor.ApplyStatusesToMarePlayers.TryInvoke(Player.NameWithWorld, target.GetNameWithWorld(), [preparedStatus.ToStatusInfoTuple()], true))
+            if(P.IPCProcessor.ApplyStatusesToMarePlayers.TryInvoke(Player.NameWithWorld, target.GetNameWithWorld(), Serialize([preparedStatus.ToStatusInfoTuple()])))
             {
                 Notify.Info($"Broadcast success");
             }
@@ -125,6 +126,13 @@ public static unsafe partial class Utils
                 Notify.Error("Broadcast failed");
             }
         }
+    }
+
+    private static string Serialize(List<MoodlesStatusInfo> list)
+    {
+        var jsonString = JsonSerializer.Serialize(list);
+        var base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+        return base64;
     }
 
     private static long LastChangeTime;
