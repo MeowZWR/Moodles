@@ -2,9 +2,7 @@
 using ECommons.GameHelpers;
 using Moodles.Data;
 using Moodles.OtterGuiHandlers;
-using Moodles.Processors;
 using OtterGui.Raii;
-using System.Xml.Linq;
 
 namespace Moodles.Gui;
 public static class TabMoodles
@@ -31,11 +29,11 @@ public static class TabMoodles
     public static void DrawSelected()
     {
         using var child = ImRaii.Child("##Panel", -Vector2.One, true);
-        if(!child || Selected == null)
+        if (!child || Selected == null)
             return;
         {
             var cur = new Vector2(ImGui.GetCursorPosX() + ImGui.GetContentRegionAvail().X - UI.StatusIconSize.X * 2, ImGui.GetCursorPosY()) - new Vector2(10, 0);
-            if(ImGui.Button("应用到你自己"))
+            if (ImGui.Button("应用到你自己"))
             {
                 Utils.GetMyStatusManager(Player.NameWithWorld).AddOrUpdate(Selected.PrepareToApply(AsPermanent ? PrepareOptions.Persistent : PrepareOptions.NoOption), UpdateSource.StatusTuple);
             }
@@ -43,17 +41,17 @@ public static class TabMoodles
 
             var isMare = Utils.GetMarePlayers().Contains(Svc.Targets.Target?.Address ?? -1);
             var isGSpeak = Svc.Targets.Target is IPlayerCharacter pc && Utils.GSpeakPlayers.Any(player => player.Item1 == pc.GetNameWithWorld());
-            var dis = Svc.Targets.Target is not IPlayerCharacter && (!isMare && !isGSpeak);
-            if(dis) ImGui.BeginDisabled();
+            var dis = Svc.Targets.Target is not IPlayerCharacter || (isMare && !isGSpeak);
+            if (dis) ImGui.BeginDisabled();
             var buttonText = Svc.Targets.Target is not IPlayerCharacter
                 ? "未选择目标" : isMare && !isGSpeak
-                    ? "应用到 Mare 用户" : $"应用到目标（{(isGSpeak ? "通过 GagSpeak" : "本地")}）";
-            if(ImGui.Button(buttonText))
+                    ? "应用到 Mare 用户" : $"应用到目标（{(isGSpeak ? "通过 GagSpeak" : "本地")})";
+            if (ImGui.Button(buttonText))
             {
                 try
                 {
                     var target = (IPlayerCharacter)Svc.Targets.Target;
-                    if(!isMare)
+                    if (!isMare)
                     {
                         Utils.GetMyStatusManager(target.GetNameWithWorld()).AddOrUpdate(Selected.PrepareToApply(AsPermanent ? PrepareOptions.Persistent : PrepareOptions.NoOption), UpdateSource.StatusTuple);
                     }
@@ -66,52 +64,54 @@ public static class TabMoodles
                         Selected.SendMareMessage(target);
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     e.Log();
                 }
             }
-            if(dis) ImGui.EndDisabled();
+            if (dis) ImGui.EndDisabled();
 
-            if(ImGui.BeginTable("##moodles", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame))
+            if (ImGui.BeginTable("##moodles", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame))
             {
                 ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, 175f);
                 ImGui.TableSetupColumn("Field", ImGuiTableColumnFlags.WidthStretch);
-
                 ImGui.TableNextColumn();
+
+                // Title Field
                 ImGuiEx.RightFloat("TitleCharLimit", () => ImGuiEx.TextV(ImGuiColors.DalamudGrey2, $"{Selected.Title.Length}/150"), out _, ImGui.GetContentRegionAvail().X + ImGui.GetCursorPosX() + ImGui.GetStyle().CellPadding.X + 5);
                 ImGuiEx.TextV($"标题：");
                 Formatting();
                 {
                     Utils.ParseBBSeString(Selected.Title, out var error);
-                    if(error != null)
+                    if (error != null)
                     {
                         ImGuiEx.HelpMarker(error, EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
                     }
                 }
-                if(Selected.Title.Length == 0)
+                if (Selected.Title.Length == 0)
                 {
                     ImGuiEx.HelpMarker("标题必须填写", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
                 }
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 ImGui.InputText("##name", ref Selected.Title, 150);
-                if(ImGui.IsItemDeactivatedAfterEdit())
+                if (ImGui.IsItemDeactivatedAfterEdit())
                 {
                     P.IPCProcessor.StatusModified(Selected.GUID);
                 }
-                ImGui.TableNextRow();
 
+                // Icon Field
+                ImGui.TableNextRow();
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"图标:");
-                if(Selected.IconID == 0)
+                if (Selected.IconID == 0)
                 {
                     ImGuiEx.HelpMarker("您必须选择一个图标", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
                 }
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 var selinfo = Utils.GetIconInfo((uint)Selected.IconID);
-                if(ImGui.BeginCombo("##sel", $"图标：#{Selected.IconID} {selinfo?.Name}", ImGuiComboFlags.HeightLargest))
+                if (ImGui.BeginCombo("##sel", $"图标: #{Selected.IconID} {selinfo?.Name}", ImGuiComboFlags.HeightLargest))
                 {
                     var cursor = ImGui.GetCursorPos();
                     ImGui.Dummy(new Vector2(100, ImGuiHelpers.MainViewport.Size.Y * C.SelectorHeight / 100));
@@ -123,14 +123,14 @@ public static class TabMoodles
                     ImGui.EndCombo();
                 }
                 // post update to IPC if a new icon is selected.
-                if(Utils.GetIconInfo((uint)Selected.IconID)?.Name != selinfo?.Name)
+                if (Utils.GetIconInfo((uint)Selected.IconID)?.Name != selinfo?.Name)
                 {
                     P.IPCProcessor.StatusModified(Selected.GUID);
                 }
 
 
+                // Custom VFX Field
                 ImGui.TableNextRow();
-
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"自定义VFX路径：");
                 ImGuiEx.HelpMarker("您可以选择一个自定义VFX，在应用时播放。");
@@ -151,23 +151,24 @@ public static class TabMoodles
 
                     ImGui.EndCombo();
                 }
-              
+
                 ImGui.TableNextRow();
 
+                // Stack Field
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"堆叠层数：");
                 ImGuiEx.HelpMarker("如果游戏数据包含关于状态效果连续堆叠的信息，您可以在此处选择所需的数字。由于并非所有状态效果的堆叠都遵循相同的逻辑，因此您要查找的图标可能外观相同，却不是这一个。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 var maxStacks = 1;
-                if(P.CommonProcessor.IconStackCounts.TryGetValue((uint)Selected.IconID, out var count))
+                if (P.CommonProcessor.IconStackCounts.TryGetValue((uint)Selected.IconID, out var count))
                 {
                     maxStacks = (int)count;
                 }
-                if(maxStacks <= 1) ImGui.BeginDisabled();
-                if(ImGui.BeginCombo("##stk", $"{Selected.Stacks}"))
+                if (maxStacks <= 1) ImGui.BeginDisabled();
+                if (ImGui.BeginCombo("##stk", $"{Selected.Stacks}"))
                 {
-                    for(var i = 1; i <= maxStacks; i++)
+                    for (var i = 1; i <= maxStacks; i++)
                     {
                         if (ImGui.Selectable($"{i}"))
                         {
@@ -178,15 +179,17 @@ public static class TabMoodles
                     }
                     ImGui.EndCombo();
                 }
-                if(maxStacks <= 1) ImGui.EndDisabled();
-                if(Selected.Stacks > maxStacks) Selected.Stacks = maxStacks;
+                if (maxStacks <= 1) ImGui.EndDisabled();
+                if (Selected.Stacks > maxStacks) Selected.Stacks = maxStacks;
                 if (Selected.Stacks < 1)
                 {
                     Selected.Stacks = 1;
                     Selected.StackOnReapply = false;
+                    Selected.StacksIncOnReapply = 1;
                 }
                 ImGui.TableNextRow();
 
+                // Description Field
                 ImGui.TableNextColumn();
                 var cpx = ImGui.GetCursorPosX();
                 ImGuiEx.RightFloat("DescCharLimit", () => ImGuiEx.TextV(ImGuiColors.DalamudGrey2, $"{Selected.Description.Length}/500"), out _, ImGui.GetContentRegionAvail().X + ImGui.GetCursorPosX() + ImGui.GetStyle().CellPadding.X);
@@ -194,7 +197,7 @@ public static class TabMoodles
                 Formatting();
                 {
                     Utils.ParseBBSeString(Selected.Description, out var error);
-                    if(error != null)
+                    if (error != null)
                     {
                         ImGuiEx.HelpMarker(error, EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
                     }
@@ -202,12 +205,13 @@ public static class TabMoodles
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 ImGuiEx.InputTextMultilineExpanding("##desc", ref Selected.Description, 500);
-                if(ImGui.IsItemDeactivatedAfterEdit())
+                if (ImGui.IsItemDeactivatedAfterEdit())
                 {
                     P.IPCProcessor.StatusModified(Selected.GUID);
                 }
                 ImGui.TableNextRow();
 
+                // Category Field
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"类别：");
                 ImGui.TableNextColumn();
@@ -230,8 +234,9 @@ public static class TabMoodles
                     }
                     return false;
                 }))
-                    ImGui.TableNextRow();
 
+                // Duration Field
+                ImGui.TableNextRow();
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"持续时间：");
                 if (Selected.TotalDurationSeconds < 1 && !Selected.NoExpire)
@@ -239,13 +244,13 @@ public static class TabMoodles
                     ImGuiEx.HelpMarker("持续时间必须至少有1秒", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
                 }
                 ImGui.TableNextColumn();
-
                 if (Utils.DurationSelector("永久", ref Selected.NoExpire, ref Selected.Days, ref Selected.Hours, ref Selected.Minutes, ref Selected.Seconds))
                 {
                     P.IPCProcessor.StatusModified(Selected.GUID);
                 }
-                ImGui.TableNextRow();
 
+                // Sticky Field
+                ImGui.TableNextRow();
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"固定：");
                 ImGuiEx.HelpMarker("当在自动执行之外手动应用时，除非右键单击状态图标进行关闭，否则不会删除或覆盖此Moodle。");
@@ -256,6 +261,7 @@ public static class TabMoodles
                     P.IPCProcessor.StatusModified(Selected.GUID);
                 }
 
+                // Dispelable Field
                 if (P.CommonProcessor.DispelableIcons.Contains((uint)Selected.IconID))
                 {
                     ImGui.TableNextRow();
@@ -271,16 +277,30 @@ public static class TabMoodles
                     }
                 }
 
+                // Stack on Reapply Field
                 if (maxStacks > 1)
                 {
                     ImGui.TableNextColumn();
                     ImGuiEx.TextV($"重复应用时叠加：");
-                    ImGuiEx.HelpMarker("当重复应用此 Moodle 时，叠加计数将增加应用的叠加层数。");
+                    ImGuiEx.HelpMarker("当重复应用此 Moodle 时，叠加计数将增加应用的叠加层数。\n你可以设置每次叠加的层数。");
+
                     ImGui.TableNextColumn();
                     ImGuiEx.SetNextItemFullWidth();
                     if (ImGui.Checkbox("##stackonreapply", ref Selected.StackOnReapply))
                     {
                         P.IPCProcessor.StatusModified(Selected.GUID);
+                    }
+                    // if the selected should reapply and we have a stacked moodle.
+                    if (Selected.StackOnReapply && maxStacks > 1)
+                    {
+                        // display the slider for the stack count.
+                        ImGui.SameLine();
+                        ImGui.SetNextItemWidth(30);
+                        ImGui.DragInt("叠加层数", ref Selected.StacksIncOnReapply, 0.1f, 0, maxStacks);
+                        if (ImGui.IsItemDeactivatedAfterEdit())
+                        {
+                            P.IPCProcessor.StatusModified(Selected.GUID);
+                        }
                     }
                 }
                 ImGui.TableNextRow();
