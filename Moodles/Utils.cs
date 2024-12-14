@@ -80,7 +80,7 @@ public static unsafe partial class Utils
     /// <param name="target"> The target player to apply the statuses to. </param>
     public static void SendMareMessage(this Preset Preset, IPlayerCharacter target)
     {
-        var list = new List<MoodlesStatusInfo>();
+        var list = new List<MyStatus>();
         foreach(var s in C.SavedStatuses.Where(x => Preset.Statuses.Contains(x.GUID)))
         {
             var preparedStatus = s.PrepareToApply();
@@ -91,7 +91,7 @@ public static unsafe partial class Utils
             }
             else
             {
-                list.Add(preparedStatus.ToStatusInfoTuple());
+                list.Add(preparedStatus);
             }
         }
         if(list.Count > 0)
@@ -117,7 +117,7 @@ public static unsafe partial class Utils
         }
         else
         {
-            if(P.IPCProcessor.ApplyStatusesToMarePlayers.TryInvoke(Player.NameWithWorld, target.GetNameWithWorld(), Serialize([preparedStatus.ToStatusInfoTuple()])))
+            if(P.IPCProcessor.ApplyStatusesToMarePlayers.TryInvoke(Player.NameWithWorld, target.GetNameWithWorld(), Serialize([preparedStatus])))
             {
                 Notify.Info($"Broadcast success");
             }
@@ -128,11 +128,19 @@ public static unsafe partial class Utils
         }
     }
 
-    private static string Serialize(List<MoodlesStatusInfo> list)
+    public static string Serialize(List<MyStatus> list)
     {
-        var jsonString = JsonSerializer.Serialize(list);
-        var base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(jsonString));
+        var memoryPack = JsonSerializer.Serialize(list, new JsonSerializerOptions(){IncludeFields = true});
+        var base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(memoryPack));
+        PluginLog.Warning($"Memory pack serialized:{list[0].Title} {memoryPack}");
         return base64;
+    }
+
+    public static List<MyStatus> Deserialize(string base64String)
+    {
+        var str = Convert.FromBase64String(base64String);
+        var list = JsonSerializer.Deserialize<List<MyStatus>>(str, new JsonSerializerOptions() { IncludeFields = true });
+        return list;
     }
 
     private static long LastChangeTime;

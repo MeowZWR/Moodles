@@ -168,19 +168,7 @@ public class IPCProcessor : IDisposable
     private void ApplyStatusesFromMarePlayers(string senderNameWorld, string intendedRecipient, string statusesStringToApply)
     {
         if (!C.EnableMareSync) return;
-        var statusesToApply = new List<MoodlesStatusInfo>();
-
-        try
-        {
-            var jsonBytes = Convert.FromBase64String(statusesStringToApply);
-            var json = Encoding.UTF8.GetString(jsonBytes);
-            statusesToApply = JsonSerializer.Deserialize<List<MoodlesStatusInfo>>(json);
-        }
-        catch (Exception e)
-        {
-            PluginLog.Error($"[ApplyStatusesFromMarePlayers] Deserialization failed: {e}");
-            return;
-        }
+        var statusesToApply = Utils.Deserialize(statusesStringToApply);
 
         if(intendedRecipient != Player.NameWithWorld)
         {
@@ -198,7 +186,7 @@ public class IPCProcessor : IDisposable
                 {
                     if(Utils.CheckWhitelistGlobal(senderNameWorld))
                     {
-                        sm.AddOrUpdate(MyStatus.FromStatusInfoTuple(x).PrepareToApply(), UpdateSource.StatusTuple, false, true);
+                        sm.AddOrUpdate(x.PrepareToApply(), UpdateSource.StatusTuple, false, true);
                         PluginLog.Debug($"[ApplyStatusesFromMarePlayers] Status {x.Title} from {senderNameWorld} applied.");
                     }
                     else PluginLog.Debug($"[ApplyStatusesFromMarePlayers] Status {x.Title} was not applied since {x.Applier} or {senderNameWorld} can't pass permission checks.");
