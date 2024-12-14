@@ -132,7 +132,6 @@ public static unsafe partial class Utils
     {
         var memoryPack = JsonSerializer.Serialize(list, new JsonSerializerOptions(){IncludeFields = true});
         var base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(memoryPack));
-        PluginLog.Warning($"Memory pack serialized:{list[0].Title} {memoryPack}");
         return base64;
     }
 
