@@ -80,6 +80,7 @@ public class Moodles : IDalamudPlugin
         {
             if(Svc.Condition[ConditionFlag.BoundByDuty]
                 || Svc.Condition[ConditionFlag.BoundByDuty56]
+                || Svc.Condition[ConditionFlag.DutyRecorderPlayback]
                 || Svc.ClientState.IsPvP
                 )
             {
