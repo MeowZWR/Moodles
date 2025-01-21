@@ -121,7 +121,7 @@ public class Moodles : IDalamudPlugin
                     {
                         if(marePlayers.Contains(pc.Address))
                         {
-                            if(!m.Ephemeral)
+                            if(!m.Ephemeral && !pc.AddressEquals(Svc.ClientState.LocalPlayer))
                             {
                                 PluginLog.Debug($"{pc.GetNameWithWorld()} is now Mare player. Status manager ephemeral, automation disabled.");
                                 m.Ephemeral = true;
