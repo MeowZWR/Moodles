@@ -138,7 +138,7 @@ public static class MoodleCommandProcessor
             {
                 if (Utils.GetMarePlayers().Contains(statusManager.Owner?.Address ?? -1))
                 {
-                    myStatus.SendGSpeakMessage(statusManager.Owner);
+                    myStatus.SendMareMessage(statusManager.Owner);
                 }
                 else
                 {
@@ -150,8 +150,8 @@ public static class MoodleCommandProcessor
                 if (Utils.GetMarePlayers().Contains(statusManager.Owner?.Address ?? -1))
                 {
                     var newStatus = myStatus.JSONClone();
-                    newStatus.ExpiresAt = 0;
-                    newStatus.SendGSpeakMessage(statusManager.Owner);
+                    newStatus.ExpiresAt = -1;
+                    newStatus.SendMareMessage(statusManager.Owner);
                 }
                 else
                 {
@@ -165,6 +165,11 @@ public static class MoodleCommandProcessor
     {
         var statusManager = GetStatusManager(targetState);
         var myPresets = GetMyPreset(moodleNameType);
+
+        if (Utils.GetMarePlayers().Contains(statusManager.Owner?.Address ?? -1))
+        {
+            throw new MoodleChatException($"{statusManager.Owner?.Name} 是Mare用户, 暂不支持预设操作.");
+        }
 
         foreach (var myPreset in myPresets)
         {

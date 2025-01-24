@@ -500,7 +500,7 @@ public static unsafe partial class Utils
         {
             status.ExpiresAt = long.MaxValue;
         }
-        else
+        else if (status.ExpiresAt >= 0)
         {
             status.ExpiresAt = Time + status.TotalDurationSeconds;
         }
