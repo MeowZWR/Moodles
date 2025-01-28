@@ -78,9 +78,13 @@ public class MyStatusManager
                 return;
             }
         }
-        // if it was new, fire event if needed and add it.
-        if (triggerEvent) NeedFireEvent = true;
-        Statuses.Add(newStatus);
+
+        if (newStatus.ExpiresAt > 0)
+        {
+            // if it was new, fire event if needed and add it.
+            if (triggerEvent) NeedFireEvent = true;
+            Statuses.Add(newStatus);
+        }
     }
 
     public void Cancel(Guid id, bool triggerEvent = true)

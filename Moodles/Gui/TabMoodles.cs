@@ -69,6 +69,36 @@ public static class TabMoodles
                     e.Log();
                 }
             }
+
+            ImGui.SameLine();
+            if (ImGui.Button("从目标移除"))
+            {
+                try
+                {
+                    var target = (IPlayerCharacter)Svc.Targets.Target;
+                    if (!isMare)
+                    {
+                        Utils.GetMyStatusManager(target.GetNameWithWorld()).Cancel(Selected);
+                    }
+                    else if(isGSpeak)
+                    {
+                        var status = Selected.JSONClone();
+                        status.ExpiresAt = -1;
+                        status.SendGSpeakMessage(target);
+                    }
+                    else
+                    {
+                        var status = Selected.JSONClone();
+                        status.ExpiresAt = -1;
+                        status.SendMareMessage(target);
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.Log();
+                }
+            }
+
             if (dis) ImGui.EndDisabled();
 
             if (ImGui.BeginTable("##moodles", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame))
