@@ -40,6 +40,12 @@ public class MyStatusManager
         {
             if (Statuses[i].GUID == newStatus.GUID)
             {
+                if (newStatus.ExpiresAt < 0)
+                {
+                    Cancel(newStatus);
+                    return;
+                }
+                
                 // use newStatus to check, in case we changed the setting between applications. Performs stack count updating.
                 if (newStatus.StackOnReapply)
                 {
@@ -84,6 +90,10 @@ public class MyStatusManager
             // if it was new, fire event if needed and add it.
             if (triggerEvent) NeedFireEvent = true;
             Statuses.Add(newStatus);
+        }
+        else
+        {
+            PluginLog.Warning($"Status {newStatus.Title} was not added because Expires At {newStatus.ExpiresAt}");
         }
     }
 

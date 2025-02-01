@@ -496,13 +496,16 @@ public static unsafe partial class Utils
         status = status.JSONClone();
         if(opts.Contains(PrepareOptions.ChangeGUID)) status.GUID = Guid.NewGuid();
         status.Persistent = opts.Contains(PrepareOptions.Persistent);
-        if(status.NoExpire)
+        if (status.ExpiresAt >= 0)
         {
-            status.ExpiresAt = long.MaxValue;
-        }
-        else if (status.ExpiresAt >= 0)
-        {
-            status.ExpiresAt = Time + status.TotalDurationSeconds;
+            if (status.NoExpire)
+            {
+                status.ExpiresAt = long.MaxValue;
+            }
+            else
+            {
+                status.ExpiresAt = Time + status.TotalDurationSeconds;
+            }
         }
         return status;
     }
