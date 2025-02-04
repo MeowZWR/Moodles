@@ -13,6 +13,8 @@ public static class TabSettings
         ImGuiEx.Spacing();
         ImGui.Checkbox($"启用弹出/跳出文字", ref C.EnableFlyPopupText);
         ImGuiEx.Spacing();
+        ImGui.Checkbox($"显示每个moodle的施加者(以Moodle界面输入的施加者为准)", ref C.EnableShowSource);
+        ImGuiEx.Spacing();
         ImGui.SetNextItemWidth(150f);
         ImGuiEx.SliderInt($"同时飞行/弹出文本限制", ref C.FlyPopupTextLimit.ValidateRange(5, 20), 5, 20);
         ImGuiEx.CheckboxInverted($"在打本时禁用 Moodles", ref C.EnabledDuty);

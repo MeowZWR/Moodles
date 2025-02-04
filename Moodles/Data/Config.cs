@@ -34,4 +34,5 @@ public class Config : IEzConfig
     public WhitelistEntryGSpeak BroadcastDefaultEntry = new();
 
     public bool EnableMareSync = false;
+    public bool EnableShowSource = true;
 }

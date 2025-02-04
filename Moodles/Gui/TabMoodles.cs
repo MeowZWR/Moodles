@@ -395,6 +395,10 @@ public static class TabMoodles
                 ImGuiEx.HelpMarker("表明被谁附加了 Moodle。如果将角色名称和服务器解析为您自己，则将状态持续时间的颜色为绿色。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
+                if (Selected.Applier.IsNullOrEmpty())
+                {
+                    Selected.Applier = Player.NameWithWorld;
+                }
                 ImGui.InputTextWithHint("##applier", "玩家名称@服务器", ref Selected.Applier, 150, C.Censor ? ImGuiInputTextFlags.Password : ImGuiInputTextFlags.None);
                 if (ImGui.IsItemDeactivatedAfterEdit())
                 {
