@@ -3,14 +3,16 @@
     "Author": "kawaii",
     "Name": "Moodles",
     "InternalName": "Moodles",
-    "Description": "Design and apply your own status effects with custom formatting, durations, and other accoutrements.",
+    "Description": "使用格式、持续时间和其他参数来设计应用你自己的状态效果。",
     "ApplicableVersion": "any",
-    "Punchline": "Crippling depression now in the form of a debuff, kupo!",
-    "RepoUrl": "https://github.com/kawaii/Moodles",
+    "Punchline": "可怕的负面情绪现在以debuff的形式出现了，库啵！",
+    "RepoUrl": "https://github.com/MeowZWR/Moodles",
     "AcceptsFeedback": false,
     "DalamudApiLevel": 11,
-    "AssemblyVersion": "1.0.0.40",
-    "DownloadLinkInstall": "https://github.com/kawaii/Moodles/releases/download/1.0.0.40/Moodles.zip",
-    "DownloadLinkUpdate": "https://github.com/kawaii/Moodles/releases/download/1.0.0.40/Moodles.zip"
+    "TestingDalamudApiLevel": 11,
+    "AssemblyVersion": "2.0.0.37",
+    "DownloadLinkInstall": "https://meowrs.com/https://github.com/MeowZWR/Moodles/releases/download/2.0.0.37/Moodles.zip",
+    "DownloadLinkTesting": "https://meowrs.com/https://github.com/MeowZWR/Moodles/releases/download/2.0.0.33/Moodles.zip",
+    "DownloadLinkUpdate": "https://meowrs.com/https://github.com/MeowZWR/Moodles/releases/download/2.0.0.37/Moodles.zip"
   }
 ]
