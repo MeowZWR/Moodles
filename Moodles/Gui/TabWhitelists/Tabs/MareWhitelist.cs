@@ -35,7 +35,7 @@ internal class MareWhitelist : PluginWhitelist
             ImGui.EndTable();
         }
 
-        P.OtterGuiHandler.WhitelistMare.Draw(200f);
+        //P.OtterGuiHandler.WhitelistMare.Draw(200f);
     }
 
     protected override void DrawHeader()
