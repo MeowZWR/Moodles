@@ -11,9 +11,9 @@ public static class TabPresets
     private static Guid CurrentDrag = Guid.Empty;
     private static Dictionary<PresetApplicationType, string> ApplicationTypes = new()
     {
-        [PresetApplicationType.ReplaceAll] = "Replace all current statuses",
-        [PresetApplicationType.UpdateExisting] = "Update duration of existing",
-        [PresetApplicationType.IgnoreExisting] = "Ignore existing",
+        [PresetApplicationType.ReplaceAll] = "替换当前所有的状态",
+        [PresetApplicationType.UpdateExisting] = "更新现有状态的持续时间",
+        [PresetApplicationType.IgnoreExisting] = "忽略现有状态",
     };
     private static string Filter = "";
 
@@ -45,7 +45,7 @@ public static class TabPresets
         if(!child || Selected == null)
             return;
         {
-            if(ImGui.Button("Apply to Yourself"))
+            if (ImGui.Button("应用到你自己"))
             {
                 Utils.GetMyStatusManager(Player.NameWithWorld).ApplyPreset(Selected);
             }
@@ -56,8 +56,8 @@ public static class TabPresets
             var dis = Svc.Targets.Target is not IPlayerCharacter && !isMare && !isGSpeak;
             if  (dis) ImGui.BeginDisabled();
             var buttonText = Svc.Targets.Target is not IPlayerCharacter
-                ? "No Target Selected" : isMare && !isGSpeak
-                    ? "Apply To Mare User" : $"Apply to Target ({(isGSpeak ? "via GagSpeak" : "Locally")})";
+                ? "未选择目标" : isMare && !isGSpeak
+                    ? "应用到 Mare 用户" : $"应用到目标（{(isGSpeak ? "通过 GagSpeak" : "本地")}）";
             if(ImGui.Button(buttonText))
             {
                 try
@@ -86,22 +86,22 @@ public static class TabPresets
             ImGui.Separator();
 
             ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X - 150);
-            ImGui.InputTextWithHint("Rename Preset", "Give preset a name", ref Selected.Title, 100, C.Censor ? ImGuiInputTextFlags.Password : ImGuiInputTextFlags.None);
+            ImGui.InputTextWithHint("重命名预设", "为预设命名", ref Selected.Title, 100, C.Censor ? ImGuiInputTextFlags.Password : ImGuiInputTextFlags.None);
             if(ImGui.IsItemDeactivatedAfterEdit())
             {
                 P.IPCProcessor.PresetModified(Selected.GUID);
             }
 
             ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X - 150);
-            if (ImGuiEx.EnumCombo("Application Effect##on", ref Selected.ApplicationType, ApplicationTypes))
+            if (ImGuiEx.EnumCombo("应用效果##on", ref Selected.ApplicationType, ApplicationTypes))
             {
                 P.IPCProcessor.PresetModified(Selected.GUID);
             }
             ImGuiEx.SetNextItemFullWidth();
-            if(ImGui.BeginCombo("##addnew", "Add new Moodle..."))
+            if(ImGui.BeginCombo("##addnew", "添加新的 Moodle..."))
             {
                 ImGuiEx.SetNextItemFullWidth();
-                ImGui.InputTextWithHint("##search", "Filter", ref Filter, 50);
+                ImGui.InputTextWithHint("##search", "筛选", ref Filter, 50);
                 foreach(var x in C.SavedStatuses)
                 {
                     if(!x.IsValid(out _)) continue;
@@ -229,7 +229,7 @@ public static class TabPresets
 
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"ID:");
-                ImGuiEx.HelpMarker("Used in commands to apply preset.");
+                ImGuiEx.HelpMarker("用于应用预设的聊天命令。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 ImGui.InputText($"##id-text", Encoding.UTF8.GetBytes(Selected.ID), 36, ImGuiInputTextFlags.ReadOnly);

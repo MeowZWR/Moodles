@@ -33,7 +33,7 @@ public static class TabMoodles
             return;
         {
             var cur = new Vector2(ImGui.GetCursorPosX() + ImGui.GetContentRegionAvail().X - UI.StatusIconSize.X * 2, ImGui.GetCursorPosY()) - new Vector2(10, 0);
-            if (ImGui.Button("Apply to Yourself"))
+            if (ImGui.Button("应用到你自己"))
             {
                 Utils.GetMyStatusManager(Player.NameWithWorld).AddOrUpdate(Selected.PrepareToApply(AsPermanent ? PrepareOptions.Persistent : PrepareOptions.NoOption), UpdateSource.StatusTuple);
             }
@@ -44,8 +44,8 @@ public static class TabMoodles
             var dis = Svc.Targets.Target is not IPlayerCharacter && !isMare && !isGSpeak;
             if (dis) ImGui.BeginDisabled();
             var buttonText = Svc.Targets.Target is not IPlayerCharacter
-                ? "No Target Selected" : isMare && !isGSpeak
-                    ? "Cannot Apply To Mare User" : $"Apply to Target ({(isGSpeak ? "via GagSpeak" : "Locally")})";
+                ? "未选择目标" : isMare && !isGSpeak
+                    ? "应用到 Mare 用户" : $"应用到目标（{(isGSpeak ? "通过 GagSpeak" : "本地")})";
             if (ImGui.Button(buttonText))
             {
                 try
@@ -109,7 +109,7 @@ public static class TabMoodles
 
                 // Title Field
                 ImGuiEx.RightFloat("TitleCharLimit", () => ImGuiEx.TextV(ImGuiColors.DalamudGrey2, $"{Selected.Title.Length}/150"), out _, ImGui.GetContentRegionAvail().X + ImGui.GetCursorPosX() + ImGui.GetStyle().CellPadding.X + 5);
-                ImGuiEx.TextV($"Title:");
+                ImGuiEx.TextV($"标题：");
                 Formatting();
                 {
                     Utils.ParseBBSeString(Selected.Title, out var error);
@@ -120,7 +120,7 @@ public static class TabMoodles
                 }
                 if (Selected.Title.Length == 0)
                 {
-                    ImGuiEx.HelpMarker("Title can not be empty", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
+                    ImGuiEx.HelpMarker("标题必须填写", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
                 }
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
@@ -133,15 +133,15 @@ public static class TabMoodles
                 // Icon Field
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"Icon:");
+                ImGuiEx.TextV($"图标:");
                 if (Selected.IconID == 0)
                 {
-                    ImGuiEx.HelpMarker("You must select an icon", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
+                    ImGuiEx.HelpMarker("您必须选择一个图标", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
                 }
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 var selinfo = Utils.GetIconInfo((uint)Selected.IconID);
-                if (ImGui.BeginCombo("##sel", $"Icon: #{Selected.IconID} {selinfo?.Name}", ImGuiComboFlags.HeightLargest))
+                if (ImGui.BeginCombo("##sel", $"图标: #{Selected.IconID} {selinfo?.Name}", ImGuiComboFlags.HeightLargest))
                 {
                     var cursor = ImGui.GetCursorPos();
                     ImGui.Dummy(new Vector2(100, ImGuiHelpers.MainViewport.Size.Y * C.SelectorHeight / 100));
@@ -162,8 +162,8 @@ public static class TabMoodles
                 // Custom VFX Field
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"Custom VFX path:");
-                ImGuiEx.HelpMarker("You may select a custom VFX to play upon application.");
+                ImGuiEx.TextV($"自定义VFX路径：");
+                ImGuiEx.HelpMarker("您可以选择一个自定义VFX，在应用时播放。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 var currentPath = Selected.CustomFXPath;
@@ -186,8 +186,8 @@ public static class TabMoodles
 
                 // Stack Field
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"Stacks:");
-                ImGuiEx.HelpMarker("Where the game data contains information about sequential status effect stacks you can select the desired number here. Not all status effects that have stacks follow the same logic due to inconsistencies so the icon you're looking for may be elsewhere.");
+                ImGuiEx.TextV($"堆叠层数：");
+                ImGuiEx.HelpMarker("如果游戏数据包含关于状态效果连续堆叠的信息，您可以在此处选择所需的数字。由于并非所有状态效果的堆叠都遵循相同的逻辑，因此您要查找的图标可能外观相同，却不是这一个。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 var maxStacks = 1;
@@ -223,7 +223,7 @@ public static class TabMoodles
                 ImGui.TableNextColumn();
                 var cpx = ImGui.GetCursorPosX();
                 ImGuiEx.RightFloat("DescCharLimit", () => ImGuiEx.TextV(ImGuiColors.DalamudGrey2, $"{Selected.Description.Length}/500"), out _, ImGui.GetContentRegionAvail().X + ImGui.GetCursorPosX() + ImGui.GetStyle().CellPadding.X);
-                ImGuiEx.TextV($"Description:");
+                ImGuiEx.TextV($"状态描述");
                 Formatting();
                 {
                     Utils.ParseBBSeString(Selected.Description, out var error);
@@ -243,24 +243,37 @@ public static class TabMoodles
 
                 // Category Field
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"Category:");
+                ImGuiEx.TextV($"类别：");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
-                if (ImGuiEx.EnumRadio(ref Selected.Type, true))
+                var statusTypes = Enum.GetValues<StatusType>().ToList();
+                foreach (var value in statusTypes)
                 {
-                    P.IPCProcessor.StatusModified(Selected.GUID);
+                    string name = value switch
+                    {
+                        StatusType.Positive => "强化状态",
+                        StatusType.Negative => "弱化状态",
+                        StatusType.Special  => "其他状态",
+                        _ => value.ToString()
+                    };
+
+                    if (ImGui.RadioButton(name, Selected.Type == value))
+                    {
+                        Selected.Type = value;
+                        P.IPCProcessor.StatusModified(Selected.GUID);
+                    }
                 }
 
                 // Duration Field
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"Duration:");
+                ImGuiEx.TextV($"持续时间：");
                 if (Selected.TotalDurationSeconds < 1 && !Selected.NoExpire)
                 {
-                    ImGuiEx.HelpMarker("Duration must be at least 1 second", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
+                    ImGuiEx.HelpMarker("持续时间必须至少有1秒", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
                 }
                 ImGui.TableNextColumn();
-                if (Utils.DurationSelector("Permanent", ref Selected.NoExpire, ref Selected.Days, ref Selected.Hours, ref Selected.Minutes, ref Selected.Seconds))
+                if (Utils.DurationSelector("永久", ref Selected.NoExpire, ref Selected.Days, ref Selected.Hours, ref Selected.Minutes, ref Selected.Seconds))
                 {
                     P.IPCProcessor.StatusModified(Selected.GUID);
                 }
@@ -268,8 +281,8 @@ public static class TabMoodles
                 // Sticky Field
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"Sticky:");
-                ImGuiEx.HelpMarker("When manually applied outside the scope of an automation preset, this Moodle will not be removed or overridden unless you right-click it off.");
+                ImGuiEx.TextV($"固定：");
+                ImGuiEx.HelpMarker("当在自动执行之外手动应用时，除非右键单击状态图标进行关闭，否则不会删除或覆盖此Moodle。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 if (ImGui.Checkbox($"##sticky", ref Selected.AsPermanent))
@@ -283,8 +296,8 @@ public static class TabMoodles
                     ImGui.TableNextRow();
 
                     ImGui.TableNextColumn();
-                    ImGuiEx.TextV($"Imply Dispellable:");
-                    ImGuiEx.HelpMarker("Applies the dispellable indicator to this Moodle implying it can be removed via the use of Esuna. Only available for icons representing negative status effects.");
+                    ImGuiEx.TextV($"可驱散：");
+                    ImGuiEx.HelpMarker("将可驱散指示符应用于该Moodle，意味着它可以被康复移除。仅适用于表示弱化状态效果的图标。");
                     ImGui.TableNextColumn();
                     ImGuiEx.SetNextItemFullWidth();
                     if (ImGui.Checkbox("##dispel", ref Selected.Dispelable))
@@ -297,8 +310,8 @@ public static class TabMoodles
                 if (maxStacks > 1)
                 {
                     ImGui.TableNextColumn();
-                    ImGuiEx.TextV($"Increasing Stacks:");
-                    ImGuiEx.HelpMarker("Applying a Moodle already active will increase its stack count.\nYou can set how many stacks increase on reapplication.");
+                    ImGuiEx.TextV($"重复应用时叠加：");
+                    ImGuiEx.HelpMarker("当重复应用此 Moodle 时，叠加计数将增加应用的叠加层数。\n你可以设置每次叠加的层数。");
 
                     ImGui.TableNextColumn();
                     ImGuiEx.SetNextItemFullWidth();
@@ -312,7 +325,7 @@ public static class TabMoodles
                         // display the slider for the stack count.
                         ImGui.SameLine();
                         ImGui.SetNextItemWidth(30);
-                        ImGui.DragInt("Increased Stack Count", ref Selected.StacksIncOnReapply, 0.1f, 0, maxStacks);
+                        ImGui.DragInt("叠加层数", ref Selected.StacksIncOnReapply, 0.1f, 0, maxStacks);
                         if (ImGui.IsItemDeactivatedAfterEdit())
                         {
                             P.IPCProcessor.StatusModified(Selected.GUID);
@@ -322,13 +335,13 @@ public static class TabMoodles
                 ImGui.TableNextRow();
 
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"Apply on Dispell:");
-                ImGuiEx.HelpMarker("The selected Moodle gets applied automatically upon ANY dispell of the current Moodle.");
+                ImGuiEx.TextV($"驱散时应用：");
+                ImGuiEx.HelpMarker("当前 Moodle 被驱散时，所选择的 Moodle 会自动应用。");
 
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
 
-                string information = "Apply Moodle On Dispell...";
+                string information = "驱散时应用 Moodle...";
 
                 if (C.SavedStatuses.Where(v => v.GUID == Selected.StatusOnDispell).TryGetFirst(out MyStatus myStat))
                 {
@@ -338,9 +351,9 @@ public static class TabMoodles
                 if (ImGui.BeginCombo("##addnew", information, ImGuiComboFlags.HeightLargest))
                 {
                     ImGuiEx.SetNextItemFullWidth();
-                    ImGui.InputTextWithHint("##search", "Filter", ref Filter, 50);
+                    ImGui.InputTextWithHint("##search", "筛选", ref Filter, 50);
 
-                    if (ImGui.Selectable($"Clear", false, ImGuiSelectableFlags.None))
+                    if (ImGui.Selectable($"清除", false, ImGuiSelectableFlags.None))
                     {
                         Selected.StatusOnDispell = Guid.Empty;
                         P.IPCProcessor.StatusModified(Selected.GUID);
@@ -377,8 +390,8 @@ public static class TabMoodles
                 }
 
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"Applicant:");
-                ImGuiEx.HelpMarker("Indicates who applied the Moodle. Changes the colour of the duration counter to be green if the character name and world resolve to yourself.");
+                ImGuiEx.TextV($"状态添加者：");
+                ImGuiEx.HelpMarker("表明被谁附加了 Moodle。如果将角色名称和服务器解析为您自己，则将状态持续时间的颜色为绿色。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 if (Selected.Applier.IsNullOrEmpty() && Player.Available)
@@ -393,7 +406,7 @@ public static class TabMoodles
 
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"ID:");
-                ImGuiEx.HelpMarker("Used in commands to apply moodle.");
+                ImGuiEx.HelpMarker("用于在聊天命令中应用 Moodle。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 ImGui.InputText($"##id-text", Encoding.UTF8.GetBytes(Selected.ID), 36, ImGuiInputTextFlags.ReadOnly);
@@ -411,7 +424,7 @@ public static class TabMoodles
     public static void Formatting()
     {
         //ImGui.SetWindowFontScale(0.75f);
-        ImGuiEx.HelpMarker($"This field supports formatting tags.\n[color=red]...[/color], [color=5]...[/color] - colored text.\n[glow=blue]...[/glow], [glow=7]...[/glow] - glowing text outline\nThe following colors are available:\n{Enum.GetValues<ECommons.ChatMethods.UIColor>().Select(x => x.ToString()).Where(x => !x.StartsWith("_")).Print()}\nFor extra color, look up numeric value with \"/xldata uicolor\" command\n[i]...[/i] - italic text", ImGuiColors.DalamudWhite, FontAwesomeIcon.Code.ToIconString());
+        ImGuiEx.HelpMarker($"此字段支持格式化标签。\n彩色文本：[color=red]...[/color] 或 [color=5]...[/color]\n文本轮廓发光：[glow=blue]...[/glow] 或 [glow=7]...[/glow]\n以下颜色可用：\n{Enum.GetValues<ECommons.ChatMethods.UIColor>().Select(x => x.ToString()).Where(x => !x.StartsWith("_")).Print()}\n要使用额外的颜色，请使用命令“/xldata uicolor”命令查找数值。\n斜体：[i]...[/i]", ImGuiColors.DalamudWhite, FontAwesomeIcon.Code.ToIconString());
         //ImGui.SetWindowFontScale(1f);
     }
 }

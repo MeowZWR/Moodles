@@ -60,7 +60,7 @@ public static class MoodleCommandProcessor
 
         if(moodleState == MoodleState.INVALID)
         {
-            throw new MoodleChatException($"'{lastCommandPart}' is invalid syntax. Use: apply|remove|toggle|help");
+            throw new MoodleChatException($"'{lastCommandPart}' 是无效语法。请使用：apply|remove|toggle|help");
         }
         else if(moodleState == MoodleState.Help)
         {
@@ -72,7 +72,7 @@ public static class MoodleCommandProcessor
 
         if(targetState == TargetState.INVALID)
         {
-            throw new MoodleChatException($"'{lastCommandPart}' is invalid syntax. Use: self|target|\"Firstname Lastname\"|\"Firstname Lastname@world\"");
+            throw new MoodleChatException($"'{lastCommandPart}' 是无效语法。请使用：self|target|\"角色名称\"|\"角色名称@服务器名称\"，角色名称注意英文双引号。");
         }
         else if(targetState == TargetState.Custom)
         {
@@ -83,14 +83,14 @@ public static class MoodleCommandProcessor
 
         if(moodleType == MoodleType.INVALID)
         {
-            throw new MoodleChatException($"'{lastCommandPart}' is invalid syntax. Use: moodle|preset|automation");
+            throw new MoodleChatException($"'{lastCommandPart}' 是无效语法。请使用：moodle|preset|automation");
         }
 
         var moodleNameType = ParseMoodleNameType(commandArgs);
 
         if(moodleNameType == MoodleNameType.INVALID)
         {
-            throw new MoodleChatException($"'{lastCommandPart}' is invalid syntax. Use: \"GUID\"|\"ELEMENT NAME\"|\"automationName\"|all");
+            throw new MoodleChatException($"'{lastCommandPart}' 是无效语法。请使用：\"GUID\"|\"元素名称\"，注意英文双引号。");
         }
 
         customCounter = 0;
@@ -195,7 +195,7 @@ public static class MoodleCommandProcessor
     {
         if(moodleNameType == MoodleNameType.GUID)
         {
-            throw new MoodleChatException("GUID is an invalid parameter type for automation.");
+            throw new MoodleChatException("GUID 无法用于自动执行，是无效的参数。");
         }
 
         IPlayerCharacter playerCharacter = null;
@@ -214,11 +214,11 @@ public static class MoodleCommandProcessor
             {
                 if(Svc.Targets.Target == null)
                 {
-                    throw new MoodleChatException("No target selected.");
+                    throw new MoodleChatException("未选择目标。");
                 }
                 else
                 {
-                    throw new MoodleChatException("Target is not a valid player.");
+                    throw new MoodleChatException("目标不是有效玩家。");
                 }
             }
         }
@@ -229,7 +229,7 @@ public static class MoodleCommandProcessor
 
         if(playerCharacter == null)
         {
-            throw new MoodleChatException("An error occured whilst obtaining the selected target.");
+            throw new MoodleChatException("获取所选目标时出错。");
         }
 
         var customString = GetCustomString();
@@ -248,7 +248,7 @@ public static class MoodleCommandProcessor
 
         if(selectedProfile == null)
         {
-            throw new MoodleChatException($"Automation with the name '{customString}' does not exist.");
+            throw new MoodleChatException($"名为“{customString}”的自动执行不存在。");
         }
 
         if(moodleState == MoodleState.Toggle)
@@ -293,44 +293,44 @@ public static class MoodleCommandProcessor
     private static void HandleHelp()
     {
         Svc.Chat.Print(
-            "Moodles Help: \n" +
+            "Moodles 帮助: \n" +
             "\n" +
-            "A Moodles command is build as followed:\n" +
-            "    /moodle [action] [target selector] [element type] [element name]\n" +
+            "Moodles 命令的构成为如下形式:\n" +
+            "    /moodle [动作] [目标选择] [元素类型] [元素名称]\n" +
             "\n" +
-            "[action]\n" +
+            "[动作]\n" +
             "    apply\n" +
-            "        Applies the specified element to the specified target selector.\n" +
+            "        将指定元素在指定目标身上添加。\n" +
             "    remove\n" +
-            "        Removes the specified element to the specified target selector.\n" +
+            "        将指定元素从指定目标身上移除。\n" +
             "    toggle\n" +
-            "        Toggles the specified element to the specified target selector.\n" +
+            "        将指定元素在指定目标身上添加/移除。\n" +
             "\n" +
-            "[target selector]\n" +
+            "[目标选择]\n" +
             "    self\n" +
-            "        Selects yourself as the designated target.\n" +
+            "        选择您自己作为指定目标。\n" +
             "    target\n" +
-            "        Selects your target as the designated target.\n" +
-            "    \"Firstname Lastname\"\n" +
-            "        Selects your specified character as the designated target.\n" +
-            "    \"Firstname Lastname@Homeworld\"\n" +
-            "        Selects your specified character with the given homeworld as the designated target.\n" +
+            "        选择您的目标作为指定目标。\n" +
+            "    \"角色名称\"\n" +
+            "        选择您输入的角色名称对应的玩家作为指定目标。\n" +
+            "    \"角色名称@服务器名称\"\n" +
+            "        选择您输入的角色名称@服务器名称对应的玩家作为指定目标。\n" +
             "\n" +
-            "[element type]\n" +
+            "[元素类型]\n" +
             "    moodle\n" +
-            "        Specifies that this command applies to Moodles.\n" +
+            "        指定该命令适用于 Moodles。\n" +
             "    preset\n" +
-            "        Specifies that this command applies to Presets.\n" +
+            "        指定该命令适用于 状态预设。\n" +
             "    automation\n" +
-            "        Specifies that this command applies to Automation.\n" +
+            "        指定该命令适用于 自动执行。\n" +
             "\n" +
-            "[element name]\n" +
+            "[元素名称]\n" +
             "    \"GUID\"\n" +
-            "        The GUID of the element you want target.\n" +
+            "        您想要使用的元素的 GUID。\n" +
             "    \"ELEMENT NAME\"\n" +
-            "        The EXACT name of the element you want to target.\n" +
+            "        您想要使用的元素的确切名称。\n" +
             "    \"all\"\n" +
-            "        Every element of the selected type.\n");
+            "        您将使用选定类型中的所有元素。\n");
     }
 
     private static Preset[] GetMyPreset(MoodleNameType moodleNameType)
@@ -347,11 +347,11 @@ public static class MoodleCommandProcessor
         {
             if(moodleNameType == MoodleNameType.Name)
             {
-                throw new MoodleChatException($"Preset with the name '{cString}' could not be found.");
+                throw new MoodleChatException($"名为 “{cString}” 的状态预设不存在。");
             }
             else
             {
-                throw new MoodleChatException($"Preset with the GUID '{cString}' could not be found.");
+                throw new MoodleChatException($"GUID为 “{cString}” 的状态预设不存在。");
             }
         }
 
@@ -392,11 +392,11 @@ public static class MoodleCommandProcessor
         {
             if(moodleNameType == MoodleNameType.Name)
             {
-                throw new MoodleChatException($"Moodle with the name '{cString}' could not be found.");
+                throw new MoodleChatException($"名为 “{cString}” 的Moodle不存在。");
             }
             else
             {
-                throw new MoodleChatException($"Moodle with the GUID '{cString}' could not be found.");
+                throw new MoodleChatException($"GUID为 “{cString}” 的Moodle不存在。");
             }
         }
 
@@ -441,11 +441,11 @@ public static class MoodleCommandProcessor
             {
                 if(Svc.Targets.Target == null)
                 {
-                    throw new MoodleChatException("No target selected.");
+                    throw new MoodleChatException("未选择目标。");
                 }
                 else
                 {
-                    throw new MoodleChatException("Target is not a valid player.");
+                    throw new MoodleChatException("目标不是有效的玩家。");
                 }
             }
         }
@@ -489,7 +489,7 @@ public static class MoodleCommandProcessor
         var battleChara = CharacterManager.Instance()->LookupBattleCharaByName(userName, true, (short)homeworld);
         if(battleChara == null)
         {
-            throw new MoodleChatException($"Specified Target Selector '{playerString}' could not be found.");
+            throw new MoodleChatException($"指定的名为 “{playerString}” 的玩家不存在。");
         }
 
         return (IPlayerCharacter)Svc.Objects.CreateObjectReference((nint)battleChara);
@@ -551,7 +551,7 @@ public static class MoodleCommandProcessor
         }
     }
 
-    private static void ThrowArgumentException() => throw new MoodleChatException("Missing arguments. Use \"/moodle help\" for more information.");
+    private static void ThrowArgumentException() => throw new MoodleChatException("缺少参数。请使用“/moodle help”获取关于聊天命令的更多信息。");
 
     private static string GetCommandPart(string[] commandArgs, int location)
     {

@@ -36,8 +36,8 @@ public class Moodles : IDalamudPlugin
         {
             Config = EzConfig.Init<Config>();
             EzConfigGui.Init(UI.Draw);
-            EzCmd.Add("/moodles", ToggleUi, "Open plugin interface");
-            EzCmd.Add("/moodle", MoodleCommandProcessor.Process, "Add or remove moodles");
+            EzCmd.Add("/moodles", ToggleUi, "打开插件界面");
+            EzCmd.Add("/moodle", MoodleCommandProcessor.Process, "添加或移除 moodles");
             Memory = new();
             CommonProcessor = new();
             OtterGuiHandler = new();
