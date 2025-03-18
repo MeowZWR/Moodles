@@ -16,6 +16,7 @@ public static class MoodleCommandProcessor
 
     public static void Process(string _, string arguments)
     {
+        arguments += " ";
         ClearLast();
         PrepareArguments(ref arguments);
         var args = arguments.ToLower().Split(' ');
@@ -297,6 +298,9 @@ public static class MoodleCommandProcessor
             "\n" +
             "Moodles 命令的构成为如下形式:\n" +
             "    /moodle [动作] [目标选择] [元素类型] [元素名称]\n" +
+            "\n" +
+            "Example command: /moodle apply self moodle \"moodlename\"\n" +
+            "Or: /moodle toggle \"Firstname Lastname@Homeworldname\" automation \"automationname\"\n"  +
             "\n" +
             "[动作]\n" +
             "    apply\n" +

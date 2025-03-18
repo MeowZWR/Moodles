@@ -27,5 +27,8 @@ public static class TabSettings
         ImGuiEx.SliderInt($"图标选择器缩放", ref C.SelectorHeight.ValidateRange(10, 100), 20, 80);
         ImGui.Checkbox($"显示命令反馈", ref C.DisplayCommandFeedback);
         ImGui.Checkbox($"调试模式", ref C.Debug);
+
+        ImGui.Checkbox($"Moodles可被康复", ref C.MoodlesCanBeEsunad);
+        ImGui.Checkbox($"其他人可以康复Moodles", ref C.OthersCanEsunaMoodles);
     }
 }
