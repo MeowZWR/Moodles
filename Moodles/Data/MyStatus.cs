@@ -111,3 +111,36 @@ public partial class MyStatus
         };
     }
 }
+
+[Serializable]
+public class SharedMoodles : MyStatus
+{
+    public string UserUID;
+    public object User;
+
+    public SharedMoodles() { }
+
+    public SharedMoodles(MyStatus statusInfo, string userUid)
+    {
+        GUID = statusInfo.GUID;
+        IconID = statusInfo.IconID;
+        Title = statusInfo.Title;
+        Description = statusInfo.Description;
+        Type = statusInfo.Type;
+        Applier = statusInfo.Applier;
+        Dispelable = statusInfo.Dispelable;
+        Stacks = statusInfo.Stacks;
+        Persistent = statusInfo.Persistent;
+        Days = statusInfo.Days;
+        Hours = statusInfo.Hours;
+        Minutes = statusInfo.Minutes;
+        Seconds = statusInfo.Seconds;
+        NoExpire = statusInfo.NoExpire;
+        AsPermanent = statusInfo.AsPermanent;
+        StatusOnDispell = statusInfo.StatusOnDispell;
+        CustomFXPath = statusInfo.CustomFXPath;
+        StackOnReapply = statusInfo.StackOnReapply;
+        StacksIncOnReapply = statusInfo.StacksIncOnReapply;
+        UserUID = userUid;
+    }
+}

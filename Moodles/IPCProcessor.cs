@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using ECommons.EzIpcManager;
 using ECommons.GameHelpers;
 using Moodles.Data;
+using Moodles.Gui;
 
 namespace Moodles;
 public class IPCProcessor : IDisposable
@@ -38,6 +39,8 @@ public class IPCProcessor : IDisposable
     /// <para> It is worth noting that this will work for both Individual Statuses, and a List of them (preset) </para>
     /// </summary>
     [EzIPC("MareSynchronos.ApplyStatusesToMarePlayers", false)] public readonly Action<string, string, string> ApplyStatusesToMarePlayers;
+
+    [EzIPC("MareSynchronos.MoodlesShare", false)] public readonly Action<int, string> MareMoodlesShare;
 
     /// <summary>
     /// Retrieves the actively managed player object addresses by Project GagSpeak
@@ -196,6 +199,15 @@ public class IPCProcessor : IDisposable
                 PluginLog.Warning($"[ApplyStatusesFromMarePlayers] Can't find sender : {senderNameWorld}.");
             }
         }
+    }
+
+    [EzIPC("ShareMoodles")]
+    private void ShareMoodles(string status, string UID)
+    {
+        var json = JsonSerializer.Deserialize<List<SharedMoodles>>(status, new JsonSerializerOptions(){IncludeFields = true});
+        TabMoodlesShare.UID = UID;
+        PluginLog.Debug($"Received {json.Count} moodles from MareShare");
+        TabMoodlesShare.SharedMoodles = json;
     }
 
     /// <summary> 

@@ -35,6 +35,7 @@ public static unsafe class UI
             ("自动执行", TabAutomation.Draw, null, true),
             ("白名单", TabWhitelist.Draw, null, true),
             ("插件设置", TabSettings.Draw, null, true),
+            ("Moodles分享", TabMoodlesShare.Draw, null, true),
             (C.Debug?"调试器":null, DrawDebugger, ImGuiColors.DalamudGrey, true),
             InternalLog.ImGuiTab(C.Debug),
             ]);
