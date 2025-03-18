@@ -60,6 +60,15 @@ public unsafe partial class Memory
 
                                         status.ExpiresAt = 0;
                                         // This return is to not show the failed message
+                                        if (playerChara.ObjectIndex == 0)
+                                        {
+                                            //LocalPlayer
+                                            P.IPCProcessor.StatusManagerModified(playerChara);
+                                        }
+                                        else
+                                        {
+                                            status.SendMareMessage(playerChara);
+                                        }
                                         return;
                                     }
                                 }
