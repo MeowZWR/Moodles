@@ -62,6 +62,8 @@ public static class TabMoodlesShare
             ImGui.SameLine();
             if (ImGui.Button("复制到你的Moodles列表"))
             {
+                P.OtterGuiHandler.MoodleFileSystem.CreateLeaf(P.OtterGuiHandler.MoodleFileSystem.Root, Selected.Title,
+                    Selected);
                 P.Config.SavedStatuses.Add((MyStatus)Selected);
             }
             if (dis) ImGui.EndDisabled();
