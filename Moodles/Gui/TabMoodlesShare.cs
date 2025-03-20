@@ -339,7 +339,7 @@ public static class TabMoodlesShare
                 ImGuiEx.SetNextItemFullWidth();
 
                 ImGui.BeginDisabled();
-                if (C.SavedStatuses.Where(v => v.GUID == Selected.StatusOnDispell).TryGetFirst(out MyStatus myStat))
+                if (SharedMoodles.Where(v => v.GUID == Selected.StatusOnDispell).TryGetFirst(out MyStatus myStat))
                 {
                     ImGui.InputText($"##StatusOnDispell", Encoding.UTF8.GetBytes(myStat.Title), 36, ImGuiInputTextFlags.ReadOnly);
                 }
