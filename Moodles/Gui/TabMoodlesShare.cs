@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.RegularExpressions;
 using ECommons.EzIpcManager;
 using ECommons.GameHelpers;
 using Moodles.Data;
@@ -13,6 +14,7 @@ public static class TabMoodlesShare
     public static DateTimeOffset LastDownload;
     public static List<SharedMoodles> SharedMoodles = new();
     public static string UID;
+    private static string regex = @"【.*?】|\[.*?\]";
     private static float SizeY => ImGui.GetStyle().FramePadding.Y * 2 + ImGui.GetFrameHeightWithSpacing();
 
     public static void Draw()
@@ -380,8 +382,9 @@ public static class TabMoodlesShare
         {
             if (string.IsNullOrEmpty(_filter) || item.Title.Contains(_filter) || item.Description.Contains(_filter) || item.ID.Contains(_filter)|| item.UserUID.Contains(_filter))
             {
-                string idString = item.Title + "##" + item.ID;
-                if (ImGui.Selectable(idString, _selected == item.ID))
+                var name = Regex.Replace(item.Title, regex, "").Trim();
+                if (string.IsNullOrEmpty(name)) name = item.Title;
+                if (ImGui.Selectable(name + "##" + item.ID, _selected == item.ID))
                 {
                     _selected = item.ID;
                 }
