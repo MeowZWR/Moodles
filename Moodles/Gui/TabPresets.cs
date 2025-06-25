@@ -22,11 +22,11 @@ public static class TabPresets
     {
         if(IsMoodleSelection)
         {
-            P.OtterGuiHandler.MoodleFileSystem.Selector.Draw(200f);
+            P.OtterGuiHandler.MoodleFileSystem.Selector.Draw();
         }
         else
         {
-            P.OtterGuiHandler.PresetFileSystem.Selector.Draw(200f);
+            P.OtterGuiHandler.PresetFileSystem.Selector.Draw();
         }
         ImGui.SameLine();
         using var group = ImRaii.Group();

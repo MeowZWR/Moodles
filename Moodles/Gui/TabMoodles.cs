@@ -17,7 +17,7 @@ public static class TabMoodles
     private static string Filter = "";
     public static void Draw()
     {
-        P.OtterGuiHandler.MoodleFileSystem.Selector.Draw(200f);
+        P.OtterGuiHandler.MoodleFileSystem.Selector.Draw();
         ImGui.SameLine();
         using var group = ImRaii.Group();
         DrawHeader();

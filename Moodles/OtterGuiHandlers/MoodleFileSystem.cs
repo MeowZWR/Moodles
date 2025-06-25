@@ -117,6 +117,8 @@ public sealed class MoodleFileSystem : FileSystem<MyStatus>, IDisposable
         protected override uint CollapsedFolderColor => ImGuiColors.DalamudViolet.ToUint();
         protected override uint ExpandedFolderColor => CollapsedFolderColor;
 
+        protected override float CurrentWidth => 200f;
+
         protected override void DrawLeafName(Leaf leaf, in State state, bool selected)
         {
             var flag = selected ? ImGuiTreeNodeFlags.Selected | LeafFlags : LeafFlags;
