@@ -103,6 +103,7 @@ public sealed class PresetFileSystem : FileSystem<Preset>, IDisposable
         private string NewName = "";
         private string ClipboardText = null;
         private Preset CloneItem = null;
+        private float _savedWidth;
         public override ISortMode<Preset> SortMode => ISortMode<Preset>.FoldersFirst;
 
         private static PresetFileSystem FS => P.OtterGuiHandler.PresetFileSystem;
@@ -112,6 +113,20 @@ public sealed class PresetFileSystem : FileSystem<Preset>, IDisposable
             //AddButton(ImportButton, 10); needs custom logic
             //AddButton(CopyToClipboardButton, 20);
             AddButton(DeleteButton, 1000);
+            
+            _savedWidth = C.PresetSelectorWidth;
+        }
+
+        protected override float MinimumScaling => 0.15f;
+        protected override float MaximumScaling => 0.35f;
+        
+        protected override float CurrentWidth => _savedWidth;
+        
+        protected override void SetSize(Vector2 size)
+        {
+            _savedWidth = size.X;
+            C.PresetSelectorWidth = size.X;
+            base.SetSize(size);
         }
 
         protected override uint CollapsedFolderColor => ImGuiColors.DalamudViolet.ToUint();

@@ -103,6 +103,7 @@ public sealed class MoodleFileSystem : FileSystem<MyStatus>, IDisposable
         private string NewName = "";
         private string ClipboardText = null;
         private MyStatus CloneStatus = null;
+        private float _savedWidth;
         public override ISortMode<MyStatus> SortMode => ISortMode<MyStatus>.FoldersFirst;
 
         private static MoodleFileSystem FS => P.OtterGuiHandler.MoodleFileSystem;
@@ -112,12 +113,24 @@ public sealed class MoodleFileSystem : FileSystem<MyStatus>, IDisposable
             AddButton(ImportButton, 10);
             AddButton(CopyToClipboardButton, 20);
             AddButton(DeleteButton, 1000);
+            
+            _savedWidth = C.MoodleSelectorWidth;
+        }
+
+        protected override float MinimumScaling => 0.15f;
+        protected override float MaximumScaling => 0.35f;
+        
+        protected override float CurrentWidth => _savedWidth;
+        
+        protected override void SetSize(Vector2 size)
+        {
+            _savedWidth = size.X;
+            C.MoodleSelectorWidth = size.X;
+            base.SetSize(size);
         }
 
         protected override uint CollapsedFolderColor => ImGuiColors.DalamudViolet.ToUint();
         protected override uint ExpandedFolderColor => CollapsedFolderColor;
-
-        protected override float CurrentWidth => 200f;
 
         protected override void DrawLeafName(Leaf leaf, in State state, bool selected)
         {

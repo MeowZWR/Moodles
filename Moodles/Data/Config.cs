@@ -38,4 +38,8 @@ public class Config : IEzConfig
 
     public bool EnableMareSync = false;
     public bool EnableShowSource = true;
+    
+    // UI布局配置
+    public float PresetSelectorWidth = 300f;
+    public float MoodleSelectorWidth = 300f;
 }
