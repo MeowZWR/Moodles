@@ -46,21 +46,21 @@ public unsafe class PartyListProcessor : IDisposable
             {
                 NumStatuses[i] = 0;
             }
-            var index = 22;
+            var index = 10u;
             var storeIndex = 0;
             foreach(var player in GetVisibleParty())
             {
                 //InternalLog.Verbose($"  Now checking {index} for {player}");
                 if(player != null)
                 {
-                    var iconArray = Utils.GetNodeIconArray(addon->UldManager.NodeList[index]);
+                    var iconArray = Utils.GetNodeIconArray(addon->GetNodeById(index));
                     foreach(var x in iconArray)
                     {
                         if(x->IsVisible()) NumStatuses[storeIndex]++;
                     }
                 }
                 storeIndex++;
-                index--;
+                index++;
             }
         }
         InternalLog.Verbose($"PartyList Requested update: {NumStatuses.Print()}");
