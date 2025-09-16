@@ -137,9 +137,9 @@ public static class MoodleCommandProcessor
 
             if (moodleState == MoodleState.Apply)
             {
-                if (Utils.GSpeakPlayerNames.Contains(statusManager.Owner.GetNameWithWorld()))
+                if (Utils.GetMarePlayers().Contains(statusManager.Owner.Address))
                 {
-                    myStatus.SendGSpeakMessage(statusManager.Owner);
+                    myStatus.SendMareMessage(statusManager.Owner);
                 }
                 else
                 {
@@ -148,11 +148,11 @@ public static class MoodleCommandProcessor
             }
             else if (moodleState == MoodleState.Remove)
             {
-                if (Utils.GSpeakPlayerNames.Contains(statusManager.Owner.GetNameWithWorld()))
+                if (Utils.GetMarePlayers().Contains(statusManager.Owner.Address))
                 {
                     var newStatus = myStatus.JSONClone();
                     newStatus.ExpiresAt = 0;
-                    newStatus.SendGSpeakMessage(statusManager.Owner);
+                    newStatus.SendMareMessage(statusManager.Owner);
                 }
                 else
                 {
