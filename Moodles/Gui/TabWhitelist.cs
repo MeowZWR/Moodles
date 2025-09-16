@@ -18,6 +18,15 @@ public static class TabWhitelist
         //}
 
         // ImGuiEx.EzTabBar("##whitelistPluginsSelector", tabs.ToArray());
-        pluginWhitelist.DrawWhitelistTab();
+        //pluginWhitelist.DrawWhitelistTab();
+
+        ImGui.Checkbox("启用月海同步##EnableMareSync", ref C.EnableMareSync);
+        ImGui.Separator();
+        if (C.EnableMareSync)
+        {
+            ImGui.Checkbox("允许所有人", ref C.BroadcastAllowAll);
+            ImGui.Checkbox("允许队伍成员", ref C.BroadcastAllowParty);
+            ImGui.Checkbox("允许好友", ref C.BroadcastAllowFriends);
+        }
     }
 }

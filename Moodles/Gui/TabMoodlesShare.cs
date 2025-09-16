@@ -343,9 +343,9 @@ public static class TabMoodlesShare
                 ImGui.BeginDisabled();
                 if (SharedMoodles.Where(v => v.GUID == Selected.StatusOnDispell).TryGetFirst(out MyStatus myStat))
                 {
-                    ImGui.InputText($"##StatusOnDispell", Encoding.UTF8.GetBytes(myStat.Title), 36, ImGuiInputTextFlags.ReadOnly);
+                    ImGui.InputText($"##StatusOnDispell", Encoding.UTF8.GetBytes(myStat.Title), ImGuiInputTextFlags.ReadOnly);
                 }
-                else ImGui.InputText($"##StatusOnDispell", Encoding.UTF8.GetBytes(Selected.StatusOnDispell.ToString()), 36, ImGuiInputTextFlags.ReadOnly);
+                else ImGui.InputText($"##StatusOnDispell", Encoding.UTF8.GetBytes(Selected.StatusOnDispell.ToString()), ImGuiInputTextFlags.ReadOnly);
                 ImGui.EndDisabled();
 
                 ImGui.TableNextColumn();
@@ -353,7 +353,7 @@ public static class TabMoodlesShare
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 ImGui.BeginDisabled();
-                ImGui.InputText($"##id-text", Encoding.UTF8.GetBytes(Selected.ID), 36, ImGuiInputTextFlags.ReadOnly);
+                ImGui.InputText($"##id-text", Encoding.UTF8.GetBytes(Selected.ID), ImGuiInputTextFlags.ReadOnly);
                 ImGui.EndDisabled();
 
                 ImGui.TableNextColumn();
@@ -370,7 +370,7 @@ public static class TabMoodlesShare
             if (Selected.IconID != 0 && ThreadLoadImageHandler.TryGetIconTextureWrap(Selected.AdjustedIconID, true, out var image))
             {
                 ImGui.SetCursorPos(cur);
-                ImGui.Image(image.ImGuiHandle, UI.StatusIconSize * 2);
+                ImGui.Image(image.Handle, UI.StatusIconSize * 2);
             }
         }
     }

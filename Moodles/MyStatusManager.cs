@@ -56,7 +56,7 @@ public class MyStatusManager
                 if (newStatus.ExpiresAt < 0)
                 {
                     Cancel(newStatus);
-                    return;
+                    return null;
                 }
                 
                 // use newStatus to check, in case we changed the setting between applications. Performs stack count updating.

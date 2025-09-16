@@ -130,9 +130,6 @@ public sealed class MoodleFileSystem : FileSystem<MyStatus>, IDisposable
             base.SetSize(size);
         }
 
-        protected override float CurrentWidth
-            => 200f;
-
         protected override uint CollapsedFolderColor => ImGuiColors.DalamudViolet.ToUint();
         protected override uint ExpandedFolderColor => CollapsedFolderColor;
 

@@ -204,6 +204,23 @@ public static unsafe partial class Utils
         return ret;
     }
 
+    private static List<nint> MarePlayers = [];
+    private static ulong MarePlayersUpdated = 0;
+    public static List<nint> GetMarePlayers()
+    {
+        if(Frame != MarePlayersUpdated)
+        {
+            MarePlayersUpdated = Frame;
+            if(P.IPCProcessor.GetMarePlayers.TryInvoke(out var ret))
+            {
+                MarePlayers = ret;
+            }
+        }
+        return MarePlayers;
+    }
+
+    // TODO: Update this from nint to playername@world eventually.
+
     // is automatically updated by GSpeak's VisiblePairsUpdated event call, and does not need to be called every frame.
     public static bool GSpeakAvailable = false;
     public static List<(string, MoodlesGSpeakPairPerms, MoodlesGSpeakPairPerms)> GSpeakPlayers = [];

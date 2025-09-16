@@ -128,8 +128,6 @@ public sealed class PresetFileSystem : FileSystem<Preset>, IDisposable
             C.PresetSelectorWidth = size.X;
             base.SetSize(size);
         }
-        protected override float CurrentWidth
-         => 200f;
 
         protected override uint CollapsedFolderColor => ImGuiColors.DalamudViolet.ToUint();
         protected override uint ExpandedFolderColor => CollapsedFolderColor;
