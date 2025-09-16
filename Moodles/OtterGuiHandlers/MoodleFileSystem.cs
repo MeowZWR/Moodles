@@ -5,6 +5,7 @@ using OtterGui.Classes;
 using OtterGui.Filesystem;
 using OtterGui.FileSystem.Selector;
 using OtterGui.Raii;
+using OtterGui.Text;
 using System.IO;
 
 namespace Moodles.OtterGuiHandlers;
@@ -128,6 +129,9 @@ public sealed class MoodleFileSystem : FileSystem<MyStatus>, IDisposable
             C.MoodleSelectorWidth = size.X;
             base.SetSize(size);
         }
+
+        protected override float CurrentWidth
+            => 200f;
 
         protected override uint CollapsedFolderColor => ImGuiColors.DalamudViolet.ToUint();
         protected override uint ExpandedFolderColor => CollapsedFolderColor;

@@ -31,13 +31,13 @@ public class MyStatusManager
         if (triggerEvent) NeedFireEvent = true;
     }
 
-    public void AddOrUpdate(MyStatus newStatus, UpdateSource source, bool Unchecked = false, bool triggerEvent = true)
+    public MyStatus? AddOrUpdate(MyStatus newStatus, UpdateSource source, bool Unchecked = false, bool triggerEvent = true)
     {
         // Do not add null statuses
         if (!newStatus.IsNotNull())
         {
             PluginLog.Error($"Status {newStatus} was not added because it is null");
-            return;
+            return null;
         }
         // Do not add statuses with invalid data
         if (!Unchecked)
@@ -45,7 +45,7 @@ public class MyStatusManager
             if (!newStatus.IsValid(out var error))
             {
                 Notify.Error(error);
-                return;
+                return null;
             }
         }
         // check to see if the status is already present.
@@ -64,14 +64,20 @@ public class MyStatusManager
                 {
                     if (source is UpdateSource.StatusTuple)
                     {
-                        // fetch what the max stack count for the icon is.
+                        // check if stackable.
                         if (P.CommonProcessor.IconStackCounts.TryGetValue((uint)newStatus.IconID, out var max))
                         {
-                            // if the stack count is less than the max, add StacksIncOnReapply.
-                            // After, remove it from addTextShown to display the new stack.
-                            if (Statuses[i].Stacks + newStatus.StacksIncOnReapply <= max)
+                            var curStacks = Statuses[i].Stacks;
+                            // keep at max if already at max. (update stacks to max since it applies stack count to avoid rolling over)
+                            if (curStacks == max)
                             {
-                                newStatus.Stacks = Statuses[i].Stacks + newStatus.StacksIncOnReapply;
+                                newStatus.Stacks = (int)max;
+                            }
+                            // increase and redisplay text with updated stacks if applicable.
+                            else if (curStacks + newStatus.StacksIncOnReapply <= max)
+                            {
+                                newStatus.Stacks = curStacks + newStatus.StacksIncOnReapply;
+                                AddTextShown.Remove(newStatus.GUID);
                             }
                             else
                             {
@@ -94,20 +100,14 @@ public class MyStatusManager
                 Statuses[i] = newStatus;
                 // fire trigger if needed and then early return.
                 if (triggerEvent) NeedFireEvent = true;
-                return;
+                return Statuses[i];
             }
         }
+        // if it was new, fire event if needed and add it.
+        if (triggerEvent) NeedFireEvent = true;
+        Statuses.Add(newStatus);
 
-        if (newStatus.ExpiresAt > 0)
-        {
-            // if it was new, fire event if needed and add it.
-            if (triggerEvent) NeedFireEvent = true;
-            Statuses.Add(newStatus);
-        }
-        else
-        {
-            PluginLog.Warning($"Status {newStatus.Title} was not added because Expires At {newStatus.ExpiresAt}");
-        }
+        return newStatus;
     }
 
     public void Cancel(Guid id, bool triggerEvent = true)

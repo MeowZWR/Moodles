@@ -51,6 +51,7 @@ public class Moodles : IDalamudPlugin
             IPCProcessor = new();
             IPCTester = new();
             Utils.CleanupNulls();
+            Utils.SyncGSpeakAvailable();
         });
     }
 
@@ -112,7 +113,7 @@ public class Moodles : IDalamudPlugin
                 //JobChange
                 ApplyAutomation();
             }
-            var marePlayers = Utils.GetMarePlayers();
+            var gsPlayers = Utils.GSpeakPlayerNames;
             foreach(var x in Svc.Objects)
             {
                 if(x is IPlayerCharacter pc)
@@ -120,11 +121,11 @@ public class Moodles : IDalamudPlugin
                     var m = pc.GetMyStatusManager(false);
                     if(m != null)
                     {
-                        if(marePlayers.Contains(pc.Address))
+                        if(gsPlayers.Contains(pc.GetNameWithWorld()))
                         {
                             if(!m.Ephemeral && !pc.AddressEquals(Svc.ClientState.LocalPlayer))
                             {
-                                PluginLog.Debug($"{pc.GetNameWithWorld()} is now Mare player. Status manager ephemeral, automation disabled.");
+                                PluginLog.Debug($"{pc.GetNameWithWorld()} is now GSpeak player. Status manager ephemeral, automation disabled.");
                                 m.Ephemeral = true;
                                 m.Statuses.Each(s => s.ExpiresAt = 0);
                             }
@@ -133,7 +134,7 @@ public class Moodles : IDalamudPlugin
                         {
                             if(m.Ephemeral)
                             {
-                                PluginLog.Debug($"{pc.GetNameWithWorld()} is no longer Mare player. Status manager persistent, automation enabled.");
+                                PluginLog.Debug($"{pc.GetNameWithWorld()} is no longer GSpeak player. Status manager persistent, automation enabled.");
                                 m.Ephemeral = false;
                             }
                         }
@@ -199,7 +200,7 @@ public class Moodles : IDalamudPlugin
                 {
                     PluginLog.Debug($"Begin apply automation for {identifier}");
                     var mgr = Utils.GetMyStatusManager(name);
-                    if(mgr.Ephemeral || Utils.GetMarePlayers().Contains(pc.Address))
+                    if(mgr.Ephemeral || Utils.GSpeakPlayerNames.Contains(pc.GetNameWithWorld()))
                     {
                         PluginLog.Debug($"Skipping automation for {identifier} because status manager is controlled by an external plugin");
                     }
@@ -209,7 +210,7 @@ public class Moodles : IDalamudPlugin
                         {
                             if(C.SavedPresets.TryGetFirst(a => a.GUID == x.Preset, out var p))
                             {
-                                PluginLog.Debug($"  Applied preset {p.ID} / {p.Statuses.Select(z => C.SavedStatuses.FirstOrDefault(s => s.GUID == z)?.Title)}");
+                                PluginLog.Debug($"Applied preset {p.ID} / {p.Statuses.Select(z => C.SavedStatuses.FirstOrDefault(s => s.GUID == z)?.Title)}");
                                 mgr.ApplyPreset(p);
                             }
                         }

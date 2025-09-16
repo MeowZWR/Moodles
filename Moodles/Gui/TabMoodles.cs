@@ -43,8 +43,8 @@ public static class TabMoodles
             ImGui.SameLine();
 
             var isMare = Utils.GetMarePlayers().Contains(Svc.Targets.Target?.Address ?? -1);
-            var isGSpeak = Svc.Targets.Target is IPlayerCharacter pc && Utils.GSpeakPlayers.Any(player => player.Item1 == pc.GetNameWithWorld());
-            var dis = Svc.Targets.Target is not IPlayerCharacter && !isMare && !isGSpeak;
+            var isGSpeak = Svc.Targets.Target is IPlayerCharacter pc && Utils.GSpeakPlayerNames.Contains(pc.GetNameWithWorld());
+            var dis = Svc.Targets.Target is not IPlayerCharacter;
             if (dis) ImGui.BeginDisabled();
             var buttonText = Svc.Targets.Target is not IPlayerCharacter
                 ? "未选择目标" : isMare && !isGSpeak
@@ -53,8 +53,8 @@ public static class TabMoodles
             {
                 try
                 {
-                    var target = (IPlayerCharacter)Svc.Targets.Target;
-                    if (!isMare)
+                    var target = (IPlayerCharacter)Svc.Targets.Target!;
+                    if (!isGSpeak)
                     {
                         Utils.GetMyStatusManager(target.GetNameWithWorld()).AddOrUpdate(Selected.PrepareToApply(AsPermanent ? PrepareOptions.Persistent : PrepareOptions.NoOption), UpdateSource.StatusTuple);
                     }
@@ -384,11 +384,11 @@ public static class TabMoodles
                                 var directory = split[0..^1].Join(@"/");
                                 if (directory != name)
                                 {
-                                    ImGuiEx.RightFloat($"Selector{x.ID}", () => ImGuiEx.Text(ImGuiColors.DalamudGrey, directory));
+                                    ImGuiEx.RightFloat($"Selector{x.ID}", () => ImGuiEx.TextV(ImGuiColors.DalamudGrey, directory));
                                 }
                                 if (ThreadLoadImageHandler.TryGetIconTextureWrap(x.AdjustedIconID, false, out var tex))
                                 {
-                                    ImGui.Image(tex.ImGuiHandle, UI.StatusIconSize * 0.5f);
+                                    ImGui.Image(tex.Handle, UI.StatusIconSize * 0.5f);
                                     ImGui.SameLine();
                                 }
                                 if (ImGui.Selectable($"{name}##{x.ID}", false, ImGuiSelectableFlags.None))
@@ -402,6 +402,21 @@ public static class TabMoodles
                     ImGui.EndCombo();
                 }
 
+                if (Selected.StatusOnDispell != Guid.Empty)
+                {
+                    ImGui.BeginDisabled(maxStacks <= 1);
+                    ImGui.TableNextRow();
+                    ImGui.TableNextColumn();
+                    ImGuiEx.TextV($"Transfer Stacks On Dispell:");
+                    ImGui.TableNextColumn();
+                    if (ImGui.Checkbox("##TransferStacksOnDispell", ref Selected.TransferStacksOnDispell))
+                    {
+                        P.IPCProcessor.StatusModified(Selected.GUID);
+                    }
+                    ImGui.EndDisabled();
+                }
+
+                ImGui.TableNextRow();
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"状态添加者：");
                 ImGuiEx.HelpMarker("表明被谁附加了 Moodle。如果将角色名称和服务器解析为您自己，则将状态持续时间的颜色为绿色。");
@@ -422,7 +437,7 @@ public static class TabMoodles
                 ImGuiEx.HelpMarker("用于在聊天命令中应用 Moodle。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
-                ImGui.InputText($"##id-text", Encoding.UTF8.GetBytes(Selected.ID), 36, ImGuiInputTextFlags.ReadOnly);
+                ImGui.InputText($"##id-text", Encoding.UTF8.GetBytes(Selected.ID), ImGuiInputTextFlags.ReadOnly);
 
                 ImGui.EndTable();
             }
@@ -430,7 +445,7 @@ public static class TabMoodles
             if (Selected.IconID != 0 && ThreadLoadImageHandler.TryGetIconTextureWrap(Selected.AdjustedIconID, true, out var image))
             {
                 ImGui.SetCursorPos(cur);
-                ImGui.Image(image.ImGuiHandle, UI.StatusIconSize * 2);
+                ImGui.Image(image.Handle, UI.StatusIconSize * 2);
             }
         }
     }

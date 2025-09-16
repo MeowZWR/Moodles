@@ -25,10 +25,7 @@ public static class TabSettings
         ImGuiEx.HelpMarker("自动执行的计算开销很高，因此默认情况下仅适用于本地玩家（你自己）。");
         ImGui.SetNextItemWidth(150f);
 
-        ImGuiEx.SliderInt($"图标选择器缩放", ref C.SelectorHeight.ValidateRange(10, 100), 20, 80);
-        ImGui.Checkbox($"显示命令反馈", ref C.DisplayCommandFeedback);
-        ImGui.Checkbox($"调试模式", ref C.Debug);
-        ImGui.Checkbox($"调试自动保存", ref C.DebugSaves);
+        ImGui.Checkbox($"显示清理Moodles分页", ref C.FuckupTab);
 
         ImGui.Checkbox($"Moodles可被康复", ref C.MoodlesCanBeEsunad);
         ImGui.Checkbox($"其他人可以康复Moodles", ref C.OthersCanEsunaMoodles);

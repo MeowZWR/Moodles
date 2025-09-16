@@ -33,7 +33,7 @@ public class StatusSelector : Window
     {
         if(!Valid)
         {
-            ImGuiEx.Text(EColor.RedBright, "编辑的状态似乎已不存在。");
+            ImGuiEx.TextV(EColor.RedBright, "编辑的状态似乎已不存在。");
         }
 
         var statusInfos = IconArray.Select(Utils.GetIconInfo).Where(x => x.HasValue).Cast<IconInfo>();
@@ -58,7 +58,7 @@ public class StatusSelector : Window
                 var name = cond.ToString().Replace("_", " ");
                 if(ThreadLoadImageHandler.TryGetIconTextureWrap((uint)cond.GetIcon(), false, out var texture))
                 {
-                    ImGui.Image(texture.ImGuiHandle, TabAutomation.JobIconSize);
+                    ImGui.Image(texture.Handle, TabAutomation.JobIconSize);
                     ImGui.SameLine();
                 }
                 ImGuiEx.CollectionCheckbox(name, cond, Jobs);
@@ -107,7 +107,7 @@ public class StatusSelector : Window
         if(C.IconSortOption == SortOption.Numerical) infos = infos.OrderBy(x => x.IconID);
         if(!infos.Any())
         {
-            ImGuiEx.Text(EColor.RedBright, $"没有与筛选条件匹配的元素。");
+            ImGuiEx.TextV(EColor.RedBright, $"没有与筛选条件匹配的元素。");
         }
         var cols = Math.Clamp((int)(ImGui.GetWindowSize().X / 200f), 1, 10);
         if(ImGui.BeginTable("StatusTable", cols, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame))
@@ -124,7 +124,7 @@ public class StatusSelector : Window
                 ImGui.TableNextColumn();
                 if(ThreadLoadImageHandler.TryGetIconTextureWrap(info.IconID, false, out var tex))
                 {
-                    ImGui.Image(tex.ImGuiHandle, UI.StatusIconSize);
+                    ImGui.Image(tex.Handle, UI.StatusIconSize);
                     ImGui.SameLine();
                     ImGuiEx.Tooltip($"{info.IconID}");
                     if(ImGui.RadioButton($"{info.Name}##{info.IconID}", Delegate.IconID == info.IconID))
@@ -140,7 +140,7 @@ public class StatusSelector : Window
                     ImGui.SameLine();
                     ImGui.PushFont(UiBuilder.IconFont);
                     var col = C.FavIcons.Contains(info.IconID);
-                    ImGuiEx.Text(col ? ImGuiColors.ParsedGold : ImGuiColors.DalamudGrey3, "\uf005");
+                    ImGuiEx.TextV(col ? ImGuiColors.ParsedGold : ImGuiColors.DalamudGrey3, "\uf005");
                     if(ImGuiEx.HoveredAndClicked())
                     {
                         C.FavIcons.Toggle(info.IconID);

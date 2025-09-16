@@ -1,4 +1,5 @@
 ﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+using ECommons;
 using ECommons.GameHelpers;
 using Moodles.Data;
 using Moodles.OtterGuiHandlers;
@@ -52,9 +53,9 @@ public static class TabPresets
             ImGui.SameLine();
 
             var isMare = Utils.GetMarePlayers().Contains(Svc.Targets.Target?.Address ?? -1);
-            var isGSpeak = Svc.Targets.Target is IPlayerCharacter pc && Utils.GSpeakPlayers.Any(player => player.Item1 == pc.GetNameWithWorld());
-            var dis = Svc.Targets.Target is not IPlayerCharacter && !isMare && !isGSpeak;
-            if  (dis) ImGui.BeginDisabled();
+            var isGSpeak = Svc.Targets.Target is IPlayerCharacter pc && Utils.GSpeakPlayerNames.Contains(pc.GetNameWithWorld());
+            var dis = Svc.Targets.Target is not IPlayerCharacter;
+            if(dis) ImGui.BeginDisabled();
             var buttonText = Svc.Targets.Target is not IPlayerCharacter
                 ? "未选择目标" : isMare && !isGSpeak
                     ? "应用到 Mare 用户" : $"应用到目标（{(isGSpeak ? "通过 GagSpeak" : "本地")}）";
@@ -62,8 +63,8 @@ public static class TabPresets
             {
                 try
                 {
-                    var target = (IPlayerCharacter)Svc.Targets.Target;
-                    if(!isMare)
+                    var target = (IPlayerCharacter)Svc.Targets.Target!;
+                    if(!isGSpeak)
                     {
                         Utils.GetMyStatusManager(target.GetNameWithWorld()).ApplyPreset(Selected);
                     }
@@ -114,11 +115,11 @@ public static class TabPresets
                             var directory = split[0..^1].Join(@"/");
                             if(directory != name)
                             {
-                                ImGuiEx.RightFloat($"Selector{x.ID}", () => ImGuiEx.Text(ImGuiColors.DalamudGrey, directory));
+                                ImGuiEx.RightFloat($"Selector{x.ID}", () => ImGuiEx.TextV(ImGuiColors.DalamudGrey, directory));
                             }
                             if(ThreadLoadImageHandler.TryGetIconTextureWrap(x.AdjustedIconID, false, out var tex))
                             {
-                                ImGui.Image(tex.ImGuiHandle, UI.StatusIconSize * 0.5f);
+                                ImGui.Image(tex.Handle, UI.StatusIconSize * 0.5f);
                                 ImGui.SameLine();
                             }
                             if(ImGui.Selectable($"{name}##{x.ID}", false, ImGuiSelectableFlags.DontClosePopups))
@@ -198,7 +199,7 @@ public static class TabPresets
 
                         if(ThreadLoadImageHandler.TryGetIconTextureWrap(status.AdjustedIconID, false, out var tex))
                         {
-                            ImGui.Image(tex.ImGuiHandle, UI.StatusIconSize * 0.75f);
+                            ImGui.Image(tex.Handle, UI.StatusIconSize * 0.75f);
                             ImGui.SameLine();
                         }
                         ImGuiEx.TextV($"{statusPath}");
@@ -232,7 +233,7 @@ public static class TabPresets
                 ImGuiEx.HelpMarker("用于应用预设的聊天命令。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
-                ImGui.InputText($"##id-text", Encoding.UTF8.GetBytes(Selected.ID), 36, ImGuiInputTextFlags.ReadOnly);
+                ImGui.InputText($"##id-text", Encoding.UTF8.GetBytes(Selected.ID), ImGuiInputTextFlags.ReadOnly);
 
                 ImGui.EndTable();
                 foreach(var x in MoveCommands)
