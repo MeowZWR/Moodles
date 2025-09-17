@@ -54,7 +54,7 @@ public static class TabMoodles
                 try
                 {
                     var target = (IPlayerCharacter)Svc.Targets.Target!;
-                    if (!isGSpeak)
+                    if (!isGSpeak && !isMare)
                     {
                         Utils.GetMyStatusManager(target.GetNameWithWorld()).AddOrUpdate(Selected.PrepareToApply(AsPermanent ? PrepareOptions.Persistent : PrepareOptions.NoOption), UpdateSource.StatusTuple);
                     }

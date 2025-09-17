@@ -104,8 +104,11 @@ public class MyStatusManager
             }
         }
         // if it was new, fire event if needed and add it.
-        if (triggerEvent) NeedFireEvent = true;
-        Statuses.Add(newStatus);
+        if (newStatus.ExpiresAt > 0)
+        {
+            if (triggerEvent) NeedFireEvent = true;
+            Statuses.Add(newStatus);
+        }
 
         return newStatus;
     }

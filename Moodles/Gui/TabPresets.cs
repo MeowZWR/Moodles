@@ -64,7 +64,7 @@ public static class TabPresets
                 try
                 {
                     var target = (IPlayerCharacter)Svc.Targets.Target!;
-                    if(!isGSpeak)
+                    if(!isGSpeak && !isMare)
                     {
                         Utils.GetMyStatusManager(target.GetNameWithWorld()).ApplyPreset(Selected);
                     }
