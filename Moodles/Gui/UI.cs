@@ -28,6 +28,7 @@ public static unsafe class UI
             ("Moodles", TabMoodles.Draw, null, true),
             ("状态预设", TabPresets.Draw, null, true),
             ("自动执行", TabAutomation.Draw, null, true),
+            ("Moodles分享", TabMoodlesShare.Draw, null, true),
             ("白名单", TabWhitelist.Draw, null, true),
             ("插件设置", TabSettings.Draw, null, true),
             (C.FuckupTab?"清理":null, TabFuckup.Draw, ImGuiColors.DalamudGrey, true),
