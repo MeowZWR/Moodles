@@ -3,6 +3,8 @@
 	<PropertyGroup>
         <Authors>kawaii, Glyceri</Authors>
         <Version>1.0.0.53</Version>
+        <Description>Design and apply your own status effects with custom formatting, durations, and other accoutrements.</Description>
+        <RepositoryUrl>https://github.com/kawaii/Moodles</RepositoryUrl>
     </PropertyGroup>
 
     <PropertyGroup>
