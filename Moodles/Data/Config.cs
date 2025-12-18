@@ -1,7 +1,5 @@
-﻿using ECommons.Configuration;
-
-namespace Moodles.Data;
-public class Config : IEzConfig
+﻿namespace Moodles.Data;
+public class Config
 {
     public bool Enabled = true;
     public bool EnabledDuty = false;

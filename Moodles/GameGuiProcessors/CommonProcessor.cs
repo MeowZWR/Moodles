@@ -1,11 +1,11 @@
-﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+﻿using System.Buffers.Binary;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Memory;
 using Dalamud.Utility;
 using ECommons.EzEventManager;
 using ECommons.GameHelpers;
 using ECommons.Interop;
-using ECommons.MathHelpers;
 using ECommons.PartyFunctions;
 using FFXIVClientStructs.FFXIV.Client.Graphics;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -383,7 +383,7 @@ public unsafe class CommonProcessor : IDisposable
 
     private ByteColor CreateColor(uint color)
     {
-        color = Endianness.SwapBytes(color);
+        color = BinaryPrimitives.ReverseEndianness(color);
         var ptr = &color;
         return *(ByteColor*)ptr;
     }

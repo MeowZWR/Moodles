@@ -5,7 +5,6 @@ using OtterGui.Classes;
 using OtterGui.Filesystem;
 using OtterGui.FileSystem.Selector;
 using OtterGui.Raii;
-using OtterGui.Text;
 using System.IO;
 
 namespace Moodles.OtterGuiHandlers;

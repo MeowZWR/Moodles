@@ -15,7 +15,7 @@ public unsafe class StatusProcessor : IDisposable
         Svc.AddonLifecycle.RegisterListener(AddonEvent.PostRequestedUpdate, "_Status", OnStatusRequestedUpdate);
         if(Player.Available && TryGetAddonByName<AtkUnitBase>("_Status", out var addon) && IsAddonReady(addon))
         {
-            OnStatusRequestedUpdate(AddonEvent.PostRequestedUpdate, new ArtificialAddonArgs(addon));
+            RequestedUpdate(addon);
         }
     }
 
@@ -40,6 +40,11 @@ public unsafe class StatusProcessor : IDisposable
     {
         if(P == null) return;
         var addon = (AtkUnitBase*)args.Addon.Address;
+        RequestedUpdate(addon);
+    }
+
+    private void RequestedUpdate(AtkUnitBase* addon)
+    {
         if (addon != null && IsAddonReady(addon) && P.CanModifyUI())
         {
             NumStatuses = 0;

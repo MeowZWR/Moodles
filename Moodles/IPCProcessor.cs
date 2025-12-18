@@ -3,7 +3,6 @@ using Dalamud.Game.ClientState.Objects.SubKinds;
 using ECommons.EzIpcManager;
 using ECommons.GameHelpers;
 using Moodles.Data;
-using System.Collections.Immutable;
 using Moodles.Gui;
 
 namespace Moodles;

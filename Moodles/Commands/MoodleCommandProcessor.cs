@@ -203,7 +203,7 @@ public static class MoodleCommandProcessor
 
         if(targetState == TargetState.Self)
         {
-            playerCharacter = Svc.ClientState.LocalPlayer;
+            playerCharacter = Svc.Objects.LocalPlayer;
         }
         else if(targetState == TargetState.Target)
         {

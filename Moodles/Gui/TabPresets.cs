@@ -1,5 +1,4 @@
 ﻿using Dalamud.Game.ClientState.Objects.SubKinds;
-using ECommons;
 using ECommons.GameHelpers;
 using Moodles.Data;
 using Moodles.OtterGuiHandlers;

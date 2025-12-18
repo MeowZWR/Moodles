@@ -5,7 +5,6 @@ using ECommons.GameFunctions;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Moodles.Data;
-using Moodles.GameGuiProcessors;
 
 namespace Moodles.Processors;
 public unsafe class PartyListProcessor : IDisposable
@@ -17,7 +16,7 @@ public unsafe class PartyListProcessor : IDisposable
         Svc.AddonLifecycle.RegisterListener(AddonEvent.PostRequestedUpdate, "_PartyList", OnPartyListRequestedUpdate);
         if(Player.Available && TryGetAddonByName<AtkUnitBase>("_PartyList", out var addon) && IsAddonReady(addon))
         {
-            OnPartyListRequestedUpdate(AddonEvent.PostRequestedUpdate, new ArtificialAddonArgs(addon));
+            RequestedUpdate(addon);
         }
     }
 
@@ -40,6 +39,11 @@ public unsafe class PartyListProcessor : IDisposable
         if(P == null) return;
         if(!Player.Available) return;
         var addon = (AtkUnitBase*)args.Addon.Address;
+        RequestedUpdate(addon);
+    }
+
+    private void RequestedUpdate(AtkUnitBase* addon)
+    {
         if(addon != null && IsAddonReady(addon) && P.CanModifyUI())
         {
             for(var i = 0; i < NumStatuses.Length; i++)
@@ -63,6 +67,7 @@ public unsafe class PartyListProcessor : IDisposable
                 index++;
             }
         }
+
         InternalLog.Verbose($"PartyList Requested update: {NumStatuses.Print()}");
     }
 
@@ -117,14 +122,14 @@ public unsafe class PartyListProcessor : IDisposable
     {
         if(Svc.Party.Length < 2)
         {
-            return [Svc.ClientState.LocalPlayer];
+            return [Svc.Objects.LocalPlayer];
         }
         else
         {
-            List<IPlayerCharacter> ret = [Svc.ClientState.LocalPlayer];
+            List<IPlayerCharacter> ret = [Svc.Objects.LocalPlayer];
             for(var i = 1; i < Math.Min(8, Svc.Party.Length); i++)
             {
-                var obj = FakePronoun.Resolve($"<{i + 1}>");
+                var obj = ExtendedPronoun.Resolve($"<{i + 1}>");
                 if(Svc.Objects.CreateObjectReference((nint)obj) is IPlayerCharacter pc)
                 {
                     ret.Add(pc);

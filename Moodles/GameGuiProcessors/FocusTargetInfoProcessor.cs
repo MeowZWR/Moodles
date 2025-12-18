@@ -16,7 +16,7 @@ public unsafe class FocusTargetInfoProcessor
         Svc.AddonLifecycle.RegisterListener(AddonEvent.PostRequestedUpdate, "_FocusTargetInfo", OnFocusTargetInfoRequestedUpdate);
         if(Player.Available && TryGetAddonByName<AtkUnitBase>("_FocusTargetInfo", out var addon) && IsAddonReady(addon))
         {
-            OnFocusTargetInfoRequestedUpdate(AddonEvent.PostRequestedUpdate, new ArtificialAddonArgs(addon));
+            RequestedUpdate(addon);
         }
     }
 
@@ -38,6 +38,11 @@ public unsafe class FocusTargetInfoProcessor
     {
         if(P == null) return;
         var addon = (AtkUnitBase*)args.Addon.Address;
+        RequestedUpdate(addon);
+    }
+
+    private void RequestedUpdate(AtkUnitBase* addon)
+    {
         if(addon != null && IsAddonReady(addon))
         {
             NumStatuses = 0;
@@ -50,6 +55,7 @@ public unsafe class FocusTargetInfoProcessor
                 }
             }
         }
+
         InternalLog.Verbose($"FocusTarget Requested update: {NumStatuses}");
     }
 

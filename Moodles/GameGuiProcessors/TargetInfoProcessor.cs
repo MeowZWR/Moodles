@@ -15,7 +15,7 @@ public unsafe class TargetInfoProcessor
         Svc.AddonLifecycle.RegisterListener(AddonEvent.PostRequestedUpdate, "_TargetInfo", OnTargetInfoRequestedUpdate);
         if(Player.Available && TryGetAddonByName<AtkUnitBase>("_TargetInfo", out var addon) && IsAddonReady(addon))
         {
-            OnTargetInfoRequestedUpdate(AddonEvent.PostRequestedUpdate, new ArtificialAddonArgs(addon));
+            RequestedUpdate(addon);
         }
     }
 
@@ -37,6 +37,11 @@ public unsafe class TargetInfoProcessor
     {
         if(P == null) return;
         var addon = (AtkUnitBase*)args.Addon.Address;
+        RequestedUpdate(addon);
+    }
+
+    private void RequestedUpdate(AtkUnitBase* addon)
+    {
         if(addon != null && IsAddonReady(addon))
         {
             NumStatuses = 0;
@@ -49,6 +54,7 @@ public unsafe class TargetInfoProcessor
                 }
             }
         }
+
         InternalLog.Verbose($"TargetInfo Requested update: {NumStatuses}");
     }
 

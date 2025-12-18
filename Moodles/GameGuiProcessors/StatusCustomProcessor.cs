@@ -27,19 +27,19 @@ public unsafe class StatusCustomProcessor : IDisposable
             {
                 if(TryGetAddonByName<AtkUnitBase>("_StatusCustom0", out var addon) && IsAddonReady(addon))
                 {
-                    OnStatusCustom0RequestedUpdate(AddonEvent.PostRequestedUpdate, new ArtificialAddonArgs(addon));
+                    RequestedUpdateStatusCustom(addon, ref NumStatuses0);
                 }
             }
             {
                 if(TryGetAddonByName<AtkUnitBase>("_StatusCustom1", out var addon) && IsAddonReady(addon))
                 {
-                    OnStatusCustom1RequestedUpdate(AddonEvent.PostRequestedUpdate, new ArtificialAddonArgs(addon));
+                    RequestedUpdateStatusCustom(addon, ref NumStatuses1);
                 }
             }
             {
                 if(TryGetAddonByName<AtkUnitBase>("_StatusCustom2", out var addon) && IsAddonReady(addon))
                 {
-                    OnStatusCustom2RequestedUpdate(AddonEvent.PostRequestedUpdate, new ArtificialAddonArgs(addon));
+                    RequestedUpdateStatusCustom(addon, ref NumStatuses2);
                 }
             }
         }

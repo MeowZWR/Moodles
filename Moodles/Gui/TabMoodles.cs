@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Dalamud.Game.ClientState.Objects.SubKinds;
-using Dalamud.Interface.Utility.Table;
 using ECommons.EzIpcManager;
 using ECommons.GameHelpers;
 using Moodles.Data;

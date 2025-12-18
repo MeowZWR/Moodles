@@ -10,7 +10,6 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using Moodles.Data;
 using Moodles.OtterGuiHandlers.Whitelist.GSpeak;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
 using Status = Lumina.Excel.Sheets.Status;
 using UIColor = ECommons.ChatMethods.UIColor;
 
@@ -320,7 +319,7 @@ public static unsafe partial class Utils
             {
                 foreach(var c in x.Combos)
                 {
-                    if(c.Jobs.Count == 0 || c.Jobs.Contains(pc.GetJob()))
+                    if(c.Jobs.Count == 0 || c.Jobs.Contains(Player.Job))
                     {
                         yield return c;
                     }

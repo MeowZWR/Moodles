@@ -123,7 +123,7 @@ public class Moodles : IDalamudPlugin
                     {
                         if(gsPlayers.Contains(pc.GetNameWithWorld()))
                         {
-                            if(!m.Ephemeral && !pc.AddressEquals(Svc.ClientState.LocalPlayer))
+                            if(!m.Ephemeral && !pc.AddressEquals(Svc.Objects.LocalPlayer))
                             {
                                 PluginLog.Debug($"{pc.GetNameWithWorld()} is now GSpeak player. Status manager ephemeral, automation disabled.");
                                 m.Ephemeral = true;
@@ -195,7 +195,7 @@ public class Moodles : IDalamudPlugin
             if(q?.Address != Player.Object?.Address && q is IPlayerCharacter pc)
             {
                 var name = pc.GetNameWithWorld();
-                var identifier = (name, pc.GetJob());
+                var identifier = (name, Player.Job);
                 if(!SeenPlayers.Contains(identifier))
                 {
                     PluginLog.Debug($"Begin apply automation for {identifier}");
