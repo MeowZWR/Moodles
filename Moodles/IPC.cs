@@ -96,7 +96,7 @@ public static unsafe class IPC
         //     return;
         // }
         // Obtain all MoodlesStatusInfo tuples from the preset status list. If any fail validation, exit.
-        var list = new List<MoodlesStatusInfo>();
+        var list = new List<MyStatus>();
         foreach (var s in C.SavedStatuses.Where(x => Preset.Statuses.Contains(x.GUID)))
         {
             var preparedStatus = s.PrepareToApply();
@@ -112,12 +112,12 @@ public static unsafe class IPC
             // }
             else
             {
-                list.Add(preparedStatus.ToStatusTuple());
+                list.Add(preparedStatus);
             }
         }
         if (list.Count > 0)
         {
-            if (P.IPCProcessor.SundouleiaTryApplyToPair.TryInvoke(targetAddr, JsonSerializer.Serialize(list), false))
+            if (P.IPCProcessor.SundouleiaTryApplyToPair.TryInvoke(targetAddr, JsonSerializer.Serialize(list, new JsonSerializerOptions(){IncludeFields = true}), false))
             {
                 Notify.Info($"Broadcast success");
             }
@@ -130,11 +130,11 @@ public static unsafe class IPC
 
     public static void SendSundouleiaMessage(this MyStatus Status, nint targetAddr)
     {
-        if (WhitelistSundouleia.FirstOrDefault(x => x.Address == targetAddr) is not { } entry)
-        {
-            PluginLog.Error("Target player is not whitelisted for Sundouleia moodles.");
-            return;
-        }
+        // if (WhitelistSundouleia.FirstOrDefault(x => x.Address == targetAddr) is not { } entry)
+        // {
+        //     PluginLog.Error("Target player is not whitelisted for Sundouleia moodles.");
+        //     return;
+        // }
 
         var preparedStatus = Status.PrepareToApply();
         preparedStatus.Applier = LocalPlayer.NameWithWorld ?? string.Empty;
@@ -142,13 +142,14 @@ public static unsafe class IPC
         {
             Notify.Error($"Could not apply status: {error}");
         }
-        else if (!entry.CanApplyStatus(preparedStatus, out var applyError))
-        {
-            Notify.Error($"Cannot apply status '{preparedStatus.Title}' to target: {applyError}");
-        }
+        // else if (!entry.CanApplyStatus(preparedStatus, out var applyError))
+        // {
+        //     Notify.Error($"Cannot apply status '{preparedStatus.Title}' to target: {applyError}");
+        // }
         else
         {
-            if (P.IPCProcessor.SundouleiaTryApplyToPair.TryInvoke(targetAddr, JsonSerializer.Serialize<List<MoodlesStatusInfo>>([preparedStatus.ToStatusTuple()]), true))
+            if (P.IPCProcessor.SundouleiaTryApplyToPair.TryInvoke(targetAddr, JsonSerializer.Serialize<List<MyStatus>>([preparedStatus], 
+                    new JsonSerializerOptions { IncludeFields = true }), true))
             {
                 Notify.Info($"Broadcast success");
             }

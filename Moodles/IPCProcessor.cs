@@ -149,13 +149,13 @@ public class IPCProcessor : IDisposable
     }
 
     [EzIPCEvent("Sundouleia.ApplyStatusInfo", false)]
-    private void SundouleiaApplyTuple(string status) => ApplyStatusTuples([JsonSerializer.Deserialize<MoodlesStatusInfo>(status)], false, true);
+    private void SundouleiaApplyTuple(string status) => ApplyStatusTuples([JsonSerializer.Deserialize<MoodlesStatusInfo>(status, new JsonSerializerOptions() {IncludeFields = true})], false, true);
 
     [EzIPCEvent("GagSpeak.ApplyStatusInfo", false)]
     private void GSpeakApplyTuple(MoodlesStatusInfo status, bool asLocked) => ApplyStatusTuples([status], asLocked);
 
     [EzIPCEvent("Sundouleia.ApplyStatusInfoList", false)]
-    private void SundouleiaApplyTuples(string statuses) => ApplyStatusTuples(JsonSerializer.Deserialize<List<MoodlesStatusInfo>>(statuses) ?? [], false);
+    private void SundouleiaApplyTuples(string statuses) => ApplyStatusTuples(JsonSerializer.Deserialize<List<MoodlesStatusInfo>>(statuses, new JsonSerializerOptions() {IncludeFields = true}) ?? [], false);
 
     [EzIPCEvent("GagSpeak.ApplyStatusInfoList", false)]
     private void GSpeakApplyTuples(List<MoodlesStatusInfo> statuses, bool asLocked) => ApplyStatusTuples(statuses, asLocked);
@@ -179,6 +179,7 @@ public class IPCProcessor : IDisposable
         {
             foreach (var status in tuples)
             {
+                PluginLog.Warning(status.ToString());
                 if (!Utils.CheckWhitelistGlobal(MyStatus.FromTuple(status)))
                 {
                     PluginLog.Warning($"{status.Applier} tried to apply {status.Title} but not whitelisted.");
@@ -603,6 +604,45 @@ public class IPCProcessor : IDisposable
         TabMoodlesShare.UID = UID;
         PluginLog.Debug($"Received {json.Count} moodles from MareShare");
         TabMoodlesShare.SharedMoodles = json;
+    }
+    
+    [EzIPC]
+    private void ApplyStatusesFromMarePlayers(nint sender, nint recipient, string statuses)
+    {
+        if (!C.EnableMareSync)
+        {
+            PluginLog.Debug("[ApplyStatusesFromMarePlayers] An update to your status was recieved, but you didnt allow that.");
+            return;
+        }
+        
+        if(recipient != LocalPlayer.Address)
+        {
+            PluginLog.Warning("[ApplyStatusesFromMarePlayers] An update to your status was recieved, but the intended recipient was not you.");
+            return;
+        }
+
+        if (!GetSundouleiaPlayers().Contains(sender))
+        {
+            PluginLog.Warning("[ApplyStatusesFromMarePlayers] An update to your status was recieved, but the sender is not a Mare Player.");
+            return;
+        }
+
+        var statusList = JsonSerializer.Deserialize<List<MyStatus>>(statuses, new JsonSerializerOptions() {IncludeFields = true}) ?? [];
+        var list = new List<MoodlesStatusInfo>();
+        foreach (var status in statusList)
+        {
+            if (!Utils.CheckWhitelistGlobal(status))
+            {
+                PluginLog.Warning($"[ApplyStatusesFromMarePlayers] An update to your status was recieved, but {status} failed whitelist check.");
+                continue;
+            }
+            list.Add(status.ToStatusTuple());
+            
+        }
+        PluginLog.Debug($"[ApplyStatusesFromMarePlayers] An update to your status was recieved, including {statusList.Count} statuses.");
+        
+
+        ApplyStatusTuples(list, false);
     }
     
 }

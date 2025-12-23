@@ -19,7 +19,7 @@ public static unsafe partial class Utils
             return TargetApplyMode.NoTarget;
         if (IPC.GSpeakAvailable && IPC.GSpeakPlayerCache.ContainsKey(pc.Address))
             return TargetApplyMode.GSpeakPair;
-        if (IPC.SundouleiaAvailable && IPC.SundouleiaPlayerCache.ContainsKey(pc.Address))
+        if (IPC.SundouleiaAvailable && P.IPCProcessor.GetSundouleiaPlayers().Contains(pc.Address))
             return TargetApplyMode.Sundesmo;
         return TargetApplyMode.Local;
     }

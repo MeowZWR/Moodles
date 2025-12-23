@@ -403,6 +403,12 @@ public unsafe class CommonProcessor : IDisposable
             {
                 str += $"\n{status.Description}";
             }
+
+            if (C.EnableShowSource && !string.IsNullOrEmpty(status.Applier))
+            {
+                str += Environment.NewLine + Environment.NewLine +  $"[color=Grey3]来自: {status.Applier}[/color]";
+            }
+            
             MemoryHelper.WriteSeString(TooltipMemory, Utils.ParseBBSeString(str));
             AtkStage.Instance()->TooltipManager.ShowTooltip((ushort)addon->Id, container, (byte*)TooltipMemory);
         }

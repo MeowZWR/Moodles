@@ -35,4 +35,7 @@ public class Config
     public bool BroadcastAllowAll = false;
     public bool BroadcastAllowFriends = false;
     public bool BroadcastAllowParty = false;
+    
+    public bool EnableMareSync = false;
+    public bool EnableShowSource = true;
 }

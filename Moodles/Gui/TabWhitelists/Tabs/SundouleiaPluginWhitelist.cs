@@ -13,9 +13,16 @@ internal class SundouleiaPluginWhitelist : PluginWhitelist
     protected override void DrawWhitelist()
     {
         //P.OtterGuiHandler.WhitelistSundouleia.Draw(200f);
+        
+        ImGui.Checkbox("启用月海同步##EnableMareSync", ref C.EnableMareSync);
+        
+        ImGui.Separator();
+        
+        ImGui.BeginDisabled(!C.EnableMareSync);
         ImGui.Checkbox("允许所有人", ref C.BroadcastAllowAll);
         ImGui.Checkbox("允许队伍成员", ref C.BroadcastAllowParty);
         ImGui.Checkbox("允许好友", ref C.BroadcastAllowFriends);
+        ImGui.EndDisabled();
     }
 
     protected override void DrawHeader()

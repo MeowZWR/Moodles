@@ -4,6 +4,7 @@ public static class TabSettings
     public static void Draw()
     {
         ImGui.Checkbox($"Enable Moodles", ref C.Enabled);
+        ImGui.Checkbox("显示Moodle来源", ref C.EnableShowSource);
         ImGuiEx.Spacing();
         //ImGui.Checkbox("Enable VFX", ref C.EnableVFX);
         ImGui.Checkbox("Enable Moodle VFX", ref C.EnableSHE);

@@ -1,4 +1,6 @@
-﻿using FFXIVClientStructs.FFXIV.Client.Game.Character;
+﻿using System.Text.Json;
+using ECommons.EzIpcManager;
+using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using Moodles.Data;
 using Moodles.OtterGuiHandlers;
 using OtterGui.Raii;
@@ -64,6 +66,20 @@ public static class TabMoodles
             ApplyToTarget(targetMode);
         }
         if (dis) ImGui.EndDisabled();
+
+        if (IPC.SundouleiaAvailable)
+        {
+            ImGui.SameLine();
+            var dis2 = string.IsNullOrEmpty(TabMoodlesShare.UID) || TabMoodlesShare.SharedMoodles.Any(x => x.GUID == Selected.GUID && x.UserUID != TabMoodlesShare.UID);
+            if (dis2) ImGui.BeginDisabled();
+            if (ImGui.Button(string.IsNullOrEmpty(TabMoodlesShare.UID) ? "请先请求Moodles列表" : dis2 ? "已存在相同GUID" : "上传到Mare/更新"))
+            {
+                SharedMoodles moodles = new SharedMoodles(Selected, TabMoodlesShare.UID);
+                P.IPCProcessor.MareMoodlesShare.TryInvoke(0, JsonSerializer.Serialize(moodles, new JsonSerializerOptions(){IncludeFields = true}));
+                TabMoodlesShare.LastDownload = DateTime.Now.AddMinutes(-1);
+            }
+            if (dis2) ImGui.EndDisabled();
+        }
 
         // Store maxStacks before drawing further.
         var maxStacks = P.CommonProcessor.IconStackCounts.TryGetValue((uint)Selected.IconID, out var count) ? (int)count : 1;
