@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.ClientState.Objects.SubKinds;
+﻿using System.Text.Json;
+using Dalamud.Game.ClientState.Objects.SubKinds;
 using ECommons.EzIpcManager;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using Moodles.Data;
@@ -54,8 +55,8 @@ public class IPCProcessor : IDisposable
 
     #region GSpeak & Sundouleia Listener Events
     // Broadcasts to the IPC to apply the statuses to the pair.
-    [EzIPC("Sundouleia.ApplyToPairRequest", false)] public readonly Action<nint, List<MoodlesStatusInfo>, bool> GSpeakTryApplyToPair;
-    [EzIPC("GagSpeak.ApplyToPairRequest", false)] public readonly Action<nint, List<MoodlesStatusInfo>, bool> SundouleiaTryApplyToPair;
+    [EzIPC("GagSpeak.ApplyToPairRequest", false)] public readonly Action<nint, List<MoodlesStatusInfo>, bool> GSpeakTryApplyToPair;
+    [EzIPC("Sundouleia.ApplyToPairRequest", false)] public readonly Action<nint, string, bool> SundouleiaTryApplyToPair;
 
 
     [EzIPCEvent("Sundouleia.Ready", false)]
@@ -148,13 +149,13 @@ public class IPCProcessor : IDisposable
     }
 
     [EzIPCEvent("Sundouleia.ApplyStatusInfo", false)]
-    private void SundouleiaApplyTuple(MoodlesStatusInfo status) => ApplyStatusTuples([status], false);
+    private void SundouleiaApplyTuple(string status) => ApplyStatusTuples([JsonSerializer.Deserialize<MoodlesStatusInfo>(status)], false, true);
 
     [EzIPCEvent("GagSpeak.ApplyStatusInfo", false)]
     private void GSpeakApplyTuple(MoodlesStatusInfo status, bool asLocked) => ApplyStatusTuples([status], asLocked);
 
     [EzIPCEvent("Sundouleia.ApplyStatusInfoList", false)]
-    private void SundouleiaApplyTuples(List<MoodlesStatusInfo> statuses) => ApplyStatusTuples(statuses, false);
+    private void SundouleiaApplyTuples(string statuses) => ApplyStatusTuples(JsonSerializer.Deserialize<List<MoodlesStatusInfo>>(statuses) ?? [], false);
 
     [EzIPCEvent("GagSpeak.ApplyStatusInfoList", false)]
     private void GSpeakApplyTuples(List<MoodlesStatusInfo> statuses, bool asLocked) => ApplyStatusTuples(statuses, asLocked);
@@ -164,7 +165,7 @@ public class IPCProcessor : IDisposable
     ///     By the time this method is called, any pair-applied tuples have been validated by 
     ///     GSpeak for valid MoodleAccess and can be trusted.
     /// </summary>
-    private unsafe void ApplyStatusTuples(List<MoodlesStatusInfo> tuples, bool asLocked)
+    private unsafe void ApplyStatusTuples(List<MoodlesStatusInfo> tuples, bool asLocked, bool isMare = false)
     {
         if (!CharaWatcher.LocalPlayerRendered) return;
 
@@ -176,7 +177,14 @@ public class IPCProcessor : IDisposable
         }
         else
         {
-            foreach (var status in tuples) sm.AddOrUpdate(MyStatus.FromTuple(status).PrepareToApply(), UpdateSource.StatusTuple);
+            foreach (var status in tuples)
+            {
+                if (!Utils.CheckWhitelistGlobal(MyStatus.FromTuple(status)))
+                {
+                    PluginLog.Warning($"{status.Applier} tried to apply {status.Title} but not whitelisted.");
+                }
+                sm.AddOrUpdate(MyStatus.FromTuple(status).PrepareToApply(), UpdateSource.StatusTuple);
+            }
         }
     }
 
@@ -585,6 +593,18 @@ public class IPCProcessor : IDisposable
         }
     }
     #endregion MoodlesUpdateManager
+    
+    [EzIPC("MareSynchronos.MoodlesShare", false)] public readonly Action<int, string> MareMoodlesShare;
+    
+    [EzIPC("ShareMoodles")]
+    private void ShareMoodles(string status, string UID)
+    {
+        var json = JsonSerializer.Deserialize<List<SharedMoodles>>(status, new JsonSerializerOptions(){IncludeFields = true});
+        TabMoodlesShare.UID = UID;
+        PluginLog.Debug($"Received {json.Count} moodles from MareShare");
+        TabMoodlesShare.SharedMoodles = json;
+    }
+    
 }
 #pragma warning restore CS0649, CS8602, CS8618
 

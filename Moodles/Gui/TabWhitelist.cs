@@ -19,7 +19,7 @@ public static class TabWhitelist
 
     public static void UpdateWhitelists()
     {
-        pluginWhitelists = [new GSpeakPluginWhitelist()];
+        pluginWhitelists = [];
         // For now keep this out of plain sight until release is ready.
         if (IPC.SundouleiaAvailable) pluginWhitelists.Add(new SundouleiaPluginWhitelist());
     }

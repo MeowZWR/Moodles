@@ -8,52 +8,55 @@ internal class SundouleiaPluginWhitelist : PluginWhitelist
 {
     private WhitelistEntrySundouleia Selected => P.OtterGuiHandler.WhitelistSundouleia.Current!;
 
-    public override string pluginName { get; } = "Sundouleia";
+    public override string pluginName { get; } = "MareCN";
 
     protected override void DrawWhitelist()
     {
-        P.OtterGuiHandler.WhitelistSundouleia.Draw(200f);
+        //P.OtterGuiHandler.WhitelistSundouleia.Draw(200f);
+        ImGui.Checkbox("允许所有人", ref C.BroadcastAllowAll);
+        ImGui.Checkbox("允许队伍成员", ref C.BroadcastAllowParty);
+        ImGui.Checkbox("允许好友", ref C.BroadcastAllowFriends);
     }
 
     protected override void DrawHeader()
     {
-        if(Selected is null) HeaderDrawer.Draw("Sundouleia Whitelist", 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
+        //if(Selected is null) HeaderDrawer.Draw("Sundouleia Whitelist", 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
     }
 
     protected override void Draw()
     {
-        // Perform XOR logic to ensure selection validity. (Since these are mutually opposite states)
-        if ((IPC.WhitelistSundouleia.Count is 0) ^ (P.OtterGuiHandler.WhitelistSundouleia.Current is null))
-        {
-            P.OtterGuiHandler.WhitelistSundouleia.EnsureCurrent();
-        }
-
-        if (Selected is null)
-        {
-            using(var child = ImRaii.Child("##DefaultBox", -Vector2.One, true))
-            {
-                if(!child) return;
-                ImGuiEx.TextCentered("No Pairs Rendered");
-            }
-        }
-        else
-        {
-            var name = C.Censor ? Selected.CensoredName() : Selected.Name.Split(' ')[0];
-            var dispName = Selected.PlayerName.Censor(Selected.CensoredName());
-            HeaderDrawer.Draw($"Your Permissions for {dispName}", 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
-            using(var child = ImRaii.Child("##Panel", new(ImGui.GetContentRegionAvail().X - 1f, ImGui.GetContentRegionAvail().Y / 2 - ImGui.GetFrameHeight()), true))
-            {
-                if(!child) return;
-                DrawTableForPermissions(Selected.ClientAccess, Selected.ClientMaxTime, name, true, "AccessPermissionsForPair");
-            }
-
-            HeaderDrawer.Draw($"{dispName}'s Permissions for You", 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
-            using(var child2 = ImRaii.Child("##Panel2", -Vector2.One, true))
-            {
-                if(!child2) return;
-                DrawTableForPermissions(Selected.Access, Selected.MaxTime, name, false, "PairAccessPermsForClient");
-            }
-        }
+        // // Perform XOR logic to ensure selection validity. (Since these are mutually opposite states)
+        // if ((IPC.WhitelistSundouleia.Count is 0) ^ (P.OtterGuiHandler.WhitelistSundouleia.Current is null))
+        // {
+        //     P.OtterGuiHandler.WhitelistSundouleia.EnsureCurrent();
+        // }
+        //
+        // if (Selected is null)
+        // {
+        //     using(var child = ImRaii.Child("##DefaultBox", -Vector2.One, true))
+        //     {
+        //         if(!child) return;
+        //         ImGuiEx.TextCentered("No Pairs Rendered");
+        //     }
+        // }
+        // else
+        // {
+        //     var name = C.Censor ? Selected.CensoredName() : Selected.Name.Split(' ')[0];
+        //     var dispName = Selected.PlayerName.Censor(Selected.CensoredName());
+        //     HeaderDrawer.Draw($"Your Permissions for {dispName}", 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
+        //     using(var child = ImRaii.Child("##Panel", new(ImGui.GetContentRegionAvail().X - 1f, ImGui.GetContentRegionAvail().Y / 2 - ImGui.GetFrameHeight()), true))
+        //     {
+        //         if(!child) return;
+        //         DrawTableForPermissions(Selected.ClientAccess, Selected.ClientMaxTime, name, true, "AccessPermissionsForPair");
+        //     }
+        //
+        //     HeaderDrawer.Draw($"{dispName}'s Permissions for You", 0, ImGui.GetColorU32(ImGuiCol.FrameBg), 0, HeaderDrawer.Button.IncognitoButton(C.Censor, v => C.Censor = v));
+        //     using(var child2 = ImRaii.Child("##Panel2", -Vector2.One, true))
+        //     {
+        //         if(!child2) return;
+        //         DrawTableForPermissions(Selected.Access, Selected.MaxTime, name, false, "PairAccessPermsForClient");
+        //     }
+        // }
     }
 
     private void DrawTableForPermissions(MoodleAccess access, TimeSpan maxTime, string dispName, bool isSelf, string id)

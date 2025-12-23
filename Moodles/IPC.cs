@@ -1,4 +1,5 @@
-﻿using ECommons.EzIpcManager;
+﻿using System.Text.Json;
+using ECommons.EzIpcManager;
 using Moodles.Data;
 
 namespace Moodles;
@@ -22,7 +23,8 @@ public static unsafe class IPC
     public static void FetchInitial()
     {
         var gSpeak = Svc.PluginInterface.InstalledPlugins.FirstOrDefault(p => string.Equals(p.InternalName, "ProjectGagSpeak", StringComparison.OrdinalIgnoreCase));
-        var sundouleia = Svc.PluginInterface.InstalledPlugins.FirstOrDefault(p => string.Equals(p.InternalName, "Sundouleia", StringComparison.OrdinalIgnoreCase));
+        var sundouleia = Svc.PluginInterface.InstalledPlugins.FirstOrDefault(p => string.Equals(p.InternalName, "Sundouleia", StringComparison.OrdinalIgnoreCase) ||
+                                                                                                             string.Equals(p.InternalName, "MareSynchronos", StringComparison.OrdinalIgnoreCase));
         GSpeakAvailable = gSpeak is { } gSpeakPlugin && gSpeakPlugin.IsLoaded;
         SundouleiaAvailable = sundouleia is { } sundouleiaPlugin && sundouleiaPlugin.IsLoaded;
         if (GSpeakAvailable)
@@ -88,11 +90,11 @@ public static unsafe class IPC
 
     public static void SendSundouleiaMessage(this Preset Preset, nint targetAddr)
     {
-        if (WhitelistSundouleia.FirstOrDefault(x => x.Address == targetAddr) is not { } entry)
-        {
-            PluginLog.Error("Target player is not whitelisted for Sundouleia moodles.");
-            return;
-        }
+        // if (WhitelistSundouleia.FirstOrDefault(x => x.Address == targetAddr) is not { } entry)
+        // {
+        //     PluginLog.Error("Target player is not whitelisted for Sundouleia moodles.");
+        //     return;
+        // }
         // Obtain all MoodlesStatusInfo tuples from the preset status list. If any fail validation, exit.
         var list = new List<MoodlesStatusInfo>();
         foreach (var s in C.SavedStatuses.Where(x => Preset.Statuses.Contains(x.GUID)))
@@ -103,11 +105,11 @@ public static unsafe class IPC
             {
                 PluginLog.Error($"Could not apply status: {error}");
             }
-            else if (!entry.CanApplyStatus(preparedStatus, out var applyError))
-            {
-                Notify.Error($"Cannot apply status '{preparedStatus.Title}' to target: {applyError}");
-                return; // Exit early if it could not be applied.
-            }
+            // else if (!entry.CanApplyStatus(preparedStatus, out var applyError))
+            // {
+            //     Notify.Error($"Cannot apply status '{preparedStatus.Title}' to target: {applyError}");
+            //     return; // Exit early if it could not be applied.
+            // }
             else
             {
                 list.Add(preparedStatus.ToStatusTuple());
@@ -115,7 +117,7 @@ public static unsafe class IPC
         }
         if (list.Count > 0)
         {
-            if (P.IPCProcessor.SundouleiaTryApplyToPair.TryInvoke(targetAddr, list, false))
+            if (P.IPCProcessor.SundouleiaTryApplyToPair.TryInvoke(targetAddr, JsonSerializer.Serialize(list), false))
             {
                 Notify.Info($"Broadcast success");
             }
@@ -146,7 +148,7 @@ public static unsafe class IPC
         }
         else
         {
-            if (P.IPCProcessor.SundouleiaTryApplyToPair.TryInvoke(targetAddr, [preparedStatus.ToStatusTuple()], true))
+            if (P.IPCProcessor.SundouleiaTryApplyToPair.TryInvoke(targetAddr, JsonSerializer.Serialize<List<MoodlesStatusInfo>>([preparedStatus.ToStatusTuple()]), true))
             {
                 Notify.Info($"Broadcast success");
             }
@@ -281,4 +283,6 @@ public static unsafe class IPC
         }
     }
     #endregion GSpeak
+    
+    
 }

@@ -30,6 +30,7 @@ public static unsafe class UI
             ("Presets", TabPresets.Draw, null, true),
             ("Automation", TabAutomation.Draw, null, true),
             ("Whitelist", TabWhitelist.Draw, null, true),
+            ("MoodlesShare", TabMoodlesShare.Draw, null, true),
             ("Settings", TabSettings.Draw, null, true),
             (C.FuckupTab2?"Cleanup":null, TabFuckup.Draw, ImGuiColors.DalamudGrey, true),
             (C.Debug?"Debugger":null, DrawDebugger, ImGuiColors.DalamudGrey, true),
