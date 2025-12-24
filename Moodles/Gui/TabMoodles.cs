@@ -33,7 +33,7 @@ public static class TabMoodles
         using var child = ImRaii.Child("##Panel", -Vector2.One, true);
         if (!child || Selected == null)
             return;
-        
+        Selected.Applier = LocalPlayer.NameWithWorld ?? "";
         var cur = new Vector2(ImGui.GetCursorPosX() + ImGui.GetContentRegionAvail().X - UI.StatusIconSize.X * 2, ImGui.GetCursorPosY()) - new Vector2(10, 0);
         if (ImGui.Button("Apply to Yourself"))
         {

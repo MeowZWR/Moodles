@@ -192,6 +192,8 @@ public class SharedMoodles : MyStatus
         NoExpire = statusInfo.NoExpire;
         AsPermanent = statusInfo.AsPermanent;
         
+        Applier = statusInfo.Applier;
+        
         UserUID = userUid;
         
     }
