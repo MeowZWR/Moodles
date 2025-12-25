@@ -149,7 +149,7 @@ public class IPCProcessor : IDisposable
     }
 
     [EzIPCEvent("Sundouleia.ApplyStatusInfo", false)]
-    private void SundouleiaApplyTuple(string status) => ApplyStatusTuples([JsonSerializer.Deserialize<MoodlesStatusInfo>(status, new JsonSerializerOptions() {IncludeFields = true})], false, true);
+    private void SundouleiaApplyTuple(string status) => ApplyStatusTuples([JsonSerializer.Deserialize<MoodlesStatusInfo>(status, new JsonSerializerOptions() {IncludeFields = true})], false);
 
     [EzIPCEvent("GagSpeak.ApplyStatusInfo", false)]
     private void GSpeakApplyTuple(MoodlesStatusInfo status, bool asLocked) => ApplyStatusTuples([status], asLocked);
@@ -165,7 +165,7 @@ public class IPCProcessor : IDisposable
     ///     By the time this method is called, any pair-applied tuples have been validated by 
     ///     GSpeak for valid MoodleAccess and can be trusted.
     /// </summary>
-    private unsafe void ApplyStatusTuples(List<MoodlesStatusInfo> tuples, bool asLocked, bool isMare = false)
+    private unsafe void ApplyStatusTuples(List<MoodlesStatusInfo> tuples, bool asLocked)
     {
         if (!CharaWatcher.LocalPlayerRendered) return;
 
@@ -179,7 +179,6 @@ public class IPCProcessor : IDisposable
         {
             foreach (var status in tuples)
             {
-                PluginLog.Warning(status.ToString());
                 if (!Utils.CheckWhitelistGlobal(MyStatus.FromTuple(status)))
                 {
                     PluginLog.Warning($"{status.Applier} tried to apply {status.Title} but not whitelisted.");

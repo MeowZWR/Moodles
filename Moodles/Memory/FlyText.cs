@@ -29,35 +29,41 @@ public unsafe partial class Memory
                 if (actionID == 7568 && kind == FlyTextKind.HasNoEffect)
                 {
                     // Only perform logic on a dispel if a PlayerCharacter performed it.
-                    if (CharaWatcher.TryGetValue(source, out Character* chara))
+                    if (CharaWatcher.TryGetValue(source, out Character* souceChara))
                     {
                         // Check permission
-                        if (C.OthersCanEsunaMoodles || chara->ObjectIndex == 0)
+                        if (C.OthersCanEsunaMoodles || souceChara->ObjectIndex == 0)
                         {
-                            // Grab the status manager.
-                            if (chara->MyStatusManager() is { } manager && !manager.Ephemeral)
+                            if (CharaWatcher.TryGetValue(target, out Character* targetChara))
                             {
-                                foreach (MyStatus status in manager.Statuses)
+                                // Grab the status manager.
+                                if (targetChara->MyStatusManager() is { Ephemeral: false } manager)
                                 {
-                                    bool isClient = chara->ObjectIndex == 0;
-
-                                    // Ensure only negative statuses are dispelled.
-                                    if (status.Type != StatusType.Negative) continue;
-                                    // If it cannot be dispelled, skip it.
-                                    else if (!status.Modifiers.Has(Modifiers.CanDispel)) continue;
-                                    // Client cannot dispel locked statuses.
-                                    else if (isClient && manager.LockedIds.Contains(status.GUID)) continue;
-                                    // Others cannot dispel if they are not whitelisted.
-                                    else if (C.OthersCanEsunaMoodles && !isClient && !IsValidDispeller(status, chara)) continue;
-
-                                    // Perform the dispel, expiring the timer. Also apply the chain if desired.
-                                    status.ExpiresAt = 0;
-                                    if (status.ChainedStatus != Guid.Empty && status.ChainTrigger is ChainTrigger.Dispel)
+                                    foreach (MyStatus status in manager.Statuses)
                                     {
-                                        status.ApplyChain = true;
+                                        bool isClient = souceChara->ObjectIndex == 0;
+
+                                        // Ensure only negative statuses are dispelled.
+                                        if (status.Type != StatusType.Negative) continue;
+                                        // If it cannot be dispelled, skip it.
+                                        else if (!status.Modifiers.Has(Modifiers.CanDispel)) continue;
+                                        // Client cannot dispel locked statuses.
+                                        else if (isClient && manager.LockedIds.Contains(status.GUID)) continue;
+                                        // Others cannot dispel if they are not whitelisted.
+                                        else if (C.OthersCanEsunaMoodles && !isClient &&
+                                                 !IsValidDispeller(status, souceChara)) continue;
+
+                                        // Perform the dispel, expiring the timer. Also apply the chain if desired.
+                                        status.ExpiresAt = 0;
+                                        if (status.ChainedStatus != Guid.Empty &&
+                                            status.ChainTrigger is ChainTrigger.Dispel)
+                                        {
+                                            status.ApplyChain = true;
+                                        }
+
+                                        // This return is to not show the failed message
+                                        return;
                                     }
-                                    // This return is to not show the failed message
-                                    return;
                                 }
                             }
                         }
