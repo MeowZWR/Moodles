@@ -52,7 +52,7 @@ public static class TabMoodles
         var buttonText = targetMode switch
         {
             TargetApplyMode.GSpeakPair => "应用到目标（GSpeak）",
-            TargetApplyMode.Sundesmo => "应用到目标（日出）",
+            TargetApplyMode.Sundesmo => "应用到目标（Mare）",
             TargetApplyMode.Local => "应用到目标（本地）",
             _ => "未选中目标"
         };
