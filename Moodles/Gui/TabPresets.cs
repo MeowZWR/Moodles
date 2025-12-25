@@ -10,9 +10,9 @@ public static class TabPresets
     private static Guid CurrentDrag = Guid.Empty;
     private static Dictionary<PresetApplicationType, string> ApplicationTypes = new()
     {
-        [PresetApplicationType.ReplaceAll] = "Replace all current statuses",
-        [PresetApplicationType.UpdateExisting] = "Update duration of existing",
-        [PresetApplicationType.IgnoreExisting] = "Ignore existing",
+        [PresetApplicationType.ReplaceAll] = "替换所有当前状态",
+        [PresetApplicationType.UpdateExisting] = "更新现有状态的持续时间",
+        [PresetApplicationType.IgnoreExisting] = "忽略现有状态",
     };
     private static string Filter = "";
 
@@ -44,7 +44,7 @@ public static class TabPresets
         if(!child || Selected == null)
             return;
         {
-            if(ImGui.Button("Apply to Yourself"))
+            if(ImGui.Button("应用到自己"))
             {
                 Utils.GetMyStatusManager(LocalPlayer.NameWithWorld).ApplyPreset(Selected);
             }
@@ -53,10 +53,10 @@ public static class TabPresets
             var targetMode = Utils.GetApplyMode();
             var buttonText = targetMode switch
             {
-                TargetApplyMode.GSpeakPair => "Apply to Target (via GSpeak)",
-                TargetApplyMode.Sundesmo => "Apply to Target (via Sundouleia)",
-                TargetApplyMode.Local => "Apply to Target (Locally)",
-                _ => "No Target Selected"
+                TargetApplyMode.GSpeakPair => "应用到目标（GSpeak）",
+                TargetApplyMode.Sundesmo => "应用到目标（Mare）",
+                TargetApplyMode.Local => "应用到目标（本地）",
+                _ => "未选中目标"
             };
             var dis = targetMode is TargetApplyMode.NoTarget;
 
@@ -70,22 +70,22 @@ public static class TabPresets
             ImGui.Separator();
 
             ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X - 150);
-            ImGui.InputTextWithHint("Rename Preset", "Give preset a name", ref Selected.Title, 100, C.Censor ? ImGuiInputTextFlags.Password : ImGuiInputTextFlags.None);
+            ImGui.InputTextWithHint("重命名预设", "输入预设名称", ref Selected.Title, 100, C.Censor ? ImGuiInputTextFlags.Password : ImGuiInputTextFlags.None);
             if(ImGui.IsItemDeactivatedAfterEdit())
             {
                 P.IPCProcessor.PresetUpdated(Selected.GUID, false);
             }
 
             ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X - 150);
-            if (ImGuiEx.EnumCombo("Application Effect##on", ref Selected.ApplicationType, ApplicationTypes))
+            if (ImGuiEx.EnumCombo("应用效果##on", ref Selected.ApplicationType, ApplicationTypes))
             {
                 P.IPCProcessor.PresetUpdated(Selected.GUID, false);
             }
             ImGuiEx.SetNextItemFullWidth();
-            if(ImGui.BeginCombo("##addnew", "Add new Moodle..."))
+            if(ImGui.BeginCombo("##addnew", "添加新 Moodle..."))
             {
                 ImGuiEx.SetNextItemFullWidth();
-                ImGui.InputTextWithHint("##search", "Filter", ref Filter, 50);
+                ImGui.InputTextWithHint("##search", "筛选", ref Filter, 50);
                 foreach(var x in C.SavedStatuses)
                 {
                     if(!x.IsValid(out _)) continue;
@@ -120,8 +120,8 @@ public static class TabPresets
 
             if(ImGui.BeginTable("##presets", 3, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
             {
-                ImGui.TableSetupColumn("Controls");
-                ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
+                ImGui.TableSetupColumn("操作");
+                ImGui.TableSetupColumn("名称", ImGuiTableColumnFlags.WidthStretch);
                 ImGui.TableSetupColumn(" ");
 
                 List<(Vector2 RowPos, Action AcceptDraw)> MoveCommands = [];
@@ -213,7 +213,7 @@ public static class TabPresets
 
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV($"ID:");
-                ImGuiEx.HelpMarker("Used in commands to apply preset.");
+                ImGuiEx.HelpMarker("用于命令的预设ID。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 ImGui.InputText($"##id-text", Encoding.UTF8.GetBytes(Selected.ID), ImGuiInputTextFlags.ReadOnly);

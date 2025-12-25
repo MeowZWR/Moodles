@@ -92,11 +92,11 @@ public static class TabMoodlesShare
             if (ImGui.BeginTable("##Uploader", 2,
                     ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame))
             {
-                ImGui.TableSetupColumn("Uploader", ImGuiTableColumnFlags.WidthFixed, 175f);
+                ImGui.TableSetupColumn("上传者", ImGuiTableColumnFlags.WidthFixed, 175f);
                 ImGui.TableSetupColumn("UID" , ImGuiTableColumnFlags.WidthStretch);
                 
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"Uploader:");
+                ImGuiEx.TextV($"上传者:");
                 ImGui.TableNextColumn();
                 ImGuiEx.TextV(Selected.UserUID);
                 
@@ -138,13 +138,13 @@ public static class TabMoodlesShare
 
         if (ImGui.BeginTable("##essentials", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame))
         {
-            ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, 175f);
-            ImGui.TableSetupColumn("Field", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn("名称", ImGuiTableColumnFlags.WidthFixed, 175f);
+            ImGui.TableSetupColumn("字段", ImGuiTableColumnFlags.WidthStretch);
 
             // Essentials
             ImGui.TableNextColumn();
             ImGuiEx.TextV($"ID:");
-            ImGuiEx.HelpMarker("Used in commands to apply moodle.");
+            ImGuiEx.HelpMarker("用于命令的 moodle ID。");
             ImGui.TableNextColumn();
             ImGuiEx.SetNextItemFullWidth();
             using (ImRaii.PushColor(ImGuiCol.Text, ImGui.GetColorU32(ImGuiCol.TextDisabled)))
@@ -152,10 +152,10 @@ public static class TabMoodlesShare
             ImGui.TableNextRow();
 
             ImGui.TableNextColumn();
-            ImGuiEx.TextV($"Icon:");
+            ImGuiEx.TextV($"图标:");
             if (Selected.IconID == 0)
             {
-                ImGuiEx.HelpMarker("You must select an icon", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
+                ImGuiEx.HelpMarker("必须选择图标", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
             }
             ImGui.TableNextColumn();
             ImGuiEx.SetNextItemFullWidth();
@@ -178,8 +178,8 @@ public static class TabMoodlesShare
             ImGui.TableNextRow();
 
             ImGui.TableNextColumn();
-            ImGuiEx.TextV($"Custom VFX path:");
-            ImGuiEx.HelpMarker("You may select a custom VFX to play upon application.");
+            ImGuiEx.TextV($"自定义特效路径:");
+            ImGuiEx.HelpMarker("可在施加时播放自定义特效。");
             ImGui.TableNextColumn();
             ImGuiEx.SetNextItemFullWidth();
             var currentPath = Selected.CustomFXPath;
@@ -206,7 +206,7 @@ public static class TabMoodlesShare
 
             ImGui.TableNextColumn();
             ImGuiEx.RightFloat("TitleCharLimit", () => ImGuiEx.TextV(ImGuiColors.DalamudGrey2, $"{Selected.Title.Length}/150"), out _, ImGui.GetContentRegionAvail().X + ImGui.GetCursorPosX() + ImGui.GetStyle().CellPadding.X);
-            ImGuiEx.TextV($"Title:");
+            ImGuiEx.TextV($"标题:");
             Formatting();
             Utils.ParseBBSeString(Selected.Title, out var titleErr);
             if (titleErr != null)
@@ -229,7 +229,7 @@ public static class TabMoodlesShare
             ImGui.TableNextColumn();
             var cpx = ImGui.GetCursorPosX();
             ImGuiEx.RightFloat("DescCharLimit", () => ImGuiEx.TextV(ImGuiColors.DalamudGrey2, $"{Selected.Description.Length}/500"), out _, ImGui.GetContentRegionAvail().X + ImGui.GetCursorPosX() + ImGui.GetStyle().CellPadding.X);
-            ImGuiEx.TextV($"Description:");
+            ImGuiEx.TextV($"描述:");
             Formatting();
             Utils.ParseBBSeString(Selected.Description, out var descErr);
             if (descErr != null)
@@ -246,10 +246,10 @@ public static class TabMoodlesShare
 
             // Category
             ImGui.TableNextColumn();
-            ImGuiEx.TextV($"Category:");
+            ImGuiEx.TextV($"状态类型:");
             ImGui.TableNextColumn();
             ImGuiEx.SetNextItemFullWidth();
-            if (ImGuiEx.EnumRadio(ref Selected.Type, true))
+            if (ImGuiEx.EnumRadio(ref Selected.Type, true, names: StatusTypeExtensions.DisplayNames))
             {
                 P.IPCProcessor.StatusUpdated(Selected.GUID, false);
             }
@@ -257,35 +257,35 @@ public static class TabMoodlesShare
 
             // Duration
             ImGui.TableNextColumn();
-            ImGuiEx.TextV($"Duration:");
+            ImGuiEx.TextV($"持续时间:");
             if (Selected.TotalDurationSeconds < 1 && !Selected.NoExpire)
             {
-                ImGuiEx.HelpMarker("Duration must be at least 1 second", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
+                ImGuiEx.HelpMarker("持续时间至少 1 秒", EColor.RedBright, FontAwesomeIcon.ExclamationTriangle.ToIconString());
             }
             ImGui.TableNextColumn();
-            if (Utils.DurationSelector("Permanent", ref Selected.NoExpire, ref Selected.Days, ref Selected.Hours, ref Selected.Minutes, ref Selected.Seconds))
+            if (Utils.DurationSelector("永久", ref Selected.NoExpire, ref Selected.Days, ref Selected.Hours, ref Selected.Minutes, ref Selected.Seconds))
             {
                 P.IPCProcessor.StatusUpdated(Selected.GUID, false);
             }
             ImGui.TableNextRow();
 
             ImGui.TableNextColumn();
-            ImGuiEx.TextV("Status Behavior:");
+            ImGuiEx.TextV("状态行为:");
             ImGui.TableNextColumn();
             var persistTime = Selected.Modifiers.Has(Modifiers.PersistExpireTime);
-            if (ImGui.Checkbox("Persist Expire Time##noOverlapTime", ref persistTime))
+            if (ImGui.Checkbox("保持到期时间##noOverlapTime", ref persistTime))
             {
                 Selected.Modifiers.Set(Modifiers.PersistExpireTime, persistTime);
                 P.IPCProcessor.StatusUpdated(Selected.GUID, false);
             }
-            ImGuiEx.Tooltip("When enabled, any reapplication of this moodle keeps it's expire time.");
+            ImGuiEx.Tooltip("开启后再次施加会保留原到期时间。");
 
             ImGui.SameLine();
-            if (ImGui.Checkbox($"Sticky##sticky", ref Selected.AsPermanent))
+            if (ImGui.Checkbox($"固定##sticky", ref Selected.AsPermanent))
             {
                 P.IPCProcessor.StatusUpdated(Selected.GUID, false);
             }
-            ImGuiEx.Tooltip("When manually applied outside the scope of an automation preset, this Moodle will not be removed or overridden unless you right-click it off.");
+            ImGuiEx.Tooltip("手动应用时不会被覆盖，需右键移除。");
 
 
             ImGui.EndTable();
@@ -302,12 +302,12 @@ public static class TabMoodlesShare
 
         if (ImGui.BeginTable("##stacking", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame))
         {
-            ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, 175f);
-            ImGui.TableSetupColumn("Field", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn("名称", ImGuiTableColumnFlags.WidthFixed, 175f);
+            ImGui.TableSetupColumn("字段", ImGuiTableColumnFlags.WidthStretch);
 
             ImGui.TableNextColumn();
-            ImGuiEx.TextV($"Initial Stacks:");
-            ImGuiEx.HelpMarker("The number of stacks initially applied with the moodle.");
+            ImGuiEx.TextV($"初始层数:");
+            ImGuiEx.HelpMarker("施加时的初始层数。");
             ImGui.TableNextColumn();
             ImGuiEx.SetNextItemFullWidth();
             if (ImGui.BeginCombo("##stk", StackText(Selected.Stacks)))
@@ -326,8 +326,8 @@ public static class TabMoodlesShare
 
             // Would rather put these in the same row...
             ImGui.TableNextColumn();
-            ImGuiEx.TextV($"Stack Steps:");
-            ImGuiEx.HelpMarker("If the same moodle is reapplied, the applied stacks increment by this many stacks.");
+            ImGuiEx.TextV($"层数增量:");
+            ImGuiEx.HelpMarker("再次施加时增加的层数。");
             ImGui.TableNextColumn();
             ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X / 2);
             if (ImGui.BeginCombo("##incStk", StackText(Selected.StackSteps)))
@@ -346,22 +346,22 @@ public static class TabMoodlesShare
             }
             ImGui.SameLine();
             var stacksRoll = Selected.Modifiers.Has(Modifiers.StacksRollOver);
-            if (ImGui.Checkbox("Roll Over Stacks##stkroll", ref stacksRoll))
+            if (ImGui.Checkbox("层数循环##stkroll", ref stacksRoll))
             {
                 Selected.Modifiers.Set(Modifiers.StacksRollOver, stacksRoll);
                 P.IPCProcessor.StatusUpdated(Selected.GUID, false);
             }
-            ImGuiEx.Tooltip("When a stack reaches its cap, it starts over and counts up again.");
+            ImGuiEx.Tooltip("层数到上限后重新从 1 计数。");
 
             if (Selected.ChainedStatus != Guid.Empty)
             {
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"Chained Status Behavior:");
-                ImGuiEx.HelpMarker("How stacks from this moodle carry to the chained status.");
+                ImGuiEx.TextV($"连锁状态行为:");
+                ImGuiEx.HelpMarker("决定该状态的层数如何传递到连锁状态。");
                 ImGui.TableNextColumn();
                 var moveStacks = Selected.Modifiers.Has(Modifiers.StacksMoveToChain);
-                if (ImGui.Checkbox("Transfer Stacks", ref moveStacks))
+                if (ImGui.Checkbox("传递层数", ref moveStacks))
                 {
                     Selected.Modifiers.Set(Modifiers.StacksMoveToChain, moveStacks);
                     P.IPCProcessor.StatusUpdated(Selected.GUID, false);
@@ -369,26 +369,26 @@ public static class TabMoodlesShare
                 ImGui.SameLine();
                 var carryStacks = Selected.Modifiers.Has(Modifiers.StacksCarryToChain);
 
-                if (ImGui.Checkbox("Carry Over Stacks", ref carryStacks))
+                if (ImGui.Checkbox("溢出传递", ref carryStacks))
                 {
                     Selected.Modifiers.Set(Modifiers.StacksCarryToChain, carryStacks);
                     P.IPCProcessor.StatusUpdated(Selected.GUID, false);
                 }
-                ImGuiEx.Tooltip("When the reapplication increase exceeds the max stacks, the remainder is added to the chained status.");
+                ImGuiEx.Tooltip("当再次施加增加的层数超过最大层数时，超出的部分将添加到连锁状态中。");
 
                 ImGui.SameLine();
                 var persist = Selected.Modifiers.Has(Modifiers.PersistAfterTrigger);
-                if (ImGui.Checkbox("Persist", ref persist))
+                if (ImGui.Checkbox("保留", ref persist))
                 {
                     Selected.Modifiers.Set(Modifiers.PersistAfterTrigger, persist);
                     P.IPCProcessor.StatusUpdated(Selected.GUID, false);
                 }
-                ImGuiEx.Tooltip("Keeps this moodle after chain is triggered.");
+                ImGuiEx.Tooltip("触发连锁后仍保留此状态。");
             }
             ImGui.EndTable();
         }
 
-        string StackText(int v) => v == 0 ? "No Stack Increase" : $"{v} {(v == 1 ? "Stack" : "Stacks")}";
+        string StackText(int v) => v == 0 ? "不增加层数" : $"{v} {(v == 1 ? "层" : "层")}";
     }
 
     private static void DrawDispelling()
@@ -400,12 +400,12 @@ public static class TabMoodlesShare
 
         if (ImGui.BeginTable("##dispelling", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame))
         {
-            ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, 175f);
-            ImGui.TableSetupColumn("Field", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn("名称", ImGuiTableColumnFlags.WidthFixed, 175f);
+            ImGui.TableSetupColumn("字段", ImGuiTableColumnFlags.WidthStretch);
 
             ImGui.TableNextColumn();
-            ImGuiEx.TextV($"Dispelable:");
-            ImGuiEx.HelpMarker("Makes the moodle dispelable. This is only visual unless 'Moodles can be Esunad' is enabled in settings.");
+            ImGuiEx.TextV($"可康复:");
+            ImGuiEx.HelpMarker("允许被康复（需设置中开启可被康复才生效）。");
             ImGui.TableNextColumn();
             var canDispel = Selected.Modifiers.Has(Modifiers.CanDispel);
             if (ImGui.Checkbox("##dispel", ref canDispel))
@@ -418,11 +418,11 @@ public static class TabMoodlesShare
             {
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"Allowed Dispeller:");
-                ImGuiEx.HelpMarker("An optional field to spesify who the moodle must be dispelled by, preventing others from doing so.");
+                ImGuiEx.TextV($"允许康复者:");
+                ImGuiEx.HelpMarker("可选，指定只能由某人康复。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
-                ImGui.InputTextWithHint("Dispeller##dispeller", "Player Name@World", ref Selected.Dispeller, 150, C.Censor ? ImGuiInputTextFlags.Password : ImGuiInputTextFlags.None);
+                ImGui.InputTextWithHint("Dispeller##dispeller", "玩家名@世界", ref Selected.Dispeller, 150, C.Censor ? ImGuiInputTextFlags.Password : ImGuiInputTextFlags.None);
                 if (ImGui.IsItemDeactivatedAfterEdit())
                 {
                     P.IPCProcessor.StatusUpdated(Selected.GUID, false);
@@ -439,14 +439,14 @@ public static class TabMoodlesShare
 
         if (ImGui.BeginTable("##chaining", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchSame))
         {
-            ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, 175f);
-            ImGui.TableSetupColumn("Field", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn("名称", ImGuiTableColumnFlags.WidthFixed, 175f);
+            ImGui.TableSetupColumn("字段", ImGuiTableColumnFlags.WidthStretch);
 
             ImGui.TableNextColumn();
-            ImGuiEx.TextV("Chained Status:");
+            ImGuiEx.TextV("连锁状态:");
             ImGui.TableNextColumn();
             ImGuiEx.SetNextItemFullWidth();
-            string curChainPath = "Moodle to Chain... (Optional)";
+            string curChainPath = "选择连锁状态（可选）";
             if (C.SavedStatuses.Where(v => v.GUID == Selected.ChainedStatus).TryGetFirst(out MyStatus myStat))
             {
                 curChainPath = P.OtterGuiHandler.MoodleFileSystem.TryGetPathByID(myStat.GUID, out var path) ? path : myStat.GUID.ToString();
@@ -455,9 +455,9 @@ public static class TabMoodlesShare
             if (ImGui.BeginCombo("##chainedStatus", curChainPath, ImGuiComboFlags.HeightLargest))
             {
                 ImGuiEx.SetNextItemFullWidth();
-                ImGui.InputTextWithHint("##search", "Filter", ref Filter, 50);
+                ImGui.InputTextWithHint("##search", "筛选", ref Filter, 50);
 
-                if (ImGui.Selectable($"Clear", false, ImGuiSelectableFlags.None))
+                if (ImGui.Selectable($"清除", false, ImGuiSelectableFlags.None))
                 {
                     Selected.ChainedStatus = Guid.Empty;
                     P.IPCProcessor.StatusUpdated(Selected.GUID, false);
@@ -503,9 +503,9 @@ public static class TabMoodlesShare
             {
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV("Chain Trigger:");
+                ImGuiEx.TextV("连锁触发条件:");
                 ImGui.TableNextColumn();
-                if (ImGuiEx.EnumRadio(ref Selected.ChainTrigger, true))
+                if (ImGuiEx.EnumRadio(ref Selected.ChainTrigger, true, names: ChainTriggerExtensions.DisplayNames))
                 {
                     P.IPCProcessor.StatusUpdated(Selected.GUID, false);
                 }
@@ -535,7 +535,7 @@ public static class TabMoodlesShare
 
     public static void Formatting()
     {
-        ImGuiEx.HelpMarker($"This field supports formatting tags.\n[color=red]...[/color], [color=5]...[/color] - colored text.\n[glow=blue]...[/glow], [glow=7]...[/glow] - glowing text outline\nThe following colors are available:\n{Enum.GetValues<ECommons.ChatMethods.UIColor>().Select(x => x.ToString()).Where(x => !x.StartsWith("_")).Print()}\nFor extra color, look up numeric value with \"/xldata uicolor\" command\n[i]...[/i] - italic text", ImGuiColors.DalamudWhite, FontAwesomeIcon.Code.ToIconString());
+        ImGuiEx.HelpMarker($"该字段支持格式标签：\n[color=red]...[/color] / [color=5]...[/color] 颜色\n[glow=blue]...[/glow] / [glow=7]...[/glow] 发光描边\n可用颜色：\n{Enum.GetValues<ECommons.ChatMethods.UIColor>().Select(x => x.ToString()).Where(x => !x.StartsWith("_")).Print()}\n更多颜色可用命令 \"/xldata uicolor\" 查询数值\n[i]...[/i] 斜体", ImGuiColors.DalamudWhite, FontAwesomeIcon.Code.ToIconString());
     }
 
     

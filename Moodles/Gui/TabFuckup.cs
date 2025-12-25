@@ -15,13 +15,13 @@ public static unsafe class TabFuckup
 
     public static unsafe void Draw()
     {
-        ImGui.Text("Ever had a Moodle linger on someone that shouldn't be there anymore?"u8);
-        ImGui.Text("Well I'm sorry for that. This window should allow you to fix that!"u8);
+        ImGui.Text("遇到 Moodles 挂在不该有的人身上吗？"u8);
+        ImGui.Text("可以在这里清理它们！"u8);
         ImGui.NewLine();
 
         var objManager = GameObjectManager.Instance();
 
-        if (ImGui.BeginCombo("Select status manager", $"{OwnerNameWorld}"))
+        if (ImGui.BeginCombo("选择状态管理器", $"{OwnerNameWorld}"))
         {
             foreach (var x in C.StatusManagers)
             {
@@ -33,18 +33,18 @@ public static unsafe class TabFuckup
             ImGui.EndCombo();
         }
 
-        if (ImGui.Button("Self"))
+        if (ImGui.Button("自己"))
         {
             OwnerNameWorld = LocalPlayer.NameWithWorld;
         }
         ImGui.SameLine();
-        if (ImGui.Button("Target") && Svc.Targets.Target is IPlayerCharacter pct)
+        if (ImGui.Button("目标") && Svc.Targets.Target is IPlayerCharacter pct)
         {
             OwnerNameWorld = ((Character*)pct.Address)->GetNameWithWorld();
         }
         ImGui.SameLine();
         ImGui.SetNextItemWidth(200f);
-        if (ImGui.BeginCombo("##Players around", "Players around"))
+        if (ImGui.BeginCombo("##Players around", "附近玩家"))
         {
             for (int i = 0; i < 200; i++)
             {
@@ -59,7 +59,7 @@ public static unsafe class TabFuckup
         }
         ImGui.SameLine();
         ImGui.SetNextItemWidth(200f);
-        if (ImGui.BeginCombo("##party", "Party"))
+        if (ImGui.BeginCombo("##party", "队伍"))
         {
             foreach (var x in Svc.Party)
             {
@@ -72,7 +72,7 @@ public static unsafe class TabFuckup
             ImGui.EndCombo();
         }
         ImGui.SameLine();
-        if (ImGui.Button("Clear all managers"))
+        if (ImGui.Button("清除全部管理器"))
         {
             C.StatusManagers.Clear();
         }
@@ -119,19 +119,19 @@ public static unsafe class TabFuckup
                 ImGui.SetNextItemWidth(100f);
                 ImGui.SameLine();
                 ImGui.SetNextItemWidth(100f);
-                ImGui.InputText("Name", ref Status.Title, 50);
+                ImGui.InputText("名称", ref Status.Title, 50);
                 ImGui.SameLine();
-                ImGuiEx.InputTextMultilineExpanding("Description", ref Status.Description, 500, 1, 10, 100);
+                ImGuiEx.InputTextMultilineExpanding("描述", ref Status.Description, 500, 1, 10, 100);
                 ImGui.SameLine();
                 ImGui.SetNextItemWidth(100f);
-                ImGui.InputInt("Duration, s", ref Duration);
+                ImGui.InputInt("持续时间(秒)", ref Duration);
                 ImGui.SetNextItemWidth(100f);
-                ImGui.InputText("Applier", ref Status.Applier, 50);
+                ImGui.InputText("施加者", ref Status.Applier, 50);
                 ImGui.SameLine();
-                if (ImGui.Button("Me")) Status.Applier = LocalPlayer.NameWithWorld;
+                if (ImGui.Button("我")) Status.Applier = LocalPlayer.NameWithWorld;
                 ImGui.SameLine();
-                ImGuiEx.EnumCombo("Type", ref Status.Type);
-                if (ImGui.Button("Add"))
+                ImGuiEx.EnumCombo("状态类型", ref Status.Type, names: StatusTypeExtensions.DisplayNames);
+                if (ImGui.Button("添加"))
                 {
                     Status.GUID = Guid.NewGuid();
                     Status.ExpiresAt = Utils.Time + Duration * 1000;
@@ -139,7 +139,7 @@ public static unsafe class TabFuckup
                     manager.AddOrUpdate(Status.JSONClone(), UpdateSource.StatusTuple);
                 }
                 ImGui.SameLine();
-                if (ImGui.Button("Randomize and add"))
+                if (ImGui.Button("随机生成并添加"))
                 {
                     Status.GUID = Guid.NewGuid();
                     Status.Title = $"Random status {Random.Shared.Next()}";
@@ -153,9 +153,9 @@ public static unsafe class TabFuckup
                 }
                 ImGui.SameLine();
                 ImGui.SetNextItemWidth(100f);
-                ImGui.InputInt($"Random buffs", ref Cnt);
+                ImGui.InputInt($"随机数量", ref Cnt);
                 ImGui.SameLine();
-                if (ImGui.Button("add"))
+                if (ImGui.Button("添加"))
                 {
                     for (var i = 0; i < Cnt; i++)
                     {
@@ -181,12 +181,12 @@ public static unsafe class TabFuckup
                     }
                 }
                 ImGui.SameLine();
-                if (ImGui.Button("Copy bin"))
+                if (ImGui.Button("复制二进制"))
                 {
                     Copy(manager.BinarySerialize().ToHexString());
                 }
                 ImGui.SameLine();
-                if (ImGui.Button("Apply bin") && TryParseByteArray(Paste() ?? string.Empty, out var a))
+                if (ImGui.Button("应用二进制") && TryParseByteArray(Paste() ?? string.Empty, out var a))
                 {
                     manager.Apply(a, UpdateSource.DataString);
                 }
@@ -202,32 +202,32 @@ public static unsafe class TabFuckup
                         ImGui.Image(icon.Handle, new Vector2(24, 32) * 0.75f);
                     }
                 }));
-                entries.Add(new("Name", delegate
+                entries.Add(new("名称", delegate
                 {
                     ImGuiEx.SetNextItemFullWidth();
                     ImGui.InputText($"##Name{x.ID}", ref x.Title, 50);
                 }));
-                entries.Add(new("Description", delegate
+                entries.Add(new("描述", delegate
                 {
                     ImGuiEx.InputTextMultilineExpanding($"##Description{x.ID}", ref x.Description, 150, 1, 10);
                 }));
-                entries.Add(new("Applier", delegate
+                entries.Add(new("施加者", delegate
                 {
                     ImGuiEx.SetNextItemFullWidth();
                     ImGui.InputText($"##Applier{x.ID}", ref x.Applier, 50);
                     if (ImGui.IsItemClicked(ImGuiMouseButton.Right)) x.Applier = LocalPlayer.NameWithWorld;
                 }));
-                entries.Add(new("Expires", delegate
+                entries.Add(new("过期时间", delegate
                 {
                     ImGuiEx.SetNextItemFullWidth();
                     ImGuiEx.InputLong($"##Expires{x.ID}", ref x.ExpiresAt);
                     if (ImGui.IsItemClicked(ImGuiMouseButton.Right)) x.ExpiresAt = long.MaxValue;
                 }));
-                entries.Add(new("Type", false, delegate
+                entries.Add(new("状态类型", false, delegate
                 {
-                    ImGuiEx.EnumCombo($"Type##{x.ID}", ref x.Type);
+                    ImGuiEx.EnumCombo($"状态类型##{x.ID}", ref x.Type, names: StatusTypeExtensions.DisplayNames);
                 }));
-                entries.Add(new("Dispelable", false, delegate
+                entries.Add(new("可康复", false, delegate
                 {
                     var isDispellable = x.Modifiers.Has(Modifiers.CanDispel);
                     if (ImGui.Checkbox($"Dispel##{x.ID}", ref isDispellable))
@@ -235,17 +235,17 @@ public static unsafe class TabFuckup
                         x.Modifiers.Set(Modifiers.CanDispel, isDispellable);
                     }
                 }));
-                entries.Add(new("AddShown", false, delegate
+                entries.Add(new("显示添加提示", false, delegate
                 {
                     ImGuiEx.CollectionCheckbox($"AddShown##{x.ID}", x.GUID, manager.AddTextShown);
                 }));
-                entries.Add(new("RemoveShown", false, delegate
+                entries.Add(new("显示移除提示", false, delegate
                 {
                     ImGuiEx.CollectionCheckbox($"RemoveShown##{x.ID}", x.GUID, manager.RemTextShown);
                 }));
-                entries.Add(new("Ctrl", false, delegate
+                entries.Add(new("操作", false, delegate
                 {
-                    if (ImGui.Button($"Del##{x.ID}"))
+                    if (ImGui.Button($"删除##{x.ID}"))
                     {
                         manager.UnlockStatuses([x.GUID]);
                         x.ExpiresAt = 0;
@@ -256,7 +256,7 @@ public static unsafe class TabFuckup
         }
         else
         {
-            if (ImGui.Button("Add Manager"))
+            if (ImGui.Button("添加管理器"))
             {
                 MyStatusManager statusManager = new MyStatusManager();
 
@@ -268,7 +268,7 @@ public static unsafe class TabFuckup
         {
             if (sm != null)
             {
-                if (ImGui.Button("Remove Status Manager"))
+                if (ImGui.Button("移除状态管理器"))
                 {
                     C.StatusManagers.Remove(OwnerNameWorld);
                 }

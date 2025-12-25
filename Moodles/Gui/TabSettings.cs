@@ -3,34 +3,34 @@ public static class TabSettings
 {
     public static void Draw()
     {
-        ImGui.Checkbox($"Enable Moodles", ref C.Enabled);
-        ImGui.Checkbox("显示Moodle来源", ref C.EnableShowSource);
+        ImGui.Checkbox($"启用 Moodles", ref C.Enabled);
+        ImGui.Checkbox("显示 Moodle 来源", ref C.EnableShowSource);
         ImGuiEx.Spacing();
         //ImGui.Checkbox("Enable VFX", ref C.EnableVFX);
-        ImGui.Checkbox("Enable Moodle VFX", ref C.EnableSHE);
+        ImGui.Checkbox("启用 Moodle 特效", ref C.EnableSHE);
         ImGuiEx.Spacing();
-        ImGui.Checkbox("Restrict VFX application to party, friends and nearby players", ref C.RestrictSHE);
-        ImGuiEx.HelpMarker("If enabled, VFX only will be played on your friends, party or nearby players (<15 yalms)");
+        ImGui.Checkbox("仅对队伍/好友/附近玩家播放特效", ref C.RestrictSHE);
+        ImGuiEx.HelpMarker("启用后，仅对队伍、好友或15米内玩家播放特效");
         ImGuiEx.Spacing();
-        ImGui.Checkbox($"Enable Fly/Popup Text", ref C.EnableFlyPopupText);
+        ImGui.Checkbox($"启用飞行/弹出文字", ref C.EnableFlyPopupText);
         ImGuiEx.Spacing();
         ImGui.SetNextItemWidth(150f);
-        ImGuiEx.SliderInt($"Simultaneous Fly/Popup Text Limit", ref C.FlyPopupTextLimit.ValidateRange(5, 20), 5, 20);
-        ImGuiEx.CheckboxInverted($"Disable Moodles whilst Bound to Duty", ref C.EnabledDuty);
-        ImGuiEx.HelpMarker("Hides all active Moodles from players while you are currently undertaking a Duty, or engaged in battle, such as a levequest or treasure hunt.");
-        ImGuiEx.CheckboxInverted($"Disable Moodles whilst in combat", ref C.EnabledCombat);
-        ImGuiEx.HelpMarker("Hides all active Moodles from players while you are in combat, regardless of Duty state.");
-        ImGui.Checkbox($"Allow application of Automation Profiles on other player characters", ref C.AutoOther);
-        ImGuiEx.HelpMarker("Automation Profiles are computationally expensive and therefore only apply to the local player (you) by default.");
+        ImGuiEx.SliderInt($"同时显示的飞行/弹出文字上限", ref C.FlyPopupTextLimit.ValidateRange(5, 20), 5, 20);
+        ImGuiEx.CheckboxInverted($"在任务中禁用 Moodles", ref C.EnabledDuty);
+        ImGuiEx.HelpMarker("在打本、理符任务、挖宝时隐藏所有 Moodles。");
+        ImGuiEx.CheckboxInverted($"战斗中禁用 Moodles", ref C.EnabledCombat);
+        ImGuiEx.HelpMarker("战斗中隐藏所有 Moodles，无论任务状态。");
+        ImGui.Checkbox($"允许自动化执行作用于其他玩家", ref C.AutoOther);
+        ImGuiEx.HelpMarker("自动执行会消耗更多性能，默认仅作用于自己。");
         ImGui.SetNextItemWidth(150f);
-        ImGuiEx.SliderInt($"Icon Selector Scale", ref C.SelectorHeight.ValidateRange(10, 100), 20, 80);
-        ImGui.Checkbox($"Display Command Feedback", ref C.DisplayCommandFeedback);
-        ImGui.Checkbox($"Debug Mode", ref C.Debug);
-        ImGui.Checkbox($"Debug AutoSave", ref C.DebugSaves);
+        ImGuiEx.SliderInt($"图标选择器缩放", ref C.SelectorHeight.ValidateRange(10, 100), 20, 80);
+        ImGui.Checkbox($"显示指令反馈", ref C.DisplayCommandFeedback);
+        ImGui.Checkbox($"调试模式", ref C.Debug);
+        ImGui.Checkbox($"调试自动保存", ref C.DebugSaves);
 
-        ImGui.Checkbox($"Enable Moodle Cleanup Tab", ref C.FuckupTab2);
+        ImGui.Checkbox($"显示 Moodle 清理标签页", ref C.FuckupTab2);
 
-        ImGui.Checkbox($"Moodles can be Esunad", ref C.MoodlesCanBeEsunad);
-        ImGui.Checkbox($"Others can Esuna Moodles", ref C.OthersCanEsunaMoodles);
+        ImGui.Checkbox($"Moodles 可被康复（仅弱化状态/Debuff）", ref C.MoodlesCanBeEsunad);
+        ImGui.Checkbox($"其他人可康复 Moodles（仅弱化状态/Debuff）", ref C.OthersCanEsunaMoodles);
     }
 }

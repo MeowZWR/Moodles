@@ -135,7 +135,7 @@ public sealed class PresetFileSystem : FileSystem<Preset>, IDisposable
 
         private void CopyToClipboardButton(Vector2 vector)
         {
-            if(!ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Copy.ToIconString(), vector, "Copy to clipboard.", Selected == null, true)) return;
+            if(!ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Copy.ToIconString(), vector, "复制到剪贴板。", Selected == null, true)) return;
             if(Selected != null)
             {
                 var copy = Selected.JSONClone();
@@ -146,7 +146,7 @@ public sealed class PresetFileSystem : FileSystem<Preset>, IDisposable
 
         private void ImportButton(Vector2 size)
         {
-            if(!ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.FileImport.ToIconString(), size, "Try to import a profile from your clipboard.", false,
+            if(!ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.FileImport.ToIconString(), size, "尝试从剪贴板导入预设。", false,
                     true))
                 return;
 
@@ -158,7 +158,7 @@ public sealed class PresetFileSystem : FileSystem<Preset>, IDisposable
             }
             catch
             {
-                Notify.Error("Could not import data from clipboard.");
+                Notify.Error("无法从剪贴板导入数据。");
             }
         }
 
@@ -169,7 +169,7 @@ public sealed class PresetFileSystem : FileSystem<Preset>, IDisposable
 
         private void NewItem(Vector2 size)
         {
-            if(ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), size, "Create new preset", false,
+            if(ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), size, "创建新预设", false,
                     true))
             {
                 ClipboardText = null!;
@@ -185,7 +185,7 @@ public sealed class PresetFileSystem : FileSystem<Preset>, IDisposable
 
             if(NewName == "")
             {
-                Notify.Error($"Name can not be empty!");
+                Notify.Error($"名称不能为空！");
                 return;
             }
 
@@ -209,7 +209,7 @@ public sealed class PresetFileSystem : FileSystem<Preset>, IDisposable
                 catch(Exception e)
                 {
                     e.LogVerbose();
-                    Notify.Error($"This name already exists!");
+                    Notify.Error($"该名称已存在！");
                 }
             }
 

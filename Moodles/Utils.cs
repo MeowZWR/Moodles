@@ -115,14 +115,14 @@ public static unsafe partial class Utils
         return ret;
     }
 
-    public static string PrintRange(this IEnumerable<string> s, out string FullList, string noneStr = "Any")
+    public static string PrintRange(this IEnumerable<string> s, out string FullList, string noneStr = "任意职业")
     {
         FullList = null!;
         var list = s.ToArray();
         if(list.Length == 0) return noneStr;
         if(list.Length == 1) return list[0].ToString();
         FullList = list.Select(x => x.ToString()).Join("\n");
-        return $"{list.Length} selected";
+        return $"{list.Length} 个已选中项";
     }
 
     public static string Censor(this string s, string censored)
