@@ -121,7 +121,7 @@ public static unsafe class TabFuckup
                 ImGui.SetNextItemWidth(100f);
                 ImGui.InputText("名称", ref Status.Title, 50);
                 ImGui.SameLine();
-                ImGuiEx.InputTextMultilineExpanding("描述", ref Status.Description, 500, 1, 10, 100);
+                ImGuiEx.InputTextMultilineExpanding("描述", ref Status.Description, 1000, 1, 10, 100);
                 ImGui.SameLine();
                 ImGui.SetNextItemWidth(100f);
                 ImGui.InputInt("持续时间(秒)", ref Duration);

@@ -226,15 +226,15 @@ public static unsafe partial class Utils
             if(nullTerminator) str.AddText("\0");
             return str.Build();
         ParseError:
-            error = "Error: Opening and closing elements mismatch.";
+            error = "错误：起始标签与结束标签不匹配。";
             return new SeStringBuilder().AddText($"{error}\0").Build();
         ColorError:
-            error = "Error: Color is out of range.";
+            error = "错误：颜色超出范围。";
             return new SeStringBuilder().AddText($"{error}\0").Build();
         }
         catch(Exception)
         {
-            error = "Error: please check syntax.";
+            error = "错误：请检查语法。";
             return new SeStringBuilder().AddText($"{error}\0").Build();
         }
     }

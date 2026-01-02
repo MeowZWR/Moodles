@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using ECommons.EzIpcManager;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using Moodles.Data;
@@ -168,7 +169,7 @@ public static class TabMoodles
             ImGui.TableNextRow();
 
             ImGui.TableNextColumn();
-            ImGuiEx.RightFloat("TitleCharLimit", () => ImGuiEx.TextV(ImGuiColors.DalamudGrey2, $"{Selected.Title.Length}/150"), out _, ImGui.GetContentRegionAvail().X + ImGui.GetCursorPosX() + ImGui.GetStyle().CellPadding.X);
+            ImGuiEx.RightFloat("TitleCharLimit", () => ImGuiEx.TextV(ImGuiColors.DalamudGrey2, $"{Encoding.UTF8.GetByteCount(Selected.Title)}/150字节"), out _, ImGui.GetContentRegionAvail().X + ImGui.GetCursorPosX() + ImGui.GetStyle().CellPadding.X);
             ImGuiEx.TextV($"标题:");
             Formatting();
             Utils.ParseBBSeString(Selected.Title, out var titleErr);
@@ -191,7 +192,7 @@ public static class TabMoodles
 
             ImGui.TableNextColumn();
             var cpx = ImGui.GetCursorPosX();
-            ImGuiEx.RightFloat("DescCharLimit", () => ImGuiEx.TextV(ImGuiColors.DalamudGrey2, $"{Selected.Description.Length}/500"), out _, ImGui.GetContentRegionAvail().X + ImGui.GetCursorPosX() + ImGui.GetStyle().CellPadding.X);
+            ImGuiEx.RightFloat("DescCharLimit", () => ImGuiEx.TextV(ImGuiColors.DalamudGrey2, $"{Encoding.UTF8.GetByteCount(Selected.Description)}/1000字节"), out _, ImGui.GetContentRegionAvail().X + ImGui.GetCursorPosX() + ImGui.GetStyle().CellPadding.X);
             ImGuiEx.TextV($"描述:");
             Formatting();
             Utils.ParseBBSeString(Selected.Description, out var descErr);
@@ -201,7 +202,7 @@ public static class TabMoodles
             }
             ImGui.TableNextColumn();
             ImGuiEx.SetNextItemFullWidth();
-            ImGuiEx.InputTextMultilineExpanding("##desc", ref Selected.Description, 500);
+            ImGuiEx.InputTextMultilineExpanding("##desc", ref Selected.Description, 1000);
             if (ImGui.IsItemDeactivatedAfterEdit())
             {
                 P.IPCProcessor.StatusUpdated(Selected.GUID, false);
