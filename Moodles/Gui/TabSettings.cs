@@ -28,7 +28,9 @@ public static class TabSettings
         ImGui.Checkbox($"调试模式", ref C.Debug);
         ImGui.Checkbox($"调试自动保存", ref C.DebugSaves);
 
+#if DEBUG
         ImGui.Checkbox($"显示 Moodle 清理标签页", ref C.FuckupTab2);
+#endif
 
         ImGui.Checkbox($"Moodles 可被康复（仅弱化状态/Debuff）", ref C.MoodlesCanBeEsunad);
         ImGui.Checkbox($"其他人可康复 Moodles（仅弱化状态/Debuff）", ref C.OthersCanEsunaMoodles);

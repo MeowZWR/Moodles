@@ -32,7 +32,9 @@ public static unsafe class UI
             ("白名单", TabWhitelist.Draw, null, true),
             ("Moodles分享", TabMoodlesShare.Draw, null, true),
             ("插件设置", TabSettings.Draw, null, true),
+#if DEBUG
             (C.FuckupTab2?"清理":null, TabFuckup.Draw, ImGuiColors.DalamudGrey, true),
+#endif
             (C.Debug?"调试":null, DrawDebugger, ImGuiColors.DalamudGrey, true),
             InternalLog.ImGuiTab(C.Debug),
             ]);

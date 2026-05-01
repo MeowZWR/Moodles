@@ -368,8 +368,8 @@ public static class TabMoodles
             ImGui.TableSetupColumn("字段", ImGuiTableColumnFlags.WidthStretch);
 
             ImGui.TableNextColumn();
-            ImGuiEx.TextV($"可驱散:");
-            ImGuiEx.HelpMarker("允许被驱散（需设置中开启可被净化才生效）。");
+            ImGuiEx.TextV($"可康复:");
+            ImGuiEx.HelpMarker("允许被康复（需设置中开启可被康复才生效）。");
             ImGui.TableNextColumn();
             var canDispel = Selected.Modifiers.Has(Modifiers.CanDispel);
             if (ImGui.Checkbox("##dispel", ref canDispel))
@@ -382,8 +382,8 @@ public static class TabMoodles
             {
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
-                ImGuiEx.TextV($"允许驱散者:");
-                ImGuiEx.HelpMarker("可选，指定只能由某人驱散。");
+                ImGuiEx.TextV($"允许康复者:");
+                ImGuiEx.HelpMarker("可选，指定只能由某人康复。");
                 ImGui.TableNextColumn();
                 ImGuiEx.SetNextItemFullWidth();
                 ImGui.InputTextWithHint("Dispeller##dispeller", "玩家名@世界", ref Selected.Dispeller, 150, C.Censor ? ImGuiInputTextFlags.Password : ImGuiInputTextFlags.None);
