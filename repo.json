@@ -13,6 +13,7 @@
     "AssemblyVersion": "2.0.0.52",
     "DownloadLinkInstall": "https://meowrs.com/https://github.com/MeowZWR/Moodles/releases/download/2.0.0.52/Moodles.zip",
     "DownloadLinkTesting": "https://meowrs.com/https://github.com/MeowZWR/Moodles/releases/download/2.0.0.33/Moodles.zip",
-    "DownloadLinkUpdate": "https://meowrs.com/https://github.com/MeowZWR/Moodles/releases/download/2.0.0.52/Moodles.zip"
+    "DownloadLinkUpdate": "https://meowrs.com/https://github.com/MeowZWR/Moodles/releases/download/2.0.0.52/Moodles.zip",
+    "IconUrl": "https://static.meowrs.com/Plugins/Moodles/icon.png"
   }
 ]
