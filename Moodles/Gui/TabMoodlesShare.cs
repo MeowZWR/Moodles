@@ -37,20 +37,18 @@ public static class TabMoodlesShare
         }
 
 
-        ImGui.SetCursorPos(new Vector2(0f, SizeY));
-        ImGui.BeginChild("#moodles-share-selector",new Vector2(200f, ImGui.GetWindowHeight() - SizeY),true);
+        ImGui.BeginChild("#moodles-share-selector",new Vector2(200f, -1), true);
         RenderSelectableList();
         ImGui.EndChild();
-        ImGui.SetCursorPos(new Vector2(210f, SizeY));
-        ImGui.BeginChild("#moodles-share-entry", new Vector2(ImGui.GetWindowWidth() - 210f, ImGui.GetWindowHeight() - SizeY), true);
+        ImGui.SameLine();
+        ImGui.BeginChild("#moodles-share-entry", -Vector2.One, true);
         DrawSelected();
         ImGui.EndChild();
     }
 
     public static void DrawSelected()
     {
-        using var child = ImRaii.Child("##Panel", -Vector2.One, false);
-        if (!child || Selected == null)
+        if (Selected == null)
             return;
         {
             Selected.Applier = Player.NameWithWorld;

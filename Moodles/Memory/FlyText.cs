@@ -56,29 +56,10 @@ public unsafe partial class Memory
                                     status.ExpiresAt = 0;
                                     if (status.ChainedStatus != Guid.Empty && status.ChainTrigger is ChainTrigger.Dispel)
                                     {
-                                        bool isClient = souceChara->ObjectIndex == 0;
-
-                                        // Ensure only negative statuses are dispelled.
-                                        if (status.Type != StatusType.Negative) continue;
-                                        // If it cannot be dispelled, skip it.
-                                        else if (!status.Modifiers.Has(Modifiers.CanDispel)) continue;
-                                        // Client cannot dispel locked statuses.
-                                        else if (isClient && manager.LockedIds.Contains(status.GUID)) continue;
-                                        // Others cannot dispel if they are not whitelisted.
-                                        else if (C.OthersCanEsunaMoodles && !isClient &&
-                                                 !IsValidDispeller(status, souceChara)) continue;
-
-                                        // Perform the dispel, expiring the timer. Also apply the chain if desired.
-                                        status.ExpiresAt = 0;
-                                        if (status.ChainedStatus != Guid.Empty &&
-                                            status.ChainTrigger is ChainTrigger.Dispel)
-                                        {
-                                            status.ApplyChain = true;
-                                        }
-
-                                        // This return is to not show the failed message
-                                        return;
+                                        status.ApplyChain = true;
                                     }
+                                    // This return is to not show the failed message
+                                    return;
                                 }
                             }
                         }

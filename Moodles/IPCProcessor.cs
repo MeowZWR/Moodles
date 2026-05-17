@@ -521,7 +521,7 @@ public class IPCProcessor : IDisposable
     void IDisposable.Dispose() => throw new NotImplementedException();
     #endregion MoodlesUpdateManager
     
-    [EzIPC("MareSynchronos.MoodlesShare", false)] public readonly Action<int, string> MareMoodlesShare;
+    [EzIPC("Lightless.MoodlesShare", false)] public readonly Action<int, string> MareMoodlesShare;
     
     [EzIPC("ShareMoodles")]
     private void ShareMoodles(string status, string UID)
@@ -530,45 +530,6 @@ public class IPCProcessor : IDisposable
         TabMoodlesShare.UID = UID;
         PluginLog.Debug($"Received {json.Count} moodles from MareShare");
         TabMoodlesShare.SharedMoodles = json;
-    }
-    
-    [EzIPC]
-    private void ApplyStatusesFromMarePlayers(nint sender, nint recipient, string statuses)
-    {
-        if (!C.EnableMareSync)
-        {
-            PluginLog.Debug("[ApplyStatusesFromMarePlayers] An update to your status was recieved, but you didnt allow that.");
-            return;
-        }
-        
-        if(recipient != LocalPlayer.Address)
-        {
-            PluginLog.Warning("[ApplyStatusesFromMarePlayers] An update to your status was recieved, but the intended recipient was not you.");
-            return;
-        }
-
-        if (!GetSundouleiaPlayers().Contains(sender))
-        {
-            PluginLog.Warning("[ApplyStatusesFromMarePlayers] An update to your status was recieved, but the sender is not a Mare Player.");
-            return;
-        }
-
-        var statusList = JsonSerializer.Deserialize<List<MyStatus>>(statuses, new JsonSerializerOptions() {IncludeFields = true}) ?? [];
-        var list = new List<MoodlesStatusInfo>();
-        foreach (var status in statusList)
-        {
-            if (!Utils.CheckWhitelistGlobal(status))
-            {
-                PluginLog.Warning($"[ApplyStatusesFromMarePlayers] An update to your status was recieved, but {status} failed whitelist check.");
-                continue;
-            }
-            list.Add(status.ToStatusTuple());
-            
-        }
-        PluginLog.Debug($"[ApplyStatusesFromMarePlayers] An update to your status was recieved, including {statusList.Count} statuses.");
-        
-
-        ApplyStatusTuples(list, false);
     }
     
 }
