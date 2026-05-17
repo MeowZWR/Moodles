@@ -25,7 +25,7 @@ public static class TabMoodlesShare
 
         if (ImGui.Button("请求服务器Moodles列表"))
         {
-            P.IPCProcessor.MareMoodlesShare.TryInvoke(1, string.Empty);
+            P.IPCProcessor.LightlessMoodlesShare.TryInvoke(1, string.Empty);
             LastDownload = DateTimeOffset.Now;
         }
 
@@ -73,7 +73,7 @@ public static class TabMoodlesShare
             ImGui.SameLine();
             if (ImGui.Button("从服务器删除"))
             {
-                P.IPCProcessor.MareMoodlesShare.TryInvoke(2, JsonSerializer.Serialize<SharedMoodles>(Selected, new JsonSerializerOptions(){ IncludeFields = true}));
+                P.IPCProcessor.LightlessMoodlesShare.TryInvoke(2, JsonSerializer.Serialize<SharedMoodles>(Selected, new JsonSerializerOptions(){ IncludeFields = true}));
                 LastDownload = DateTimeOffset.Now.AddMinutes(-1);
             }
             if (Selected.UserUID != UID) ImGui.EndDisabled();

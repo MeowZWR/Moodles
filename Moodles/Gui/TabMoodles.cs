@@ -86,10 +86,10 @@ public static class TabMoodles
         ImGui.SameLine();
         var dis2 = string.IsNullOrEmpty(TabMoodlesShare.UID) || TabMoodlesShare.SharedMoodles.Any(x => x.GUID == Selected.GUID && x.UserUID != TabMoodlesShare.UID);
         if (dis2) ImGui.BeginDisabled();
-        if (ImGui.Button(string.IsNullOrEmpty(TabMoodlesShare.UID) ? "请先请求Moodles列表" : dis2 ? "已存在相同GUID" : "上传到Mare/更新"))
+        if (ImGui.Button(string.IsNullOrEmpty(TabMoodlesShare.UID) ? "请先请求Moodles列表" : dis2 ? "已存在相同GUID" : "上传到Lightless/更新"))
         {
             SharedMoodles moodles = new SharedMoodles(Selected, TabMoodlesShare.UID);
-            P.IPCProcessor.MareMoodlesShare.TryInvoke(0, JsonSerializer.Serialize(moodles, new JsonSerializerOptions(){IncludeFields = true}));
+            P.IPCProcessor.LightlessMoodlesShare.TryInvoke(0, JsonSerializer.Serialize(moodles, new JsonSerializerOptions(){IncludeFields = true}));
             TabMoodlesShare.LastDownload = DateTime.Now.AddMinutes(-1);
         }
         if (dis2) ImGui.EndDisabled();

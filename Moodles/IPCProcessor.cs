@@ -521,7 +521,7 @@ public class IPCProcessor : IDisposable
     void IDisposable.Dispose() => throw new NotImplementedException();
     #endregion MoodlesUpdateManager
     
-    [EzIPC("Lightless.MoodlesShare", false)] public readonly Action<int, string> MareMoodlesShare;
+    [EzIPC("LightlessSync.MoodlesShare", false)] public readonly Action<int, string> LightlessMoodlesShare;
     
     [EzIPC("ShareMoodles")]
     private void ShareMoodles(string status, string UID)
