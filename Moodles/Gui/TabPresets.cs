@@ -53,10 +53,8 @@ public static class TabPresets
             var targetMode = Utils.GetApplyMode();
             var buttonText = targetMode switch
             {
-                TargetApplyMode.GSpeakPair => "应用到目标（GSpeak）",
-                TargetApplyMode.Sundesmo => "应用到目标（Mare）",
-                TargetApplyMode.Local => "应用到目标（本地）",
-                _ => "未选中目标"
+                TargetApplyMode.Local => "Apply to Target (Locally)",
+                _ => "No Target Selected"
             };
             var dis = targetMode is TargetApplyMode.NoTarget;
 
@@ -237,10 +235,6 @@ public static class TabPresets
         {
             switch (mode)
             {
-                case TargetApplyMode.GSpeakPair:
-                    Selected.SendGSpeakMessage((nint)chara); break;
-                case TargetApplyMode.Sundesmo:
-                    Selected.SendSundouleiaMessage((nint)chara); break;
                 case TargetApplyMode.Local:
                     chara->MyStatusManager().ApplyPreset(Selected); break;
             }

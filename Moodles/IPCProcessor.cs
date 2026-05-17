@@ -2,6 +2,7 @@
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using ECommons.EzIpcManager;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
+using MemoryPack;
 using Moodles.Data;
 using Moodles.Gui;
 
@@ -10,7 +11,6 @@ namespace Moodles;
 
 public class IPCProcessor : IDisposable
 {
-    #region Moodles Events
     [EzIPCEvent] private readonly Action Ready;
     [EzIPCEvent] private readonly Action Unloading;
 
@@ -29,186 +29,22 @@ public class IPCProcessor : IDisposable
     ///     Triggered when a <see cref="Preset"/> is updated, added, or removed. (2nd parameter indicates removal)
     /// </summary>
     [EzIPCEvent] public readonly Action<Guid, bool> PresetUpdated;
-    #endregion Moodles Events
-
-    #region GSpeak & Sundouleia Getters
-    /// <summary> Gets all handled addresses managed by the IPC Source. (Could do name string if ptr is more annoying) </summary>
-    [EzIPC("Sundouleia.GetAllRendered", false)] public readonly Func<List<nint>> GetSundouleiaPlayers;
-
-    /// <inheritdoc cref="GetSundouleiaPlayers"/>
-    [EzIPC("GagSpeak.GetAllRendered", false)] public readonly Func<List<nint>> GetGSpeakPlayers;
-
-
-    /// <summary> Get the KVP's of handles addresses with their <see cref="IPCMoodleAccessTuple"/> (Usually on initialization)./> </summary>
-    [EzIPC("Sundouleia.GetAllRenderedInfo", false)] public readonly Func<Dictionary<nint, IPCMoodleAccessTuple>> GetAllSundouleiaInfo;
-
-    /// <inheritdoc cref="GetSundouleiaAccessPerms"/>
-    [EzIPC("GagSpeak.GetAllRenderedInfo", false)] public readonly Func<Dictionary<nint, IPCMoodleAccessTuple>> GetAllGSpeakInfo;
-
-
-    /// <summary> Get the <see cref="IPCMoodleAccessTuple"/> for a specific handled address. </summary>
-    [EzIPC("Sundouleia.GetAccessInfo", false)] public readonly Func<nint, IPCMoodleAccessTuple> GetSundouleiaAccessInfo;
-
-    /// <inheritdoc cref="GetSundouleiaAccessInfo"/>
-    [EzIPC("GagSpeak.GetAccessInfo", false)] public readonly Func<nint, IPCMoodleAccessTuple> GetGSpeakAccessInfo;
-    #endregion GSpeak & Sundouleia Getters
-
-    #region GSpeak & Sundouleia Listener Events
-    // Broadcasts to the IPC to apply the statuses to the pair.
-    [EzIPC("GagSpeak.ApplyToPairRequest", false)] public readonly Action<nint, List<MoodlesStatusInfo>, bool> GSpeakTryApplyToPair;
-    [EzIPC("Sundouleia.ApplyToPairRequest", false)] public readonly Action<nint, string, bool> SundouleiaTryApplyToPair;
-
-
-    [EzIPCEvent("Sundouleia.Ready", false)]
-    private void SundouleiaReady()
-    {
-        _ = new TickScheduler(() =>
-        {
-            PluginLog.LogDebug("GSpeak Ready, Obtaining all handled player information.");
-            IPC.SundouleiaAvailable = true;
-            IPC.InitSundesmoCache();
-            TabWhitelist.UpdateWhitelists();
-        });
-    }
-
-    [EzIPCEvent("GagSpeak.Ready", false)]
-    private void GSpeakReady()
-    {
-        _ = new TickScheduler(() =>
-        {
-            PluginLog.LogDebug("GSpeak Ready, Obtaining all handled player information.");
-            IPC.GSpeakAvailable = true;
-            IPC.InitGSpeakCache();
-            TabWhitelist.UpdateWhitelists();
-        });
-    }
-
-    [EzIPCEvent("Sundouleia.Disposing", false)]
-    private void SundouleiaDisposing()
-    {
-        PluginLog.LogDebug("Sundouleia Disposed / Disabled. Clearing associated data.");
-        IPC.ClearSundesmos();
-        IPC.SundouleiaAvailable = false;
-        TabWhitelist.UpdateWhitelists();
-    }
-
-    [EzIPCEvent("GagSpeak.Disposing", false)]
-    private void GSpeakDisposing()
-    {
-        PluginLog.LogDebug("GSpeak Disposed / Disabled. Clearing associated data.");
-        IPC.ClearGSpeakPairs();
-        IPC.GSpeakAvailable = false;
-        TabWhitelist.UpdateWhitelists();
-    }
-
-    [EzIPCEvent("Sundouleia.PairRendered", false)]
-    private void SundouleiaPairRendered(nint address)
-    {
-        PluginLog.LogDebug($"Sundouleia handling new rendered player: {address:X}");
-        IPC.AddOrUpdateSundesmo(address, GetSundouleiaAccessInfo(address));
-    }
-
-    [EzIPCEvent("GagSpeak.PairRendered", false)]
-    private void GSpeakPairRendered(nint address)
-    {
-        PluginLog.LogDebug($"GSpeak handling new rendered player: {address:X}");
-        IPC.AddOrUpdateGSpeakPair(address, GetGSpeakAccessInfo(address));
-    }
-
-    [EzIPCEvent("Sundouleia.PairUnrendered", false)]
-    private void SundouleiaPairUnrendered(nint address)
-    {
-        PluginLog.LogDebug($"Sundouleia removing unrendered player: {address:X}");
-        IPC.RemoveSundesmo(address);
-    }
-
-    [EzIPCEvent("GagSpeak.PairUnrendered", false)]
-    private void GSpeakPairUnrendered(nint address)
-    {
-        PluginLog.LogDebug($"GSpeak removing unrendered player: {address:X}");
-        IPC.RemoveGSpeakPair(address);
-    }
 
     /// <summary>
-    ///     Invoked whenever the IpcMoodleAccessTuple is updated for <paramref name="address"/>.
-    ///     Should obtain updated IpcMoodleAccessTuple for the address to stay updated.
+    ///     Triggered when a moodles is required to be applied through sync plugins.
     /// </summary>
-    /// <remarks> <b>Returned tuple is always in order of (CLIENT, PAIR(address))</b></remarks>
-    [EzIPCEvent("Sundouleia.AccessUpdated", false)]
-    private void SundouleiaAccessUpdated(nint address)
+    [EzIPCEvent] public readonly Action<nint, string> RequestApplyMoodles;
+
+    [EzIPC]
+    private void ApplyMoodlesByString(string moodlesString)
     {
-        PluginLog.Verbose($"Sundouleia access updated for address: {address:X}");
-        IPC.AddOrUpdateSundesmo(address, GetSundouleiaAccessInfo(address));
+        var bytes = Convert.FromBase64String(moodlesString);
+        var status = JsonSerializer.Deserialize<MyStatus>(bytes, new JsonSerializerOptions {IncludeFields = true});
+        AddOrUpdateMoodleInternal(LocalPlayer.Address, status.ToStatusTuple());
     }
 
-    [EzIPCEvent("GagSpeak.AccessUpdated", false)]
-    private void GSpeakAccessUpdated(nint address)
-    {
-        PluginLog.Verbose($"GSpeak access updated for address: {address:X}");
-        IPC.AddOrUpdateGSpeakPair(address, GetGSpeakAccessInfo(address));
-    }
-
-    [EzIPCEvent("Sundouleia.ApplyStatusInfo", false)]
-    private void SundouleiaApplyTuple(string status) => ApplyStatusTuples([JsonSerializer.Deserialize<MoodlesStatusInfo>(status, new JsonSerializerOptions() {IncludeFields = true})], false);
-
-    [EzIPCEvent("GagSpeak.ApplyStatusInfo", false)]
-    private void GSpeakApplyTuple(MoodlesStatusInfo status, bool asLocked) => ApplyStatusTuples([status], asLocked);
-
-    [EzIPCEvent("Sundouleia.ApplyStatusInfoList", false)]
-    private void SundouleiaApplyTuples(string statuses) => ApplyStatusTuples(JsonSerializer.Deserialize<List<MoodlesStatusInfo>>(statuses, new JsonSerializerOptions() {IncludeFields = true}) ?? [], false);
-
-    [EzIPCEvent("GagSpeak.ApplyStatusInfoList", false)]
-    private void GSpeakApplyTuples(List<MoodlesStatusInfo> statuses, bool asLocked) => ApplyStatusTuples(statuses, asLocked);
-
-    /// <summary>
-    ///     <b>Primarily used for Apply-To-Pair functionality, or for Try-On features.</b> <para />
-    ///     By the time this method is called, any pair-applied tuples have been validated by 
-    ///     GSpeak for valid MoodleAccess and can be trusted.
-    /// </summary>
-    private unsafe void ApplyStatusTuples(List<MoodlesStatusInfo> tuples, bool asLocked)
-    {
-        if (!CharaWatcher.LocalPlayerRendered) return;
-
-        PluginLog.LogDebug($"Applying statuses: ({string.Join(",", tuples.Select(s => s.Title))})");
-        var sm = LocalPlayer.Character->MyStatusManager();
-        if (asLocked)
-        {
-            foreach (var status in tuples) sm.AddOrUpdateLocked(MyStatus.FromTuple(status).PrepareToApply());
-        }
-        else
-        {
-            foreach (var status in tuples)
-            {
-                if (!Utils.CheckWhitelistGlobal(MyStatus.FromTuple(status)))
-                {
-                    PluginLog.Warning($"{status.Applier} tried to apply {status.Title} but not whitelisted.");
-                }
-                sm.AddOrUpdate(MyStatus.FromTuple(status).PrepareToApply(), UpdateSource.StatusTuple);
-            }
-        }
-    }
-
-    [EzIPCEvent("GagSpeak.LockIds", false)] // Only applicable to the ClientPlayer StatusManager, Identifies which Statuses cannot be removed.
-    private unsafe void GSpeakLockStatuses(List<Guid> toLock)
-    {
-        if (!CharaWatcher.LocalPlayerRendered) return;
-        LocalPlayer.Character->MyStatusManager().LockStatuses(toLock);
-    }
-
-    [EzIPCEvent("GagSpeak.UnlockIds", false)]
-    private unsafe void GSpeakUnlockStatuses(List<Guid> toUnlock)
-    {
-        if (!CharaWatcher.LocalPlayerRendered) return;
-        LocalPlayer.Character->MyStatusManager().UnlockStatuses(toUnlock);
-    }
-
-    [EzIPCEvent("GagSpeak.ClearLocks", false)]
-    private unsafe void GSpeakLockStatuses()
-    {
-        if (!CharaWatcher.LocalPlayerRendered) return;
-        LocalPlayer.Character->MyStatusManager().ClearLocks();
-    }
-    #endregion GSpeak & Sundouleia Listener Events
+    // TODO ADD SOEMTHING LIKE THIS
+    //[EzIPCEvent] public readonly Action<nint, List<MoodlesStatusInfo>, bool> OnApplyToTarget;
 
     public IPCProcessor()
     {
@@ -227,6 +63,13 @@ public class IPCProcessor : IDisposable
         return 4;
     }
 
+    private unsafe void MarkSynced(nint charaAddr)
+    {
+        var chara = (Character*)charaAddr;
+        if (chara == null) return;
+        chara->MyStatusManager().WasTouchedByIPC = true;
+    }
+
     #region StatusManager
     [EzIPC("ClearStatusManagerByNameV2")]
     private unsafe void ClearStatusManager(string name)
@@ -238,7 +81,11 @@ public class IPCProcessor : IDisposable
     }
 
     [EzIPC("ClearStatusManagerByPtrV2")]
-    private void ClearStatusManager(nint ptr) => ClearStatusManagerInternal(ptr);
+    private void ClearStatusManager(nint ptr)
+    {
+        if (!CharaWatcher.Rendered.Contains(ptr)) return;
+        ClearStatusManagerInternal(ptr);
+    }
 
     [EzIPC("ClearStatusManagerByPlayerV2")]
     private void ClearStatusManager(IPlayerCharacter pc) => ClearStatusManagerInternal(pc.Address);
@@ -248,6 +95,7 @@ public class IPCProcessor : IDisposable
     /// </summary>
     private unsafe void ClearStatusManagerInternal(nint charaAddr)
     {
+        MarkSynced(charaAddr);
         Character* chara = (Character*)charaAddr;
         if (chara == null)
         {
@@ -276,7 +124,11 @@ public class IPCProcessor : IDisposable
     }
 
     [EzIPC("SetStatusManagerByPtrV2")]
-    private void SetStatusManager(nint ptr, string data) => SetStatusManagerInternal(ptr, data);
+    private void SetStatusManager(nint ptr, string data)
+    {
+        if (!CharaWatcher.Rendered.Contains(ptr)) return;
+        SetStatusManagerInternal(ptr, data);
+    }
 
     [EzIPC("SetStatusManagerByPlayerV2")]
     private void SetStatusManager(IPlayerCharacter pc, string data) => SetStatusManagerInternal(pc.Address, data);
@@ -286,6 +138,7 @@ public class IPCProcessor : IDisposable
     /// </summary>
     private unsafe void SetStatusManagerInternal(nint charaAddr, string data)
     {
+        MarkSynced(charaAddr);
         Character* chara = (Character*)charaAddr;
         if (chara == null)
         {
@@ -306,7 +159,8 @@ public class IPCProcessor : IDisposable
         ? GetStatusManagerInternal(chara) : null!;
 
     [EzIPC("GetStatusManagerByPtrV2")]
-    private string GetStatusManager(nint ptr) => GetStatusManagerInternal(ptr);
+    private string GetStatusManager(nint ptr) => CharaWatcher.Rendered.Contains(ptr)
+        ? GetStatusManagerInternal(ptr) : null!;
 
     [EzIPC("GetStatusManagerByPlayerV2")]
     private string GetStatusManager(IPlayerCharacter pc) => GetStatusManagerInternal(pc.Address);
@@ -433,7 +287,11 @@ public class IPCProcessor : IDisposable
     }
 
     [EzIPC]
-    private void AddOrUpdateMoodleByPtrV2(Guid guid, nint ptr) => AddOrUpdateMoodleInternal(ptr, guid);
+    private void AddOrUpdateMoodleByPtrV2(Guid guid, nint ptr)
+    {
+        if (!CharaWatcher.Rendered.Contains(ptr)) return;
+        AddOrUpdateMoodleInternal(ptr, guid);
+    }
 
     [EzIPC]
     private void AddOrUpdateMoodleByPlayerV2(Guid guid, IPlayerCharacter pc) => AddOrUpdateMoodleInternal(pc.Address, guid);
@@ -443,10 +301,16 @@ public class IPCProcessor : IDisposable
     /// </summary>
     private unsafe void AddOrUpdateMoodleInternal(nint charaAddr, Guid guid)
     {
+        MarkSynced(charaAddr);
         Character* chara = (Character*)charaAddr;
         if (chara == null)
         {
             PluginLog.LogWarning("[IPC] AddOrUpdate Moodle Chara is NULL");
+            return;
+        }
+        if (!C.AllowRemoteApply)
+        {
+            PluginLog.LogWarning("[IPC] received apply request but remote apply is not enabled.");
             return;
         }
         if (C.SavedStatuses.TryGetFirst(x => x.GUID == guid, out var status))
@@ -457,6 +321,58 @@ public class IPCProcessor : IDisposable
                 PluginLog.LogDebug($"Adding or Updating Moodle {status.Title} to {chara->GetNameWithWorld()}");
                 sm.AddOrUpdate(status.PrepareToApply(), UpdateSource.StatusTuple, false, true);
             }
+        }
+    }
+    
+    [EzIPC]
+    private void AddOrUpdateStatusByDataByNameV2(MoodlesStatusInfo data, string name)
+    {
+        if (CharaWatcher.TryGetFirst(x => x.GetNameWithWorld() == name || x.NameString == name, out var chara))
+        {
+            AddOrUpdateMoodleInternal(chara, data);
+        }
+    }
+
+    [EzIPC]
+    private void AddOrUpdateMoodleByDataByPtrV2(MoodlesStatusInfo data, nint ptr)
+    {
+        if (!CharaWatcher.Rendered.Contains(ptr)) return;
+        AddOrUpdateMoodleInternal(ptr, data);
+    }
+
+    [EzIPC]
+    private void AddOrUpdateMoodleByDataByPlayerV2(MoodlesStatusInfo data, IPlayerCharacter pc) => AddOrUpdateMoodleInternal(pc.Address, data);
+
+    /// <summary>
+    ///     Adds a Status by MoodlesStatusInfo to the valid player, or reapplies it if already present.
+    /// </summary>
+    private unsafe void AddOrUpdateMoodleInternal(nint charaAddr, MoodlesStatusInfo data)
+    {
+        MarkSynced(charaAddr);
+        Character* chara = (Character*)charaAddr;
+        if (chara == null)
+        {
+            PluginLog.LogWarning("[IPC] AddOrUpdate Moodle Chara is NULL");
+            return;
+        }
+
+        if (!C.AllowRemoteApply)
+        {
+            PluginLog.LogWarning("[IPC] received apply request but remote apply is not enabled.");
+            return;
+        }
+
+        var status = MyStatus.FromTuple(data);
+        if (!Utils.CheckWhitelistGlobal(status))
+        {
+            PluginLog.LogWarning($"[IPC] received apply request from {status.Applier} but failed whitelist check.");
+            return;
+        }
+        var sm = chara->MyStatusManager();
+        if (!sm.Ephemeral)
+        {
+            PluginLog.LogDebug($"Adding or Updating remote Moodles : {data.Title}");
+            sm.AddOrUpdate(status.PrepareToApply(), UpdateSource.StatusTuple, false, true);
         }
     }
 
@@ -470,8 +386,11 @@ public class IPCProcessor : IDisposable
     }
 
     [EzIPC]
-    private void ApplyPresetByPtrV2(Guid guid, nint ptr) => ApplyPresetInternal(ptr, guid);
-
+    private void ApplyPresetByPtrV2(Guid guid, nint ptr)
+    {
+        if (!CharaWatcher.Rendered.Contains(ptr)) return;
+        ApplyPresetInternal(ptr, guid);
+    }
     [EzIPC]
     private void ApplyPresetByPlayerV2(Guid guid, IPlayerCharacter pc) => ApplyPresetInternal(pc.Address, guid);
 
@@ -480,6 +399,7 @@ public class IPCProcessor : IDisposable
     /// </summary>
     private unsafe void ApplyPresetInternal(nint charaAddr, Guid guid)
     {
+        MarkSynced(charaAddr);
         Character* chara = (Character*)charaAddr;
         if (chara == null)
         {
@@ -504,6 +424,7 @@ public class IPCProcessor : IDisposable
     /// </summary>
     private unsafe void RemoveMoodleInternal(nint charaAddr, Guid guid)
     {
+        MarkSynced(charaAddr);
         Character* chara = (Character*)charaAddr;
         var sm = chara->MyStatusManager();
 
@@ -531,7 +452,11 @@ public class IPCProcessor : IDisposable
     }
 
     [EzIPC]
-    private void RemoveMoodlesByPtrV2(List<Guid> guids, nint ptr) => RemoveMoodlesInternal(ptr, guids);
+    private void RemoveMoodlesByPtrV2(List<Guid> guids, nint ptr)
+    { 
+        if (!CharaWatcher.Rendered.Contains(ptr)) return;
+        RemoveMoodlesInternal(ptr, guids);
+    }
 
     [EzIPC]
     private void RemoveMoodlesByPlayerV2(List<Guid> guids, IPlayerCharacter pc) => RemoveMoodlesInternal(pc.Address, guids);
@@ -541,6 +466,7 @@ public class IPCProcessor : IDisposable
     /// </summary>
     private unsafe void RemoveMoodlesInternal(nint charaAddr, List<Guid> guids)
     {
+        MarkSynced(charaAddr);
         Character* chara = (Character*)charaAddr;
         if (chara == null)
         {
@@ -564,12 +490,11 @@ public class IPCProcessor : IDisposable
     }
 
     [EzIPC]
-    private void RemovePresetByPlayerV2(Guid guid, IPlayerCharacter pc)
-    {
-    }
+    private void RemovePresetByPlayerV2(Guid guid, IPlayerCharacter pc) => RemovePresetInternal(pc.Address, guid);
 
     private unsafe void RemovePresetInternal(nint charaAddr, Guid guid)
     {
+        MarkSynced(charaAddr);
         Character* chara = (Character*)charaAddr;
         if (chara == null)
         {
@@ -592,6 +517,8 @@ public class IPCProcessor : IDisposable
             }
         }
     }
+
+    void IDisposable.Dispose() => throw new NotImplementedException();
     #endregion MoodlesUpdateManager
     
     [EzIPC("MareSynchronos.MoodlesShare", false)] public readonly Action<int, string> MareMoodlesShare;

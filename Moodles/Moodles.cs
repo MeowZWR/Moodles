@@ -30,6 +30,8 @@ public class Moodles : IDalamudPlugin
     public IPCProcessor IPCProcessor;
     public IPCTester IPCTester;
 
+    public List<(string Name, Job Job)> SeenPlayers = [];
+    
     public Moodles(IDalamudPluginInterface pi)
     {
         P = this;
@@ -37,9 +39,13 @@ public class Moodles : IDalamudPlugin
         // Define the EzConfig Deserialization factory.
         EzConfig.DefaultSerializationFactory = new MoodleSerializationFactory();
         MoodleSerializationFactory.BackupOldConfigs();
+      
+        PluginLog.Warning("Init");
 
         new TickScheduler(() =>
         {
+            PluginLog.Warning("TickScheduler");
+
             Config = EzConfig.Init<Config>();
             EzConfigGui.Init(UI.Draw);
             EzCmd.Add("/moodles", ToggleUi, "打开插件界面");
@@ -55,18 +61,14 @@ public class Moodles : IDalamudPlugin
             new EzLogout(Logout);
             StatusSelector = new();
             EzConfigGui.Window.SetMinSize(800, 500);
-            //EzConfigGui.Open();
             CleanupStatusManagers();
+            PurgeEphemeralManagers();
             new EzTerritoryChanged((x) => CleanupStatusManagers());
             IPCProcessor = new();
             IPCTester = new();
             Utils.CleanupNulls();
+            PluginLog.Warning("TickScheduler END");
             // Check connected IPC states availability & data.
-            IPC.FetchInitial();
-
-            // Ensure only the correct whitelist tabs are shown.
-            TabWhitelist.UpdateWhitelists();
-
         });
     }
 
@@ -87,6 +89,18 @@ public class Moodles : IDalamudPlugin
             if(m.Statuses.Count == 0 && !m.OwnerValid)
             {
                 PluginLog.Debug($"  Deleting empty status manager for {x}");
+                C.StatusManagers.Remove(x);
+            }
+        }
+    }
+
+    public void PurgeEphemeralManagers()
+    {
+        foreach(var x in C.StatusManagers.Keys.ToArray())
+        {
+            if(C.StatusManagers[x].Ephemeral)
+            {
+                PluginLog.Debug($"  Purging ephemeral status manager for {x}");
                 C.StatusManagers.Remove(x);
             }
         }
@@ -133,33 +147,6 @@ public class Moodles : IDalamudPlugin
                 ApplyAutomation();
             }
 
-            // Need this Tick() check because someone could become a Sundouleia user after being rendered.
-            foreach (Character* chara in CharaWatcher.Rendered)
-            {
-                if (chara == LocalPlayer.Character) continue;
-
-                if (chara->MyStatusManager() is { } sm)
-                {
-                    if (IPC.SundouleiaPlayerCache.Keys.Contains((nint)chara))
-                    {
-                        if(!sm.Ephemeral)
-                        {
-                            PluginLog.Debug($"{chara->GetNameWithWorld()} is now Sundouleia player. Status manager ephemeral, automation disabled.");
-                            sm.Ephemeral = true;
-                            sm.Statuses.Each(s => s.ExpiresAt = 0);
-                        }
-                    }
-                    else
-                    {
-                        if (sm.Ephemeral)
-                        {
-                            PluginLog.Debug($"{chara->GetNameWithWorld()} Sundouleia player removed from rendering. Cleaning up ephemeral status manager.");
-                            // Mark them as no longer Ephemeral.
-                            sm.Ephemeral = false;
-                        }
-                    }
-                }
-            }
         }
         if(CanModifyUI())
         {
@@ -180,25 +167,6 @@ public class Moodles : IDalamudPlugin
         }
 
         if(C.AutoOther) TickOtherPlayerAutomation();
-        
-        //var toRem = new List<string>();
-        // for each(var m in C.StatusManagers)
-        //{
-
-        //    if(m.Value.Ephemeral)
-        //    {
-        //        if(!Svc.Objects.Any(x => x is IPlayerCharacter pc && pc.GetNameWithWorld() == m.Key))
-        //        {
-        //            toRem.Add(m.Key);
-        //        }
-        //    }
-        //}
-        // for each(var m in toRem)
-        //{
-        //    PluginLog.Debug($"Removing ephemeral status manager for {m}");
-        //    C.StatusManagers.Remove(m);
-        //    SeenPlayers.RemoveAll(x => x.Name == m);
-        //}
     }
 
     private void OnLogin()
@@ -207,46 +175,47 @@ public class Moodles : IDalamudPlugin
         C.SeenCharacters.Add(LocalPlayer.NameWithWorld);
         ApplyAutomation();
     }
-
-    public List<(string Name, Job Job)> SeenPlayers = [];
+    
     public unsafe void TickOtherPlayerAutomation()
     {
-        List<(string Name, Job Job)> newSeenPlayers = [];
         // Only iterate rendered characters.
         foreach (Character* chara in CharaWatcher.Rendered)
         {
-            if ((nint)chara == LocalPlayer.Address) continue;
+            if ((nint)chara == LocalPlayer.Address)
+            {
+                continue;
+            }
 
-            var nameWorld = chara->GetNameWithWorld();
-            var identifier = (nameWorld, (Job)chara->ClassJob);
+            string nameWorld  = chara->GetNameWithWorld();
+            (string Name, Job Job) identifier = (nameWorld, (Job)chara->ClassJob);
             
             // Do logic on unseen players only.
-            if (SeenPlayers.Contains(identifier)) continue;
+            if (SeenPlayers.Contains(identifier))
+            {
+                continue;
+            }
 
             // Perform Automation logic.
             PluginLog.Debug($"Begin apply automation for {identifier}");
-            var mySM = chara->MyStatusManager();
+            
+            MyStatusManager mySM = chara->MyStatusManager();
 
-            // Skip if Ephemeral or Sundouleia controlled.
-            if (mySM.Ephemeral || IPC.SundouleiaPlayerCache.Keys.Contains((nint)chara))
+            foreach (AutomationCombo x in chara->GetSuitableAutomation())
             {
-                PluginLog.Debug($"Skipping automation for {identifier} because status manager is ephemeral or controlled by Sundouleia");
-            }
-            else
-            {
-                foreach(var x in chara->GetSuitableAutomation())
+                if (!C.SavedPresets.TryGetFirst(a => a.GUID == x.Preset, out var p))
                 {
-                    if(C.SavedPresets.TryGetFirst(a => a.GUID == x.Preset, out var p))
-                    {
-                        PluginLog.Debug($"Applied preset {p.ID} / {p.Statuses.Select(z => C.SavedStatuses.FirstOrDefault(s => s.GUID == z)?.Title)}");
-                        mySM.ApplyPreset(p);
-                    }
+                    continue;
                 }
+
+                PluginLog.Debug($"Applied preset {p.ID} / {p.Statuses.Select(z => C.SavedStatuses.FirstOrDefault(s => s.GUID == z)?.Title)}");
+                
+                mySM.ApplyPreset(p);
             }
-            newSeenPlayers.Add(identifier);
+
+            SeenPlayers.Add(identifier);
         }
-        SeenPlayers = newSeenPlayers;
     }
+    
     public unsafe void ApplyAutomation(bool forceOtherPlayers = false)
     {
         var clientSM = LocalPlayer.Character->MyStatusManager();
@@ -262,6 +231,7 @@ public class Moodles : IDalamudPlugin
 
     public void Dispose()
     {
+        Safe(() => PurgeEphemeralManagers());
         Safe(() => CleanupStatusManagers());
         Safe(() => IPCProcessor?.Dispose());
         Safe(() => CommonProcessor?.Dispose());

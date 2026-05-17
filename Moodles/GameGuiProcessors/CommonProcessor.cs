@@ -117,6 +117,9 @@ public unsafe class CommonProcessor : IDisposable
     {
         // List of VFX that should be handled by the StatusHitEffect.
         List<(nint PlayerAddr, string customPath)> SHECandidates = [];
+        List<string>? toAutoClean = null;
+        // Null during zone transitions. Skip cleanup to avoid false removals while pointers are stale.
+        var localPlayerName = LocalPlayer.Available ? LocalPlayer.NameWithWorld : null;
 
         if (HoveringOver != 0)
         {
@@ -150,6 +153,11 @@ public unsafe class CommonProcessor : IDisposable
                 {
                     EnsureRemTextWasShown(sm, x, SHECandidates);
                     removed.Add(x);
+                    
+                    if (x.ClickedOff && C.RightClickIsDispellToo)
+                    {
+                        x.ApplyChain = true;
+                    }
                 }
                 else
                 {
@@ -198,6 +206,27 @@ public unsafe class CommonProcessor : IDisposable
                             $"One of your Plugins may have outdated IPC parameters for this IPCEvent");
                     }
                 }
+            }
+
+            // Safety net for empty non-rendered SMs that CharaWatcher didn't catch.
+            var isLocalPlayer = localPlayerName != null && ownerNameWorld == localPlayerName;
+
+            if (localPlayerName != null
+                && !isLocalPlayer
+                && !sm.OwnerValid
+                && sm.Statuses.Count == 0)
+            {
+                toAutoClean ??= [];
+                toAutoClean.Add(ownerNameWorld);
+            }
+        }
+
+        if (toAutoClean != null)
+        {
+            foreach (var key in toAutoClean)
+            {
+                PluginLog.Debug($"Auto-cleaning lingering ephemeral status manager for {key}");
+                C.StatusManagers.Remove(key);
             }
         }
 
@@ -250,8 +279,8 @@ public unsafe class CommonProcessor : IDisposable
                 {
                     if (cur.Modifiers.Has(Modifiers.StacksCarryToChain))
                     {
-                        var toCarryOver = (cur.Stacks + cur.StackSteps) - oldMax;
-                        // If the new status had a stack increase it would be doing that increase + this, so we need to subtract that addition.
+                        // Use (oldMax - 1) here because our stacks always start at 1, not 0. So if it has 8 stacks, it can only increment 7 times.
+                        var toCarryOver = (cur.Stacks + cur.StackSteps) - (oldMax - 1);
                         newStatus.Stacks = Math.Min(newStatus.Stacks - newStatus.StackSteps + toCarryOver, newMaxStacks);
                     }
                     else if (cur.Modifiers.Has(Modifiers.StacksMoveToChain))

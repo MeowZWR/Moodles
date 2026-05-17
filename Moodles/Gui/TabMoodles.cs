@@ -2,6 +2,10 @@
 using System.Text.Json;
 using ECommons.EzIpcManager;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
+﻿using System.Text.Json;
+using Dalamud.Game.ClientState.Objects.Enums;
+using FFXIVClientStructs.FFXIV.Client.Game.Character;
+using MemoryPack;
 using Moodles.Data;
 using Moodles.OtterGuiHandlers;
 using OtterGui.Raii;
@@ -39,23 +43,22 @@ public static class TabMoodles
         {
             Utils.GetMyStatusManager(LocalPlayer.NameWithWorld).AddOrUpdate(Selected.PrepareToApply(AsPermanent ? PrepareOptions.Persistent : PrepareOptions.NoOption), UpdateSource.StatusTuple);
         }
-//#if DEBUG
-//        ImGui.SameLine();
-//        if (ImGui.Button("Apply to Yourself (As Locked)"))
-//        {
-//            Utils.GetMyStatusManager(LocalPlayer.NameWithWorld).AddOrUpdateLocked(Selected.PrepareToApply(AsPermanent ? PrepareOptions.Persistent : PrepareOptions.NoOption));
-//        }
-//#endif
 
+#if DEBUG
+        ImGui.SameLine();
+        if (ImGui.Button("Apply to Yourself (As Locked)"))
+        {
+            Utils.GetMyStatusManager(LocalPlayer.NameWithWorld).AddOrUpdateLocked(Selected.PrepareToApply(AsPermanent ? PrepareOptions.Persistent : PrepareOptions.NoOption));
+        }
+#endif
+       
         ImGui.SameLine();
         // Determine target state and application intent
         var targetMode = Utils.GetApplyMode();
         var buttonText = targetMode switch
         {
-            TargetApplyMode.GSpeakPair => "应用到目标（GSpeak）",
-            TargetApplyMode.Sundesmo => "应用到目标（Mare）",
-            TargetApplyMode.Local => "应用到目标（本地）",
-            _ => "未选中目标"
+            TargetApplyMode.Local => "Apply to Target (Locally)",
+            _ => "No Target Selected"
         };
         // Permissions are validated via internal logic behavior.
         var dis = targetMode is TargetApplyMode.NoTarget;
@@ -65,6 +68,18 @@ public static class TabMoodles
         {
             ApplyToTarget(targetMode);
         }
+
+        ImGui.SameLine();
+        if (ImGui.Button("Apply to Target (Synced)"))
+        {
+            ApplyToTargetRemote();
+        }
+
+        if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+        {
+            ImGui.SetTooltip("Sync plugins must support the IPC then this may work.");
+        }
+        
         if (dis) ImGui.EndDisabled();
 
         if (IPC.SundouleiaAvailable)
@@ -95,6 +110,7 @@ public static class TabMoodles
             ImGui.Image(image.Handle, UI.StatusIconSize * 2);
         }
     }
+
 
     private static void DrawMoodleEssentials()
     {
@@ -506,10 +522,6 @@ public static class TabMoodles
         {
             switch (mode)
             {
-                case TargetApplyMode.GSpeakPair:
-                    Selected.SendGSpeakMessage((nint)chara); break;
-                case TargetApplyMode.Sundesmo:
-                    Selected.SendSundouleiaMessage((nint)chara); break;
                 case TargetApplyMode.Local:
                     chara->MyStatusManager().AddOrUpdate(Selected.PrepareToApply(AsPermanent ? PrepareOptions.Persistent : PrepareOptions.NoOption), UpdateSource.StatusTuple); break;
             }
@@ -518,6 +530,15 @@ public static class TabMoodles
         {
             e.Log();
         }
+    }
+    
+    private static void ApplyToTargetRemote()
+    {
+        if (Svc.Targets.Target == null || Svc.Targets.Target.ObjectKind != ObjectKind.Pc) return;
+        var clone = Selected;
+        clone.Applier = LocalPlayer.NameWithWorld;
+        var str = Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(clone, new JsonSerializerOptions {IncludeFields =  true}));
+        P.IPCProcessor.RequestApplyMoodles(Svc.Targets.Target.Address, str);
     }
 
     public static void Formatting()

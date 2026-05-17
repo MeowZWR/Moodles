@@ -23,7 +23,6 @@ public unsafe partial class Memory : IDisposable
     {
         try
         {
-            //PluginLog.Debug($"{a1:X16}, {a2}, {a3:X16}, {a4:X16}, {a5:X16}");
             if (a2 == 6)
             {
                 P.CommonProcessor.HoveringOver = a1;

@@ -24,6 +24,8 @@ public class Config
     public HashSet<uint> FavIcons = [];
     public bool AutoFill = false;
     public int SelectorHeight = 33;
+    public float SelectorWidthMoodles = 200f;
+    public float SelectorWidthPresets = 200f;
     public bool Debug = false;
     public bool FuckupTab2 = true;
     public bool DebugSaves = true;
@@ -32,10 +34,12 @@ public class Config
     public bool OthersCanEsunaMoodles = true;
     public SortOption IconSortOption = SortOption.Numerical;
 
+    public bool AllowRemoteApply = true;
+
     public bool BroadcastAllowAll = false;
     public bool BroadcastAllowFriends = false;
     public bool BroadcastAllowParty = false;
     
-    public bool EnableMareSync = false;
     public bool EnableShowSource = true;
+    public bool RightClickIsDispellToo = true;
 }
