@@ -183,7 +183,8 @@ public unsafe class CharaWatcher : IDisposable
                     }
 
                     // IPC-managed SMs are removed on leave so dead syncs don't linger.
-                    if (sm.Ephemeral || sm.WasTouchedByIPC)
+                    // Never remove the local player's own StatusManager.
+                    if (sm.Ephemeral || (sm.WasTouchedByIPC && (nint)chara != LocalPlayer.Address))
                     {
                         C.StatusManagers.Remove(charaNameWorld);
                         P.SeenPlayers.RemoveAll(x => x.Name == charaNameWorld);
