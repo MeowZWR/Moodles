@@ -46,7 +46,7 @@ public static class TabMoodles
 
 #if DEBUG
         ImGui.SameLine();
-        if (ImGui.Button("Apply to Yourself (As Locked)"))
+        if (ImGui.Button("应用到自己 (锁定)"))
         {
             Utils.GetMyStatusManager(LocalPlayer.NameWithWorld).AddOrUpdateLocked(Selected.PrepareToApply(AsPermanent ? PrepareOptions.Persistent : PrepareOptions.NoOption));
         }
@@ -57,8 +57,8 @@ public static class TabMoodles
         var targetMode = Utils.GetApplyMode();
         var buttonText = targetMode switch
         {
-            TargetApplyMode.Local => "Apply to Target (Locally)",
-            _ => "No Target Selected"
+            TargetApplyMode.Local => "应用到目标 (本地)",
+            _ => "未选择目标"
         };
         // Permissions are validated via internal logic behavior.
         var dis = targetMode is TargetApplyMode.NoTarget;
@@ -70,14 +70,14 @@ public static class TabMoodles
         }
 
         ImGui.SameLine();
-        if (ImGui.Button("Apply to Target (Synced)"))
+        if (ImGui.Button("应用到目标 (同步)"))
         {
             ApplyToTargetRemote();
         }
 
         if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
         {
-            ImGui.SetTooltip("Sync plugins must support the IPC then this may work.");
+            ImGui.SetTooltip("同步插件必须支持 IPC 才能工作。");
         }
         
         if (dis) ImGui.EndDisabled();
@@ -139,7 +139,7 @@ public static class TabMoodles
             ImGui.TableNextColumn();
             ImGuiEx.SetNextItemFullWidth();
             var selinfo = Utils.GetIconInfo((uint)Selected.IconID);
-            if (ImGui.BeginCombo("##sel", $"Icon: #{Selected.IconID} {selinfo?.Name}", ImGuiComboFlags.HeightLargest))
+            if (ImGui.BeginCombo("##sel", $"图标: #{Selected.IconID} {selinfo?.Name}", ImGuiComboFlags.HeightLargest))
             {
                 var cursor = ImGui.GetCursorPos();
                 ImGui.Dummy(new Vector2(100, ImGuiHelpers.MainViewport.Size.Y * C.SelectorHeight / 100));

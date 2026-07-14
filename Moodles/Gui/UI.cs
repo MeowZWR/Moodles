@@ -40,7 +40,7 @@ public static unsafe class UI
         if (C.FuckupTab2) tabs.Add(("清理", TabFuckup.Draw));
 #endif
         if (C.Debug) tabs.Add(("调试", DrawDebugger));
-        if (C.Debug) tabs.Add(("Log", InternalLog.PrintImgui));
+        if (C.Debug) tabs.Add(("日志", InternalLog.PrintImgui));
 
         ImEtheirys.ButtonSelectorStrip("library_filters_selector", new(ImEtheirys.GetRemainingWidth(), ImEtheirys.GetLineHeight()), ref selected, [.. tabs.Select(t => t.Name)]);
 
