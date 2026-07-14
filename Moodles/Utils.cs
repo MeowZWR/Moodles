@@ -238,6 +238,9 @@ public static unsafe partial class Utils
     [GeneratedRegex(@"(\[color=[0-9a-zA-Z]+\])|(\[\/color\])|(\[glow=[0-9a-zA-Z]+\])|(\[\/glow\])|(\[i\])|(\[\/i\])", RegexOptions.IgnoreCase, "en-US")]
     private static partial Regex SplitRegex();
 
+    public static string StripBBTags(string text)
+        => string.Concat(SplitRegex().Split(text).Where(s => !s.StartsWith('[')));
+
     public static uint FindStatusByIconID(uint iconID)
     {
         foreach(var x in Svc.Data.GetExcelSheet<Status>())

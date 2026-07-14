@@ -176,6 +176,14 @@ public sealed class MoodleFileSystem : FileSystem<MyStatus>, IDisposable
             {
                 CloneStatus = null!;
                 ClipboardText = Paste() ?? string.Empty;
+                NewName = string.Empty;
+                try
+                {
+                    var imported = EzConfig.DefaultSerializationFactory.Deserialize<MyStatus>(ClipboardText);
+                    if(imported.IsNotNull() && !string.IsNullOrEmpty(imported!.Title))
+                        NewName = Utils.StripBBTags(imported.Title);
+                }
+                catch { }
                 ImGui.OpenPopup("##NewMoodle");
             }
             catch
