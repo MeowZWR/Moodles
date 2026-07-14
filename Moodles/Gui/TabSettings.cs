@@ -5,7 +5,7 @@ public static class TabSettings
     {
         ImGui.Checkbox($"启用 Moodles", ref C.Enabled);
         ImGui.Checkbox("显示 Moodle 来源", ref C.EnableShowSource);
-        ImGui.Checkbox($"Right Click Also Means Dispell", ref C.RightClickIsDispellToo);
+        ImGui.Checkbox($"右键点击也意味着驱散", ref C.RightClickIsDispellToo);
         ImGuiEx.Spacing();
         //ImGui.Checkbox("Enable VFX", ref C.EnableVFX);
         ImGui.Checkbox("启用 Moodle 特效", ref C.EnableSHE);
@@ -33,16 +33,16 @@ public static class TabSettings
         ImGui.Checkbox($"显示 Moodle 清理标签页", ref C.FuckupTab2);
 #endif
 
-        ImGui.Checkbox($"Moodles can be Esunad", ref C.MoodlesCanBeEsunad);
-        ImGui.Checkbox($"Others can Esuna Moodles", ref C.OthersCanEsunaMoodles);
+        ImGui.Checkbox($"Moodles 可被康复", ref C.MoodlesCanBeEsunad);
+        ImGui.Checkbox($"允许他人康复 Moodles", ref C.OthersCanEsunaMoodles);
 
-        ImGui.Checkbox($"Allow other plugins apply Moodles.", ref C.AllowRemoteApply);
+        ImGui.Checkbox($"允许其他插件施加 Moodles", ref C.AllowRemoteApply);
         
         ImGui.BeginDisabled(!C.AllowRemoteApply);
         ImGui.Indent(20f); 
-        ImGui.Checkbox("Allow applying moodles from everyone.", ref C.BroadcastAllowAll);
-        ImGui.Checkbox("Allow applying moodles from friends.", ref C.BroadcastAllowFriends);
-        ImGui.Checkbox("Allow applying moodles from party members.", ref C.BroadcastAllowParty);
+        ImGui.Checkbox("允许任何人施加 Moodles", ref C.BroadcastAllowAll);
+        ImGui.Checkbox("允许好友施加 Moodles", ref C.BroadcastAllowFriends);
+        ImGui.Checkbox("允许队员施加 Moodles", ref C.BroadcastAllowParty);
         ImGui.Unindent(20f);
         ImGui.EndDisabled();
     }
